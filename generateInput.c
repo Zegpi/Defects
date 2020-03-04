@@ -129,7 +129,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	PetscReal normdr2=dr*dr;
 	PetscReal gamma=0.0/normdr2*dr/(c*t);
 	//PetscReal tanTh=-0.0/normdr2*dr/(c*t);
-	PetscReal tanTh=0.0*tan(45.0/180.0*ConstPi)/(c*t);
+	PetscReal tanTh=-tan(45.0/180.0*ConstPi)/(c*t);
 
 	PetscInt counter=0;
 
@@ -188,11 +188,11 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 				points[counter+1]=4*center+N*4*(nx+1)+M*4-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4+2;			valores[counter+1]=(tanTh-gamma)/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
 				points[counter+2]=4*center+N*4*(nx+1)+M*4-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4+3;			valores[counter+2]=(-gamma)/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
 				
-				points[counter+3]=4*center-N*4*(nx+1)-M*4-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4+1;			valores[counter+3]=(tanTh)/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
-				points[counter+4]=4*center-N*4*(nx+1)-M*4-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4+2;			valores[counter+4]=(-tanTh+gamma)/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
-				points[counter+5]=4*center-N*4*(nx+1)-M*4-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4+3;			valores[counter+5]=(gamma)/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
+				//points[counter+3]=4*center-N*4*(nx+1)-M*4-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4+1;			valores[counter+3]=(tanTh)/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
+				//points[counter+4]=4*center-N*4*(nx+1)-M*4-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4+2;			valores[counter+4]=(-tanTh+gamma)/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
+				//points[counter+5]=4*center-N*4*(nx+1)-M*4-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4+3;			valores[counter+5]=(gamma)/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
 
-				counter=counter+6;
+				counter=counter+3;
 			}
 		}
 	}

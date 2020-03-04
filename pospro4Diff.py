@@ -39,7 +39,7 @@ except:
 	fileNameInput2="stress-2d*"
 
 fileName3="./results/"+fileNameInput2+".dat"
-fileName4="../../sharedResults/"+fileNameInput2+".dat"
+fileName4="../Results/"+fileNameInput2+".dat"
 
 Lista1=glob.glob(fileName3)
 Lista2=glob.glob(fileName4)

@@ -52,9 +52,9 @@ PetscReal delta(PetscInt i, PetscInt j)
 			return 0;																		//Zero Neumann boundary condition
 		}
 
-		//AppCtxL2    *user  = (AppCtxL2 *)ctx;
-		//PetscReal Lx     = user->Lx;
-		//PetscReal Ly     = user->Ly;
+		AppCtxL2    *user  = (AppCtxL2 *)ctx;
+		PetscReal Lx     = user->Lx;
+		PetscReal Ly     = user->Ly;
 		//PetscReal nx     = user->nx;
 		//PetscReal ny     = user->ny;
 
@@ -70,7 +70,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		//S has 8 components, in order S(1,1,1), S(1,1,2), S(1,2,1), S(1,2,2), S(2,1,1), S(2,1,2), S(2,2,1), S(2,2,2)
 
 		PetscReal g[dof];
-		//PetscReal t=0.5;
+		PetscReal t=0.5;
 
 		g[0]=0.0;
 		g[1]=0.0;
@@ -81,9 +81,9 @@ PetscReal delta(PetscInt i, PetscInt j)
 		g[6]=0.0;
 		g[7]=0.0;
 		
-		//PetscReal norm[3]={0.0,1.0,0.0};
-		//PetscReal sTemp[3][3][3]={0};
-		//PetscReal A[3][3]={0};
+		PetscReal norm[3]={0.0,1.0,0.0};
+		PetscReal sTemp[3][3][3]={0};
+		PetscReal A[3][3]={0};
 
 		const PetscReal (*N) = (typeof(N)) p->shape[0];
 		PetscReal (*FF)[dof] = (PetscReal (*)[dof])F;
@@ -239,6 +239,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 	#define __FUNCT__ "L2ProjectionAlSp"
 	PetscErrorCode L2ProjectionAlSp(IGAPoint p,IGAPoint pS,PetscReal *K,PetscReal *F,PetscReal *U,void *ctx)
 	{
+		//This function just creates -S:X, alpha is read from file and added to it on the function call routine
 		if (p->atboundary)
 		{
 			return 0.0;																		//Pure Neumann condition 
@@ -330,7 +331,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 	}
 //
 
-//Helmholtz decomposition of Ûp, curl part
+//Helmholtz decomposition of Ûp (same as Ûe), curl part
 	#undef  __FUNCT__
 	#define __FUNCT__ "curlChiU"
 	PetscErrorCode curlChiU(IGAPoint p,IGAPoint pAl, PetscReal *K,PetscReal *F,PetscReal *U, void *ctx)
@@ -367,19 +368,25 @@ PetscReal delta(PetscInt i, PetscInt j)
 		{
 			for (a=0; a<nen; a++)
 			{
+				//PetscReal Na =N0[a];
 				PetscReal Na_x = N1[a][0];
 				PetscReal Na_y = N1[a][1];
 				for (u=0; u<dof; u++) 
 				{
+					//PetscReal v[3][3]={0};
 					PetscReal dv[3][3][3]={0};
 
 					if(u==0){
+						//v[0][0]=Na;
 						dv[0][0][0]=Na_x; dv[0][0][1]=Na_y;}
 					if(u==1){
+						//v[0][1]=Na;
 						dv[0][1][0]=Na_x; dv[0][1][1]=Na_y;}
 					if(u==2){
+						//v[1][0]=Na;
 						dv[1][0][0]=Na_x; dv[1][0][1]=Na_y;}
 					if(u==3){
+						//v[1][1]=Na;
 						dv[1][1][0]=Na_x; dv[1][1][1]=Na_y;}
 
 					for (b=0; b<nen; b++)
@@ -405,7 +412,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 								{
 									for(k=0;k<3;k++)
 									{
-										KchiU[a][u][b][w]+=dChiU[i][j][k]*dv[i][j][k]-dChiU[i][j][k]*dv[i][k][j]+dChiU[i][j][j]*dv[i][k][k];
+											KchiU[a][u][b][w]+=dChiU[i][j][k]*dv[i][j][k]-dChiU[i][j][k]*dv[i][k][j]+dChiU[i][j][j]*dv[i][k][k];
 									}
 								}
 							}
@@ -459,7 +466,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=mu/10.0;								//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/100.0;								//Choose later based on whatever Amit says :)
 
 		PetscReal Chi0[4];																	//Assign chi(t) to a vector
 		PetscReal dChi0[4][2];																//Same for partial derivatives
@@ -481,19 +488,17 @@ PetscReal delta(PetscInt i, PetscInt j)
 
 		//////////////Delete this parte later, loads should come from appCtx or be 0
 		PetscReal f[3]={0.0, 0.0, 0.0};			//Distributed load in body
-		//f[0]=50.0*exp(-(x[0]*x[0]/1.0+x[1]*x[1]/1.0));
 		//PetscReal alpha=3.0;
-		//PetscReal Lx=20.0; PetscReal Lx2=Lx*Lx; PetscReal Lx4=Lx*Lx*Lx*Lx;
-		//PetscReal Ly=20.0; PetscReal Ly2=Ly*Ly; PetscReal Ly4=Ly*Ly*Ly*Ly;
-		//f[0]=4.0*alpha/(425.0*Lx4*Ly4)*
-		//	(1700.0*Lx4*Ly2 -20400.0*Lx4*x[1]*x[1] +204.0*Lx4 +6700.0*Lx2*Ly4 -13600.0*Lx2*Ly2*x[0]*x[0] -20000.0*Lx2*Ly2*x[0]*x[1] -53600.0*Lx2*Ly2*x[1]*x[1] +357.0*Lx2*Ly2 +163200.0*Lx2*x[0]*x[0]*x[1]*x[1]
-		//	-1632.0*Lx2*x[0]*x[0] +107200.0*Lx2*x[1]*x[1]*x[1]*x[1] -4080.0*Lx2*x[1]*x[1] -80400.0*Ly4*x[0]*x[0] +408.0*Ly4 +27200.0*Ly2*x[0]*x[0]*x[0]*x[0] +643200.0*Ly2*x[0]*x[0]*x[1]*x[1] 
-		//	-4080.0*Ly2*x[0]*x[0] -1632.0*Ly2*x[0]*x[1] -3264.0*Ly2*x[1]*x[1] -326400.0*x[0]*x[0]*x[0]*x[0]*x[1]*x[1] +3264.0*x[0]*x[0]*x[0]*x[0] -1286400.0*x[0]*x[0]*x[1]*x[1]*x[1]*x[1] 
-		//	+48960.0*x[0]*x[0]*x[1]*x[1] +6582.0*x[0]*x[1]*x[1]*x[1] +6582.0*x[1]*x[1]*x[1]*x[1]);
-		//f[1]=4.0*alpha/(425.0*Lx4*Ly4)*
-		//	(3350.0*Lx4*Ly2 +850.0*Lx2*Ly4 -13400.0*Lx2*Ly2*x[0]*x[0] -80000.0*Lx2*Ly2*x[0]*x[1] -3400.0*Lx2*Ly2*x[1]*x[1] +153.0*Lx2*Ly2 +320000.0*Lx2*x[0]*x[1]*x[1]*x[1] -1632.0*Lx2*x[0]*x[1]
-		//	-816.0*Lx2*x[1]*x[1] +320000.0*Lx2*x[0]*x[0]*x[0]*x[1] -816.0*Ly2*x[0]*x[0] -3264.0*Ly2*x[0]*x[1] -1280000.0*x[0]*x[0]*x[0]*x[1]*x[1]*x[1] +6528.0*x[0]*x[0]*x[0]*x[1] +9792.0*x[0]*x[0]*x[1]*x[1]
-		//	+13056.0*x[0]*x[1]*x[1]*x[1]);
+		//PetscReal Lx=20.0; PetscReal Lx2=Lx*Lx; PetscReal Lx3=Lx*Lx*Lx; PetscReal Lx4=Lx*Lx*Lx*Lx;
+		//PetscReal Ly=20.0; PetscReal Ly2=Ly*Ly; PetscReal Ly3=Ly*Ly*Ly; PetscReal Ly4=Ly*Ly*Ly*Ly;
+		//f[0]=16.0*alpha/(425.0*Lx4*Ly4)*
+		//	(425.0*Lx4*Ly2 -5100.0*Lx4*x[1]*x[1] +51.0*Lx4 +1675.0*Lx2*Ly4 -3400.0*Lx2*Ly2*x[0]*x[0] -13400.0*Lx2*Ly2*x[1]*x[1] +85.0*Lx2*Ly2 +40800.0*Lx2*x[0]*x[0]*x[1]*x[1]
+		//    -408.0*Lx2*x[0]*x[0] +26800.0*Lx2*x[1]*x[1]*x[1]*x[1] -1020.0*Lx2*x[1]*x[1] -20100.0*Ly4*x[0]*x[0] +102.0*Ly4 +6800.0*Ly2*x[0]*x[0]*x[0]*x[0] +160800*Ly2*x[0]*x[0]*x[1]*x[1] -1020.0*Ly2*x[0]*x[0]
+		//    -408.0*Ly2*x[0]*x[1] -816.0*Ly2*x[1]*x[1] -81600.0*x[0]*x[0]*x[0]*x[0]*x[1]*x[1] +816.0*x[0]*x[0]*x[0]*x[0] -321600.0*x[0]*x[0]*x[1]*x[1]*x[1]*x[1] +12240.0*x[0]*x[0]*x[1]*x[1] 
+		//    +1632.0*x[0]*x[1]*x[1]*x[1] +1632.0*x[1]*x[1]*x[1]*x[1]);
+		//f[1]=16.0*alpha/(425.0*Lx4*Ly4)*
+		//	(-20000.0*Lx2*Ly2*x[0]*x[1] +17.0*Lx2*Ly2 +80000.0*Lx2*x[0]*x[1]*x[1]*x[1] -408.0*Lx2*x[0]*x[1] -204.0*Lx2*x[1]*x[1] +80000.0*Ly2*x[0]*x[0]*x[0]*x[1] -204.0*Ly2*x[0]*x[0] -816.0*Ly2*x[0]*x[1]
+		//	-320000.0*x[0]*x[0]*x[0]*x[1]*x[1]*x[1] +1632.0*x[0]*x[0]*x[0]*x[1] +2448.0*x[0]*x[0]*x[1]*x[1] +3264.0*x[0]*x[1]*x[1]*x[1]);
 		PetscReal g[3]={0.0, 0.0, 0.0};			//Boundary load (applied wherever is defined in the p->atboundary block)
 		PetscReal M[3]={0.0, 0.0, 0.0};			//Distributed moment in body
 		PetscReal h[3]={0.0, 0.0, 0.0};			//Boundary moment (applied wherever is defined in the p->atboundary block)
@@ -533,16 +538,16 @@ PetscReal delta(PetscInt i, PetscInt j)
 		{
 			PetscReal Sborde[3][3]={0};
 
-			//PetscReal Omega=tan(45.0/180.0*ConstPi);
-			//PetscReal rho=sqrt(x[0]*x[0]+x[1]*x[1]);
-			const PetscReal burgers[2]={1.0,0.0};
+			PetscReal Omega=tan(45.0/180.0*ConstPi);
+			PetscReal rho=sqrt(x[0]*x[0]+x[1]*x[1]);
+			//const PetscReal burgers[2]={1.0,0.0};
 
 			//Stress for single disclination
-			//Sborde[0][0]=mu*Omega/(2.0*ConstPi*(1.0-nu))*(log(rho)+(x[1]*x[1])/(rho*rho)+nu/(1.0-2.0*nu));
-			//Sborde[0][1]=-mu*Omega/(2.0*ConstPi*(1.0-nu))*x[0]*x[1]/(rho*rho);
-			//Sborde[1][0]=-mu*Omega/(2.0*ConstPi*(1.0-nu))*x[0]*x[1]/(rho*rho);
-			//Sborde[1][1]=mu*Omega/(2.0*ConstPi*(1.0-nu))*(log(rho)+(x[0]*x[0])/(rho*rho)+nu/(1.0-2.0*nu));
-			//Sborde[0][2]=0.0; Sborde[1][2]=0.0; Sborde[2][0]=0.0; Sborde[2][1]=0.0; Sborde[2][2]=0.0;
+			Sborde[0][0]=mu*Omega/(2.0*ConstPi*(1.0-nu))*(log(rho)+(x[1]*x[1])/(rho*rho)+nu/(1.0-2.0*nu));
+			Sborde[0][1]=-mu*Omega/(2.0*ConstPi*(1.0-nu))*x[0]*x[1]/(rho*rho);
+			Sborde[1][0]=-mu*Omega/(2.0*ConstPi*(1.0-nu))*x[0]*x[1]/(rho*rho);
+			Sborde[1][1]=mu*Omega/(2.0*ConstPi*(1.0-nu))*(log(rho)+(x[0]*x[0])/(rho*rho)+nu/(1.0-2.0*nu));
+			Sborde[0][2]=0.0; Sborde[1][2]=0.0; Sborde[2][0]=0.0; Sborde[2][1]=0.0; Sborde[2][2]=0.0;
 
 			//Stress for single dislocation
 			//Sborde[0][0]=-mu*burgers/(ConstPi*(1.0-nu))/2.0*x[1]*(x[1]*x[1]+3*x[0]*x[0])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
@@ -559,15 +564,15 @@ PetscReal delta(PetscInt i, PetscInt j)
 			//Sborde[0][2]=0.0; Sborde[1][2]=0.0; Sborde[2][0]=0.0; Sborde[2][1]=0.0; Sborde[2][2]=0.0;
 
 			//General dislocation
-			Sborde[0][0]=-mu*burgers[0]/(ConstPi*(1.0-nu))/2.0*x[1]*(x[1]*x[1]+3*x[0]*x[0])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]))
-			 			 -mu*burgers[1]/(ConstPi*(1.0-nu))/2.0*-x[0]*(x[0]*x[0]+3.0*x[1]*x[1])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
-			Sborde[0][1]=-mu*burgers[0]/(ConstPi*(1.0-nu))/2.0*x[0]*(x[1]*x[1]-x[0]*x[0])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]))
-			 			 -mu*burgers[1]/(ConstPi*(1.0-nu))/2.0*x[1]*(x[0]*x[0]-x[1]*x[1])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
-			Sborde[1][0]=-mu*burgers[0]/(ConstPi*(1.0-nu))/2.0*x[0]*(x[1]*x[1]-x[0]*x[0])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]))
-			 			 -mu*burgers[1]/(ConstPi*(1.0-nu))/2.0*x[1]*(x[0]*x[0]-x[1]*x[1])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
-			Sborde[1][1]=-mu*burgers[0]/(ConstPi*(1.0-nu))/2.0*x[1]*(x[1]*x[1]-x[0]*x[0])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]))
-			 			 -mu*burgers[1]/(ConstPi*(1.0-nu))/2.0*-x[0]*(x[0]*x[0]-x[1]*x[1])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
-			Sborde[0][2]=0.0; Sborde[1][2]=0.0; Sborde[2][0]=0.0; Sborde[2][1]=0.0; Sborde[2][2]=0.0;
+			//Sborde[0][0]=-mu*burgers[0]/(ConstPi*(1.0-nu))/2.0*x[1]*(x[1]*x[1]+3*x[0]*x[0])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]))
+			// 			 -mu*burgers[1]/(ConstPi*(1.0-nu))/2.0*-x[0]*(x[0]*x[0]+3.0*x[1]*x[1])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
+			//Sborde[0][1]=-mu*burgers[0]/(ConstPi*(1.0-nu))/2.0*x[0]*(x[1]*x[1]-x[0]*x[0])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]))
+			// 			 -mu*burgers[1]/(ConstPi*(1.0-nu))/2.0*x[1]*(x[0]*x[0]-x[1]*x[1])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
+			//Sborde[1][0]=-mu*burgers[0]/(ConstPi*(1.0-nu))/2.0*x[0]*(x[1]*x[1]-x[0]*x[0])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]))
+			// 			 -mu*burgers[1]/(ConstPi*(1.0-nu))/2.0*x[1]*(x[0]*x[0]-x[1]*x[1])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
+			//Sborde[1][1]=-mu*burgers[0]/(ConstPi*(1.0-nu))/2.0*x[1]*(x[1]*x[1]-x[0]*x[0])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]))
+			// 			 -mu*burgers[1]/(ConstPi*(1.0-nu))/2.0*-x[0]*(x[0]*x[0]-x[1]*x[1])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
+			//Sborde[0][2]=0.0; Sborde[1][2]=0.0; Sborde[2][0]=0.0; Sborde[2][1]=0.0; Sborde[2][2]=0.0;
 
 			//No stress in boundary
 			//Sborde[0][0]=0.0;
@@ -741,8 +746,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 									{
 										for (w=0; w<3; w++)
 										{
-											//Keq[a][i][b][j]+=-C[k][l][u][w]*0.5*(dz[u][w]+dz[w][u])*0.5*(dv[k][l]+dv[l][k]);
-											Keq[a][i][b][j]+=-0.5*(C[k][l][u][w]*dz[u][w]+C[l][k][u][w]*dz[u][w])*0.5*(dv[k][l]+dv[l][k]);
+											Keq[a][i][b][j]+=C[k][l][u][w]*0.5*(dz[u][w]+dz[w][u])*0.5*(dv[k][l]+dv[l][k]);
 										}
 									}
 								}
@@ -754,13 +758,12 @@ PetscReal delta(PetscInt i, PetscInt j)
 								{
 									for (m=0; m<3; m++)
 									{
-										//Keq[a][i][b][j]+=0.5*eps*(d2z[r][s][m]+d2z[s][r][m])*0.5*(d2v[r][s][m]+d2v[s][r][m])
-										//				-0.5*eps*(d2z[r][s][m]-d2z[s][r][m])*d2v[r][s][m];
-										Keq[a][i][b][j]+=-0.25*eps*(2.0*d2z[r][s][m]+2.0*d2z[s][r][m])*0.5*(d2v[r][s][m]+d2v[s][r][m])
-														 -0.25*eps*(2.0*d2z[r][s][m]-2.0*d2z[s][r][m])*d2v[r][s][m];
+										Keq[a][i][b][j]+=0.5*eps*(d2z[r][s][m]+d2z[s][r][m])*0.5*(d2v[r][s][m]+d2v[s][r][m])
+														-0.5*eps*(d2z[r][s][m]-d2z[s][r][m])*d2v[s][r][m];
 									}
 								}
 							}
+
 						}
 					}
 				}
@@ -824,7 +827,8 @@ PetscReal delta(PetscInt i, PetscInt j)
 							{
 								for (w=0; w<3; w++)
 								{
-									Feq[a][i]+=C[k][l][u][w]*fullChi[u][w]*0.5*(dv[k][l]+dv[l][k]);
+									//Feq[a][i]+=C[k][l][u][w]*fullChi[u][w]*0.5*(dv[k][l]+dv[l][k]);
+									Feq[a][i]+=C[k][l][u][w]*fullChi[u][w]*dv[k][l];						//Cambio aqui, borrar si no funciona
 								}
 							}
 						}
@@ -836,8 +840,8 @@ PetscReal delta(PetscInt i, PetscInt j)
 						{
 							for (m=0; m<3; m++)
 							{
-								//Feq[a][i]+=0.25*eps*(full_dChi[r][s][m]+full_dChi[r][m][s]+full_dChi[s][r][m]+full_dChi[s][m][r])*0.5*(d2v[r][s][m]+d2v[s][r][m])
-								//          -0.25*eps*(full_dChi[r][s][m]-full_dChi[s][r][m]+full_dChi[r][m][s]-full_dChi[s][m][r])*d2v[s][r][m];
+								Feq[a][i]+=0.25*eps*(full_dChi[r][s][m]+full_dChi[r][m][s]+full_dChi[s][r][m]+full_dChi[s][m][r])*0.5*(d2v[r][s][m]+d2v[s][r][m])
+								          -0.25*eps*(full_dChi[r][s][m]-full_dChi[s][r][m]+full_dChi[r][m][s]-full_dChi[s][m][r])*d2v[s][r][m];
 							}
 						}
 					}
@@ -849,7 +853,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 	}
 //
 
-//System for L2 projection of stresses
+//System for L2 projection of stress
 	#undef  __FUNCT__
 	#define __FUNCT__ "Stress"
 	//PetscErrorCode Stress(IGAPoint p,IGAPoint pU, IGAPoint pHs,IGAPoint pChi,IGAPoint pZu,PetscReal *K,PetscReal *F,PetscReal *U,PetscReal *HS, PetscReal *Chi,PetscReal *Zu,void *ctx)		//When other fields like Pi or S (etc.) come into this, declare a IGAPoint pPi or pS and a new PescReal *UPi or *US for each
@@ -874,7 +878,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=mu/10.0;															//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/100.0;															//Choose later based on whatever Amit says :)
 
 		PetscReal chi0[4];																	//Array to contain the vector chi(0)
 		PetscReal d_Chi0[4][2];																//Same for its gradient
@@ -895,11 +899,11 @@ PetscReal delta(PetscInt i, PetscInt j)
 		fullChi[0][0]=chi0[0]; 	fullChi[0][1]=chi0[1];
 		fullChi[1][0]=chi0[2]; 	fullChi[1][1]=chi0[3];
 
-		//PetscReal fulld_Chi[3][3][3]={0};
-		//fulld_Chi[0][0][0]=d_Chi0[0][0]; fulld_Chi[0][0][1]=d_Chi0[0][1];
-		//fulld_Chi[0][1][0]=d_Chi0[1][0]; fulld_Chi[0][1][1]=d_Chi0[1][1];
-		//fulld_Chi[1][0][0]=d_Chi0[2][0]; fulld_Chi[1][0][1]=d_Chi0[2][1];
-		//fulld_Chi[1][1][0]=d_Chi0[3][0]; fulld_Chi[1][1][1]=d_Chi0[3][1];
+		PetscReal fulld_Chi[3][3][3]={0};
+		fulld_Chi[0][0][0]=d_Chi0[0][0]; fulld_Chi[0][0][1]=d_Chi0[0][1];
+		fulld_Chi[0][1][0]=d_Chi0[1][0]; fulld_Chi[0][1][1]=d_Chi0[1][1];
+		fulld_Chi[1][0][0]=d_Chi0[2][0]; fulld_Chi[1][0][1]=d_Chi0[2][1];
+		fulld_Chi[1][1][0]=d_Chi0[3][0]; fulld_Chi[1][1][1]=d_Chi0[3][1];
 
 		PetscReal fulld2_Chi[3][3][3][3]={0};
 		fulld2_Chi[0][0][0][0]=d2_Chi0[0][0][0]; fulld2_Chi[0][0][0][1]=d2_Chi0[0][0][1]; fulld2_Chi[0][0][1][0]=d2_Chi0[0][1][0]; fulld2_Chi[0][0][1][1]=d2_Chi0[0][1][1];
@@ -912,11 +916,11 @@ PetscReal delta(PetscInt i, PetscInt j)
 		fulld_z[0][0]=d_Z0[0][0]; fulld_z[0][1]=d_Z0[0][1];
 		fulld_z[1][0]=d_Z0[1][0]; fulld_z[1][1]=d_Z0[1][1];
 
-		//PetscReal fulld2_z[3][3][3]={0};
-		//fulld2_z[0][0][0]=d2_Z0[0][0][0]; fulld2_z[0][0][1]=d2_Z0[0][0][1];
-		//fulld2_z[0][1][0]=d2_Z0[0][1][0]; fulld2_z[0][1][1]=d2_Z0[0][1][1];
-		//fulld2_z[1][0][0]=d2_Z0[1][0][0]; fulld2_z[1][0][1]=d2_Z0[1][0][1];
-		//fulld2_z[1][1][0]=d2_Z0[1][1][0]; fulld2_z[1][1][1]=d2_Z0[1][1][1];
+		PetscReal fulld2_z[3][3][3]={0};
+		fulld2_z[0][0][0]=d2_Z0[0][0][0]; fulld2_z[0][0][1]=d2_Z0[0][0][1];
+		fulld2_z[0][1][0]=d2_Z0[0][1][0]; fulld2_z[0][1][1]=d2_Z0[0][1][1];
+		fulld2_z[1][0][0]=d2_Z0[1][0][0]; fulld2_z[1][0][1]=d2_Z0[1][0][1];
+		fulld2_z[1][1][0]=d2_Z0[1][1][0]; fulld2_z[1][1][1]=d2_Z0[1][1][1];
 
 		PetscReal fulld3_z[3][3][3][3]={0};
 		fulld3_z[0][0][0][0]=d3_Z0[0][0][0][0]; fulld3_z[0][0][0][1]=d3_Z0[0][0][0][1]; fulld3_z[0][0][1][0]=d3_Z0[0][0][1][0]; fulld3_z[0][0][1][1]=d3_Z0[0][0][1][1];
@@ -944,7 +948,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		}
 
 		PetscReal v[3][3]={0};
-		//PetscReal dv[3][3][3]={0};
+		PetscReal dv[3][3][3]={0};
 
 		if (p->atboundary)
 		{
@@ -1007,7 +1011,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 	}
 //
 
-//System for L2 projection of classic stresses (C*Ue)
+//System for L2 projection of classic stress (C*Ue)
 	#undef  __FUNCT__
 	#define __FUNCT__ "ClassicStress"
 	//PetscErrorCode Stress(IGAPoint p,IGAPoint pU, IGAPoint pHs,IGAPoint pChi,IGAPoint pZu,PetscReal *K,PetscReal *F,PetscReal *U,PetscReal *HS, PetscReal *Chi,PetscReal *Zu,void *ctx)		//When other fields like Pi or S (etc.) come into this, declare a IGAPoint pPi or pS and a new PescReal *UPi or *US for each
@@ -1123,13 +1127,13 @@ PetscReal delta(PetscInt i, PetscInt j)
 	{
 		const PetscReal *N0;
 		IGAPointGetShapeFuns(p,0,(const PetscReal**)&N0);									//Value of the shape functions
-		PetscInt a,b,i,k,l,m,n,nen=p->nen, dof=p->dof;
+		PetscInt a,b,i,j,k,l,m,n,nen=p->nen, dof=p->dof;
 
 		//Change to consider G=1
 		//const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		//const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=mu/10.0;															//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/100.0;															//Choose later based on whatever Amit says :)
 
 		//Definition of alternating tensor
 		const PetscReal e[3][3][3]=
@@ -1221,7 +1225,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		//const PetscReal *N0,(*N1)[2];
 		const PetscReal *N0;
 		IGAPointGetShapeFuns(p,0,(const PetscReal**)&N0);									//Value of the shape functions
-		PetscInt a,b,i,k,l,nen=p->nen, dof=p->dof;
+		PetscInt a,b,i,j,k,l,m,n,nen=p->nen, dof=p->dof;
 
 		PetscReal chi0[4];																	//Array to contain the vector chi(0)
 		IGAPointFormValue(pChi,Chi,&chi0[0]);												//Assign chi to its container
@@ -1243,7 +1247,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		PetscReal (*FUe)[dof] = (PetscReal (*)[dof])F;
 
 		PetscReal v[3][3]={0};
-		//PetscReal dv[3][3][3]={0};
+		PetscReal dv[3][3][3]={0};
 
 		if (p->atboundary)
 		{
@@ -1315,7 +1319,15 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=mu/10.0;															//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/100.0;															//Choose later based on whatever Amit says :)
+
+		//Definition of alternating tensor
+		//const PetscReal e[3][3][3]=
+		//{
+		//	{{0.0,0.0,0.0},{0.0,0.0,1.0},{0.0,-1.0,0.0}},
+		//	{{0.0,0.0,-1.0},{0.0,0.0,0.0},{1.0,0.0,0.0}},
+		//	{{0.0,1.0,0.0},{-1.0,0.0,0.0},{0.0,0.0,0.0}}
+		//};
 
 		PetscReal C[3][3][3][3]={0};
 		for (i=0; i<3; i++)
@@ -1367,7 +1379,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		PetscReal (*KED)[dof][nen][dof] = (typeof(KED)) K;
 		PetscReal (*FED)[dof] = (PetscReal (*)[dof])F;
 
-		//PetscReal v[3][3]={0};
+		PetscReal v[3][3]={0};
 
 		if (p->atboundary)
 		{
@@ -1427,13 +1439,13 @@ PetscReal delta(PetscInt i, PetscInt j)
 	{
 		const PetscReal *N0;
 		IGAPointGetShapeFuns(p,0,(const PetscReal**)&N0);									//Value of the shape functions
-		PetscInt a,b,c,d,i,j,k,l,m,nen=p->nen, dof=p->dof;
+		PetscInt a,b,c,d,i,j,k,l,m,n,nen=p->nen, dof=p->dof;
 
 		//Change to consider G=1
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=mu/10.0;															//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/100.0;															//Choose later based on whatever Amit says :)
 
 		//Definition of alternating tensor
 		const PetscReal e[3][3][3]=
@@ -1590,15 +1602,15 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 
-		const PetscReal burgers[2]={1.0,0.0};
-		//PetscReal Omega=tan(45.0/180.0*ConstPi);
-		//PetscReal rho=sqrt(x[0]*x[0]+x[1]*x[1]);
+		//const PetscReal burgers[2]={1.0,0.0};
+		PetscReal Omega=tan(45.0/180.0*ConstPi);
+		PetscReal rho=sqrt(x[0]*x[0]+x[1]*x[1]);
 
 		//This is for a single disclination
-		//g[0]=mu*Omega/(2.0*ConstPi*(1.0-nu))*(log(rho)+(x[1]*x[1])/(rho*rho)+nu/(1.0-2.0*nu));
-		//g[1]=-mu*Omega/(2.0*ConstPi*(1.0-nu))*x[0]*x[1]/(rho*rho);
-		//g[2]=-mu*Omega/(2.0*ConstPi*(1.0-nu))*x[0]*x[1]/(rho*rho);
-		//g[3]=mu*Omega/(2.0*ConstPi*(1.0-nu))*(log(rho)+(x[0]*x[0])/(rho*rho)+nu/(1.0-2.0*nu));
+		g[0]=mu*Omega/(2.0*ConstPi*(1.0-nu))*(log(rho)+(x[1]*x[1])/(rho*rho)+nu/(1.0-2.0*nu));
+		g[1]=-mu*Omega/(2.0*ConstPi*(1.0-nu))*x[0]*x[1]/(rho*rho);
+		g[2]=-mu*Omega/(2.0*ConstPi*(1.0-nu))*x[0]*x[1]/(rho*rho);
+		g[3]=mu*Omega/(2.0*ConstPi*(1.0-nu))*(log(rho)+(x[0]*x[0])/(rho*rho)+nu/(1.0-2.0*nu));
 
 		//This for dislocation with burgers vector in x axis
 		//g[0]=-mu*burgers/(ConstPi*(1.0-nu))/2.0*x[1]*(x[1]*x[1]+3*x[0]*x[0])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
@@ -1613,72 +1625,14 @@ PetscReal delta(PetscInt i, PetscInt j)
 		//g[3]=-mu*burgers/(ConstPi*(1.0-nu))/2.0*-x[0]*(x[0]*x[0]-x[1]*x[1])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
 
 		//This is for a general dislocation
-		g[0]=-mu*burgers[0]/(ConstPi*(1.0-nu))/2.0*x[1]*(x[1]*x[1]+3*x[0]*x[0])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]))
-			 -mu*burgers[1]/(ConstPi*(1.0-nu))/2.0*-x[0]*(x[0]*x[0]+3.0*x[1]*x[1])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
-		g[1]=-mu*burgers[0]/(ConstPi*(1.0-nu))/2.0*x[0]*(x[1]*x[1]-x[0]*x[0])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]))
-			 -mu*burgers[1]/(ConstPi*(1.0-nu))/2.0*x[1]*(x[0]*x[0]-x[1]*x[1])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
-		g[2]=-mu*burgers[0]/(ConstPi*(1.0-nu))/2.0*x[0]*(x[1]*x[1]-x[0]*x[0])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]))
-			 -mu*burgers[1]/(ConstPi*(1.0-nu))/2.0*x[1]*(x[0]*x[0]-x[1]*x[1])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
-		g[3]=-mu*burgers[0]/(ConstPi*(1.0-nu))/2.0*x[1]*(x[1]*x[1]-x[0]*x[0])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]))
-			 -mu*burgers[1]/(ConstPi*(1.0-nu))/2.0*-x[0]*(x[0]*x[0]-x[1]*x[1])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
-
-		const PetscReal (*N) = (typeof(N)) p->shape[0];
-		PetscReal (*FF)[dof] = (PetscReal (*)[dof])F;
-		PetscReal (*KK)[dof][nen][dof] = (PetscReal (*)[dof][nen][dof])K;
-		for(a=0; a<nen; a++)
-		{
-			for(i=0; i<dof; i++) 
-			{
-				for(b=0; b<nen; b++)
-				{
-		  			KK[a][i][b][i] = N[a]*N[b];
-		  		}
-		  		FF[a][i] = N[a]*g[i];
-			}
-		}
-		return 0;
-	}
-//
-
-//System for L2 projection of div(chiUp)
-	#undef  __FUNCT__
-	#define __FUNCT__ "L2ProjectionDivChi"
-	PetscErrorCode L2ProjectionDivChi(IGAPoint p,IGAPoint pChi, PetscReal *K,PetscReal *F,PetscReal *UChi, void *ctx)
-	{
-		if (p->atboundary)
-		{
-			return 0;																		//Zero Neumann boundary condition
-		}
-
-		PetscInt a,b,i;
-		PetscInt nen = p->nen;																//Number of shape functions
-		PetscInt dim = p->dim;																//Spatial dimensions of the problem
-		PetscInt dof = p->dof;
-
-		PetscReal x[dim];																	//Vector of reals, size equal to problem's dimension
-		IGAPointFormGeomMap(p,x);															//Fills x with the coordinates of p, Gauss's point
-
-		PetscReal Chi0[4];																	//Assign chi(t) to a vector
-		PetscReal dChi0[4][2];																//Same for partial derivatives
-		IGAPointFormValue(pChi,UChi,&Chi0[0]);
-		IGAPointFormGrad (pChi,UChi,&dChi0[0][0]);
-
-		//PetscReal fullChi[3][3]={0};
-		//fullChi[0][0]=Chi0[0]; 	fullChi[0][1]=Chi0[1];
-		//fullChi[1][0]=Chi0[2]; 	fullChi[1][1]=Chi0[3];
-
-		PetscReal full_dChi[3][3][3]={0};
-		full_dChi[0][0][0]=dChi0[0][0]; full_dChi[0][0][1]=dChi0[0][1];
-		full_dChi[0][1][0]=dChi0[1][0]; full_dChi[0][1][1]=dChi0[1][1];
-		full_dChi[1][0][0]=dChi0[2][0]; full_dChi[1][0][1]=dChi0[2][1];
-		full_dChi[1][1][0]=dChi0[3][0]; full_dChi[1][1][1]=dChi0[3][1];
-
-		//g is the function to L2 project
-		//div(Chi) has 2 components, div(Chi)(1) and div(Chi)(2)
-		PetscReal g[dof];
-
-		g[0]=full_dChi[0][0][0]+full_dChi[0][1][1];
-		g[1]=full_dChi[1][0][0]+full_dChi[1][1][1];
+		//g[0]=-mu*burgers[0]/(ConstPi*(1.0-nu))/2.0*x[1]*(x[1]*x[1]+3*x[0]*x[0])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]))
+		//	 -mu*burgers[1]/(ConstPi*(1.0-nu))/2.0*-x[0]*(x[0]*x[0]+3.0*x[1]*x[1])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
+		//g[1]=-mu*burgers[0]/(ConstPi*(1.0-nu))/2.0*x[0]*(x[1]*x[1]-x[0]*x[0])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]))
+		//	 -mu*burgers[1]/(ConstPi*(1.0-nu))/2.0*x[1]*(x[0]*x[0]-x[1]*x[1])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
+		//g[2]=-mu*burgers[0]/(ConstPi*(1.0-nu))/2.0*x[0]*(x[1]*x[1]-x[0]*x[0])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]))
+		//	 -mu*burgers[1]/(ConstPi*(1.0-nu))/2.0*x[1]*(x[0]*x[0]-x[1]*x[1])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
+		//g[3]=-mu*burgers[0]/(ConstPi*(1.0-nu))/2.0*x[1]*(x[1]*x[1]-x[0]*x[0])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]))
+		//	 -mu*burgers[1]/(ConstPi*(1.0-nu))/2.0*-x[0]*(x[0]*x[0]-x[1]*x[1])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
 
 		const PetscReal (*N) = (typeof(N)) p->shape[0];
 		PetscReal (*FF)[dof] = (PetscReal (*)[dof])F;
@@ -1812,7 +1766,7 @@ int main(int argc, char *argv[]) {
 //
 
 //Creation of types and systems for the Initialization of Pi
-	PetscPrintf(PETSC_COMM_WORLD,"System for initial state of Pi starting \n");
+	PetscPrintf(PETSC_COMM_WORLD,"\n System for initial state of Pi starting \n\n");
 	IGA igaPi;
 	ierr = IGACreate(PETSC_COMM_WORLD,&igaPi);CHKERRQ(ierr);
 	ierr = IGASetDim(igaPi,2);CHKERRQ(ierr);														//Spatial dimension of the problem
@@ -1833,7 +1787,7 @@ int main(int argc, char *argv[]) {
 
 //Creation of types and systems for the Helmholtz decomposition of S, curl part
 	//System for chiS
-	PetscPrintf(PETSC_COMM_WORLD,"System for curl part of Helmholtz of S starting \n");
+	PetscPrintf(PETSC_COMM_WORLD,"\n System for curl part of Helmholtz of S starting \n\n");
 	IGA igachiS;
 	ierr = IGACreate(PETSC_COMM_WORLD,&igachiS);CHKERRQ(ierr);
 	ierr = IGASetDim(igachiS,2);CHKERRQ(ierr);														//Spatial dimension of the problem
@@ -1980,7 +1934,7 @@ int main(int argc, char *argv[]) {
 
 //Creation of types and systems for the L2 projection of Alfa0-Sp:X
 	//System for Alfa
-	PetscPrintf(PETSC_COMM_WORLD,"System for L2 projection for Alfa+Sp:X starting \n");
+	PetscPrintf(PETSC_COMM_WORLD,"\n System for L2 projection for Alfa+Sp:X starting \n\n");
 	IGA igaAl;
 	ierr = IGACreate(PETSC_COMM_WORLD,&igaAl);CHKERRQ(ierr);
 	ierr = IGASetDim(igaAl,2);CHKERRQ(ierr);														//Spatial dimension of the problem
@@ -2103,14 +2057,14 @@ int main(int argc, char *argv[]) {
 
 //Creation of types and systems for the Helmholtz decomposition of Up (or Ue), curl part
 	//System for chiU
-	PetscPrintf(PETSC_COMM_WORLD,"System for curl part of Helmholtz of Up starting \n");
+	PetscPrintf(PETSC_COMM_WORLD,"\n System for curl part of Helmholtz of Up starting \n\n");
 	IGA igachiUp;
 	ierr = IGACreate(PETSC_COMM_WORLD,&igachiUp);CHKERRQ(ierr);
 	ierr = IGASetDim(igachiUp,2);CHKERRQ(ierr);														//Spatial dimension of the problem
 	ierr = IGASetDof(igachiUp,4);CHKERRQ(ierr);														//Number of degrees of freedom, per node
 	ierr = IGASetOrder(igachiUp,2);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
 	ierr = IGASetFromOptions(igachiUp);CHKERRQ(ierr);												//Note: The order (or degree) of the shape functions is given by the mesh!
-	ierr = IGARead(igachiUp,"./geometry3.dat");CHKERRQ(ierr);
+	ierr = IGARead(igachiUp,"./geometry2.dat");CHKERRQ(ierr);
 	ierr = IGASetUp(igachiUp);CHKERRQ(ierr);
 
 	//ierr = IGASetBoundaryValue(iga,dir,side,dof,val);CHKERRQ(ierr);
@@ -2167,7 +2121,6 @@ int main(int argc, char *argv[]) {
 			//Quadrature loop
 			ierr = IGAElementBeginPoint(elemchiUp,&pointchiUp);CHKERRQ(ierr);
 			ierr = IGAElementBeginPoint(elemAlp,&pointAlp);CHKERRQ(ierr);
-
 			if(pointchiUp->atboundary==0 && pointAlp->atboundary==0)
 			{
 				while (IGAElementNextPoint(elemchiUp,pointchiUp)) 
@@ -2180,11 +2133,6 @@ int main(int argc, char *argv[]) {
 					ierr = IGAPointAddVec(pointchiUp,FpointchiUp,FlocchiUp);CHKERRQ(ierr);
 				}
 				IGAElementNextPoint(elemAlp,pointAlp);
-
-				while (pointAlp->index != -1)
-				{
-					IGAElementNextPoint(elemAlp,pointAlp);
-				}
 
 				ierr = IGAElementEndPoint(elemchiUp,&pointchiUp);CHKERRQ(ierr);
 				ierr = IGAElementEndPoint(elemAlp,&pointAlp);CHKERRQ(ierr);
@@ -2233,7 +2181,7 @@ int main(int argc, char *argv[]) {
 //
 
 //System for initial state of z0
-	PetscPrintf(PETSC_COMM_WORLD,"System for Z0 starting \n");
+	PetscPrintf(PETSC_COMM_WORLD,"\n System for Z0 starting \n\n");
 	IGA igaZ0;
 	ierr = IGACreate(PETSC_COMM_WORLD,&igaZ0);CHKERRQ(ierr);
 	ierr = IGASetDim(igaZ0,2);CHKERRQ(ierr);													//Spatial dimension of the problem
@@ -2394,9 +2342,9 @@ int main(int argc, char *argv[]) {
 		//		Upper Left corner is gdl's  2*(nx+2)*(ny+2)-2*(nx+1)-2 and 2*(nx+2)*(ny+2)-2*(nx+1)-1
 		//		Upper Right corner is gdl's 2*(nx+2)*(ny+2)-2 and 2*(nx+2)*(ny+2)-1
 		//All of these for when z is a 2nd order nurbs
-
 		PetscInt n,m;
 		ierr = MatGetSize(KZ0,&n,&m);CHKERRQ(ierr);
+		ierr = MatSetOption(KZ0, MAT_NEW_NONZERO_ALLOCATION_ERR, PETSC_FALSE);CHKERRQ(ierr);
 
 		PetscInt rows, cols[m];
 		PetscReal val, vals[m];
@@ -2407,31 +2355,22 @@ int main(int argc, char *argv[]) {
 			vals[i]=0.0;
 		}
 
-		/*
 		rows=0;
-		ierr = MatZeroRows(KZ0,1,&rows,1.0e90,0,0);CHKERRQ(ierr);
-		rows=1;
-		ierr = MatZeroRows(KZ0,1,&rows,1.0e90,0,0);CHKERRQ(ierr);
-		rows=2*(nx+3)*(ny+3)-2*(nx+2)-2; 										//This is for when z is a 3rd order nurb
-		//rows=2*(nx+2)*(ny+2)-2*(nx+1)-2; 										//This is for when z is a 2nd order nurb
-		//rows=2*(nx+1)-1;														//This is the dof in x on the upper right corner for 1st order elements
-		ierr = MatZeroRows(KZ0,1,&rows,1.0e90,0,0);CHKERRQ(ierr);
-		*/
-		ierr = MatSetOption(KZ0, MAT_NEW_NONZERO_ALLOCATION_ERR, PETSC_FALSE);CHKERRQ(ierr);
-		
-		rows=0;
-		vals[rows]=1.0;
+		vals[rows]=1.0e6;
 		ierr = MatSetValues(KZ0,1,&rows,m,cols,vals,INSERT_VALUES);CHKERRQ(ierr);
+		ierr = MatSetValues(KZ0,n,cols,1,&rows,vals,INSERT_VALUES);CHKERRQ(ierr);
 		vals[rows]=0.0;
 		rows=1;
-		vals[rows]=1.0;
+		vals[rows]=1.0e6;
 		ierr = MatSetValues(KZ0,1,&rows,m,cols,vals,INSERT_VALUES);CHKERRQ(ierr);
+		ierr = MatSetValues(KZ0,n,cols,1,&rows,vals,INSERT_VALUES);CHKERRQ(ierr);
 		vals[rows]=0.0;
 		rows=2*(nx+3)*(ny+3)-2*(nx+2)-2; 										//This is for when z is a 3rd order nurb
 		//rows=2*(nx+2)*(ny+2)-2*(nx+1)-2; 										//This is for when z is a 2nd order nurb
 		//rows=2*(nx+1)-1;														//This is the dof in x on the upper right corner for 1st order elements
-		vals[rows]=1.0;
+		vals[rows]=1.0e6;
 		ierr = MatSetValues(KZ0,1,&rows,m,cols,vals,INSERT_VALUES);CHKERRQ(ierr);
+		ierr = MatSetValues(KZ0,n,cols,1,&rows,vals,INSERT_VALUES);CHKERRQ(ierr);
 		vals[rows]=0.0;
 
 		ierr = MatAssemblyBegin(KZ0,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
@@ -2482,7 +2421,7 @@ int main(int argc, char *argv[]) {
 //
 
 //System for L2 projection of stress
-	PetscPrintf(PETSC_COMM_WORLD,"System for Stress starting \n");
+	PetscPrintf(PETSC_COMM_WORLD,"\n System for Stress starting \n\n");
 	IGA igaStress;
 	ierr = IGACreate(PETSC_COMM_WORLD,&igaStress);CHKERRQ(ierr);
 	ierr = IGASetDim(igaStress,2);CHKERRQ(ierr);													//Spatial dimension of the problem
@@ -2609,12 +2548,12 @@ int main(int argc, char *argv[]) {
 	ierr = VecAssemblyEnd  (FStress);CHKERRQ(ierr);
 
 	ierr = KSPSetOperators(kspStress,KStress,KStress);CHKERRQ(ierr);
-	//PC pcStress;
+	PC pcStress;
 	//ierr = KSPGetPC(kspStress,&pcStress); CHKERRQ(ierr);
 	//ierr = PCSetType(pcStress,PCLU); CHKERRQ(ierr);
 	//ierr = PCFactorSetMatSolverType(pcStress,MATSOLVERMUMPS); CHKERRQ(ierr);
 	ierr = KSPSetFromOptions(kspStress);CHKERRQ(ierr);
-	ierr = KSPSetTolerances(kspStress,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	ierr = KSPSetTolerances(kspStress,1e-20,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
 	ierr = KSPSolve(kspStress,FStress,sigma0);CHKERRQ(ierr);
 
 	ierr = KSPDestroy(&kspStress);CHKERRQ(ierr);
@@ -2628,7 +2567,7 @@ int main(int argc, char *argv[]) {
 //
 
 //System for L2 projection of classic stress (C*Ue)
-	PetscPrintf(PETSC_COMM_WORLD,"System for Classic Stress starting \n");
+	PetscPrintf(PETSC_COMM_WORLD,"\n System for Classic Stress starting \n\n");
 	IGA igaClassicStress;
 	ierr = IGACreate(PETSC_COMM_WORLD,&igaClassicStress);CHKERRQ(ierr);
 	ierr = IGASetDim(igaClassicStress,2);CHKERRQ(ierr);													//Spatial dimension of the problem
@@ -2773,7 +2712,7 @@ int main(int argc, char *argv[]) {
 //
 
 //System for L2 projection of couple stress
-	PetscPrintf(PETSC_COMM_WORLD,"System for CoupleStress starting \n");
+	PetscPrintf(PETSC_COMM_WORLD,"\n System for CoupleStress starting \n\n");
 	IGA igaCS;
 	ierr = IGACreate(PETSC_COMM_WORLD,&igaCS);CHKERRQ(ierr);
 	ierr = IGASetDim(igaCS,2);CHKERRQ(ierr);													//Spatial dimension of the problem
@@ -2916,7 +2855,7 @@ int main(int argc, char *argv[]) {
 //
 
 //System for L2 projection of Ue
-	PetscPrintf(PETSC_COMM_WORLD,"System for Ue starting \n");
+	PetscPrintf(PETSC_COMM_WORLD,"\n System for Ue starting \n\n");
 	IGA igaUe;
 	ierr = IGACreate(PETSC_COMM_WORLD,&igaUe);CHKERRQ(ierr);
 	ierr = IGASetDim(igaUe,2);CHKERRQ(ierr);													//Spatial dimension of the problem
@@ -3038,7 +2977,7 @@ int main(int argc, char *argv[]) {
 	ierr = VecAssemblyEnd  (FUe);CHKERRQ(ierr);
 
 	ierr = KSPSetOperators(kspUe,KUe,KUe);CHKERRQ(ierr);
-	//PC pcUe;
+	PC pcUe;
 	//ierr = KSPGetPC(kspStress,&pcStress); CHKERRQ(ierr);
 	//ierr = PCSetType(pcStress,PCLU); CHKERRQ(ierr);
 	//ierr = PCFactorSetMatSolverType(pcStress,MATSOLVERMUMPS); CHKERRQ(ierr);
@@ -3057,7 +2996,7 @@ int main(int argc, char *argv[]) {
 //
 
 //System for L2 projection of Energy Density
-	PetscPrintf(PETSC_COMM_WORLD,"System for Energy Density starting \n");
+	PetscPrintf(PETSC_COMM_WORLD,"\n System for Energy Density starting \n\n");
 	IGA igaED;
 	ierr = IGACreate(PETSC_COMM_WORLD,&igaED);CHKERRQ(ierr);
 	ierr = IGASetDim(igaED,2);CHKERRQ(ierr);													//Spatial dimension of the problem
@@ -3133,7 +3072,7 @@ int main(int argc, char *argv[]) {
 
 					ierr = IGAPointGetWorkMat(pointED,&KpointED);CHKERRQ(ierr);
 					ierr = IGAPointGetWorkVec(pointED,&FpointED);CHKERRQ(ierr);
-					//PetscErrorCode EnergyDensity(IGAPoint p,IGAPoint pChi,IGAPoint pZu,PetscReal *K,PetscReal *F, PetscReal *Chi,PetscReal *Zu,void *ctx)		//When other fields like Pi or S (etc.) come into this, declare a IGAPoint pPi or pS and a new PetscReal *UPi or *US for each
+					//PetscErrorCode EnergyDensity(IGAPoint p,IGAPoint pChi,IGAPoint pZu,PetscReal *K,PetscReal *F, PetscReal *Chi,PetscReal *Zu,void *ctx)		//When other fields like Pi or S (etc.) come into this, declare a IGAPoint pPi or pS and a new PestcReal *UPi or *US for each
 					ierr = EnergyDensity(pointED,pointchiUp,pointZ0,KpointED,FpointED,chi0ED,Z0ED,NULL);CHKERRQ(ierr);
 					ierr = IGAPointAddMat(pointED,KpointED,KlocED);CHKERRQ(ierr);
 					ierr = IGAPointAddVec(pointED,FpointED,FlocED);CHKERRQ(ierr);
@@ -3193,7 +3132,7 @@ int main(int argc, char *argv[]) {
 //
 
 //System for L2 projection of V^{alpha}
-	PetscPrintf(PETSC_COMM_WORLD,"System for V-alpha starting \n");
+	PetscPrintf(PETSC_COMM_WORLD,"\n System for V-alpha starting \n\n");
 	IGA igaVa;
 	ierr = IGACreate(PETSC_COMM_WORLD,&igaVa);CHKERRQ(ierr);
 	ierr = IGASetDim(igaVa,2);CHKERRQ(ierr);													//Spatial dimension of the problem
@@ -3329,7 +3268,7 @@ int main(int argc, char *argv[]) {
 	ierr = VecAssemblyEnd  (FVa);CHKERRQ(ierr);
 
 	ierr = KSPSetOperators(kspVa,KVa,KVa);CHKERRQ(ierr);
-	//PC pcVa;
+	PC pcVa;
 	//ierr = KSPGetPC(kspStress,&pcStress); CHKERRQ(ierr);
 	//ierr = PCSetType(pcStress,PCLU); CHKERRQ(ierr);
 	//ierr = PCFactorSetMatSolverType(pcStress,MATSOLVERMUMPS); CHKERRQ(ierr);
@@ -3347,9 +3286,8 @@ int main(int argc, char *argv[]) {
 	ierr = IGAWriteVec(igaVa,Va0,pathVa);CHKERRQ(ierr);	
 //
 
-/*
 //System for L2 projection of exact stress
-	PetscPrintf(PETSC_COMM_WORLD,"System for L2 projection for exact stress starting \n");
+	PetscPrintf(PETSC_COMM_WORLD,"\n System for L2 projection for exact stress starting \n\n");
 	IGA igaExact;
 	ierr = IGACreate(PETSC_COMM_WORLD,&igaExact);CHKERRQ(ierr);
 	ierr = IGASetDim(igaExact,2);CHKERRQ(ierr);														//Spatial dimension of the problem
@@ -3403,153 +3341,9 @@ int main(int argc, char *argv[]) {
 	sprintf(pathE,"%s%s",direct,nameE);
 	ierr = IGAWriteVec(igaExact,e0,pathE);CHKERRQ(ierr);
 //
-*/
-
-/*
-//System for L2 projection of div(chiUp)
-	PetscPrintf(PETSC_COMM_WORLD,"System for L2 projection for div(chiUp) \n");
-	IGA igaDivChi;
-	ierr = IGACreate(PETSC_COMM_WORLD,&igaDivChi);CHKERRQ(ierr);
-	ierr = IGASetDim(igaDivChi,2);CHKERRQ(ierr);														//Spatial dimension of the problem
-	ierr = IGASetDof(igaDivChi,2);CHKERRQ(ierr);														//Number of degrees of freedom, per node
-	ierr = IGASetOrder(igaDivChi,2);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
-	ierr = IGASetFromOptions(igaDivChi);CHKERRQ(ierr);												//Note: The order (or degree) of the shape functions is given by the mesh!
-	ierr = IGARead(igaDivChi,"./geometry3.dat");CHKERRQ(ierr);
-	ierr = IGASetUp(igaDivChi);CHKERRQ(ierr);
-	
-	for (dir=0; dir<2; dir++) 
-	{
-		for (side=0; side<2; side++) 
-		{
-			//ierr = IGASetBoundaryValue(iga,dir,side,dof,0.0);CHKERRQ(ierr);    				// Dirichlet boundary conditions
-			ierr = IGASetBoundaryForm(igaDivChi,dir,side,PETSC_TRUE);CHKERRQ(ierr);  				// Neumann boundary conditions
-		}
-	}
-
-	for (dir=0; dir<2; dir++)
-	{
-		ierr = IGASetRuleType(igaDivChi,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
-		ierr = IGASetRuleSize(igaDivChi,dir,6);CHKERRQ(ierr);
-	}
-
-	ierr = IGASetUp(igaDivChi);CHKERRQ(ierr);
-
-	Vec div0;
-	Mat Kl2div;
-	Vec Fl2div;
-	ierr = IGACreateVec(igaDivChi,&div0);CHKERRQ(ierr);  
-	ierr = IGACreateMat(igaDivChi,&Kl2div);CHKERRQ(ierr);
-	ierr = IGACreateVec(igaDivChi,&Fl2div);CHKERRQ(ierr);
-	
-	IGAPoint		pointDiv;						//point
-	IGAElement		elemDiv;						//element
-	PetscReal		*KlocDiv,*FlocDiv;				//AA y BB
-	PetscReal		*KpointDiv,*FpointDiv;			//KKK y FFF
-	const PetscReal	*arrayChi0Div;					//arrayU
-	Vec				localChi0Div;					//localU
-	PetscReal		*Chi0Div;						//U
-
-  	IGAFormSystem	wtfDiv;
- 	void			*wtf2Div;
-
-	// Get local vectors Chi0 and arrays
-	ierr = IGAGetLocalVecArray(igachiUp,chiUp0,&localChi0Div,&arrayChi0Div);CHKERRQ(ierr);
-
-	// Element loop
-	ierr = IGABeginElement(igaDivChi,&elemDiv);CHKERRQ(ierr);
-	ierr = IGABeginElement(igachiUp,&elemchiUp);CHKERRQ(ierr);
-
-	while (IGANextElement(igaDivChi,elemDiv)) 
-	{
-		IGANextElement(igachiUp,elemchiUp);
-
-		ierr = IGAElementGetWorkMat(elemDiv,&KlocDiv);CHKERRQ(ierr);
-		ierr = IGAElementGetWorkVec(elemDiv,&FlocDiv);CHKERRQ(ierr);
-		ierr = IGAElementGetValues(elemchiUp,arrayChi0Div,&Chi0Div);CHKERRQ(ierr);
-
-		// FormSystem loop
-		while (IGAElementNextFormSystem(elemDiv,&wtfDiv,&wtf2Div)) 
-		{
-		// Quadrature loop
-			ierr = IGAElementBeginPoint(elemDiv,&pointDiv);CHKERRQ(ierr);
-			ierr = IGAElementBeginPoint(elemchiUp,&pointchiUp);CHKERRQ(ierr);
-
-			while (IGAElementNextPoint(elemDiv,pointDiv))
-			{
-				if(pointDiv->atboundary==1)
-				{
-					ierr = IGAPointGetWorkMat(pointDiv,&KpointDiv);CHKERRQ(ierr);
-					ierr = IGAPointGetWorkVec(pointDiv,&FpointDiv);CHKERRQ(ierr);
-					ierr = L2ProjectionDivChi(pointDiv,pointchiUp,KpointDiv,FpointDiv,Chi0Div,NULL);CHKERRQ(ierr);
-					ierr = IGAPointAddMat(pointDiv,KpointDiv,KlocDiv);CHKERRQ(ierr);
-					ierr = IGAPointAddVec(pointDiv,FpointDiv,FlocDiv);CHKERRQ(ierr);
-				}
-
-				if(pointchiUp->atboundary==1)
-				{
-					PetscPrintf(PETSC_COMM_WORLD,"Hola en div");
-				}
-
-				if(pointDiv->atboundary==0 && pointchiUp->atboundary==0)
-				{
-					IGAElementNextPoint(elemchiUp,pointchiUp);
-
-					ierr = IGAPointGetWorkMat(pointDiv,&KpointDiv);CHKERRQ(ierr);
-					ierr = IGAPointGetWorkVec(pointDiv,&FpointDiv);CHKERRQ(ierr);
-					ierr = L2ProjectionDivChi(pointDiv,pointchiUp,KpointDiv,FpointDiv,Chi0Div,NULL);CHKERRQ(ierr);
-					ierr = IGAPointAddMat(pointDiv,KpointDiv,KlocDiv);CHKERRQ(ierr);
-					ierr = IGAPointAddVec(pointDiv,FpointDiv,FlocDiv);CHKERRQ(ierr);
-				}
-			}
-			while (pointchiUp->index != -1)
-			{
-				IGAElementNextPoint(elemchiUp,pointchiUp);
-			}
-
-			ierr = IGAElementEndPoint(elemDiv,&pointDiv);CHKERRQ(ierr);
-			ierr = IGAElementEndPoint(elemchiUp,&pointchiUp);CHKERRQ(ierr);
-		}
-
-		ierr = IGAElementAssembleMat(elemDiv,KlocDiv,Kl2div);CHKERRQ(ierr);
-		ierr = IGAElementAssembleVec(elemDiv,FlocDiv,Fl2div);CHKERRQ(ierr);
-
-	}
-	IGANextElement(igachiUp,elemchiUp);
-
-	ierr = IGAEndElement(igaDivChi,&elemDiv);CHKERRQ(ierr);
-	ierr = IGAEndElement(igachiUp,&elemchiUp);CHKERRQ(ierr);
-
-	// Restore local vectors Chi0 and arrays
-	ierr = IGARestoreLocalVecArray(igachiUp,chiUp0,&localChi0Div,&arrayChi0Div);CHKERRQ(ierr);
-
-	ierr = MatAssemblyBegin(Kl2div,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
-	ierr = MatAssemblyEnd  (Kl2div,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);	
-
-	ierr = VecAssemblyBegin(Fl2div);CHKERRQ(ierr);
-	ierr = VecAssemblyEnd  (Fl2div);CHKERRQ(ierr);
-
-	//This parts set and calls KSP to solve the linear system
-	KSP kspl2div;
-	ierr = IGACreateKSP(igaDivChi,&kspl2div);CHKERRQ(ierr);										
-	ierr = KSPSetOperators(kspl2div,Kl2div,Kl2div);CHKERRQ(ierr); 								//This function creates the matrix for the system on the second parameter and uses the 3rd parameter as a preconditioner
-	ierr = KSPSetType(kspl2div,KSPCG);CHKERRQ(ierr);											//Using KSPCG (conjugated gradient) because the matrix is symmetric
-	//ierr = KSPSetOptionsPrefix(kspl2S,"l2pS_");CHKERRQ(ierr);
-	ierr = KSPSetFromOptions(kspl2div);CHKERRQ(ierr);
-	ierr = KSPSetTolerances(kspl2div,1.0e-16,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
-	ierr = KSPSolve(kspl2div,Fl2div,div0);CHKERRQ(ierr);										//This is a simple system, so it can be solved with just this command
-
-	ierr = KSPDestroy(&kspl2div);CHKERRQ(ierr);
-	ierr = MatDestroy(&Kl2div);CHKERRQ(ierr);
-	ierr = VecDestroy(&Fl2div);CHKERRQ(ierr);
-	char nameDiv[]="/divChi-2d-0.dat";
-	char pathDiv[512];
-	sprintf(pathDiv,"%s%s",direct,nameDiv);
-	ierr = IGAWriteVec(igaDivChi,div0,pathDiv);CHKERRQ(ierr);
-//
-*/
 
 //System for L2 projection of grad(Z0)
-	PetscPrintf(PETSC_COMM_WORLD,"System for L2 projection for grad(Z0) \n");
+	PetscPrintf(PETSC_COMM_WORLD,"\n System for L2 projection for grad(Z0) \n\n");
 	IGA igaGrad;
 	ierr = IGACreate(PETSC_COMM_WORLD,&igaGrad);CHKERRQ(ierr);
 	ierr = IGASetDim(igaGrad,2);CHKERRQ(ierr);														//Spatial dimension of the problem
