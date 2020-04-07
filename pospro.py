@@ -20,7 +20,7 @@ except:
 	fileNameInput="poisson2d*"
 
 fileName1="./results/"+fileNameInput+".dat"
-fileName2="../../sharedResults/"+fileNameInput+".dat"
+fileName2="../Results/"+fileNameInput+".dat"
 
 Lista1=glob.glob(fileName1)
 Lista2=glob.glob(fileName2)

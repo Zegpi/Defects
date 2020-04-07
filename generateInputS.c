@@ -93,125 +93,69 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	N=0;	M=0;	numEls=1;
 //
 
-//Creation of Initialization of Pi
-	PetscPrintf(PETSC_COMM_WORLD,"System for initial state of Pi starting \n");
-	IGA igaPi;
-	ierr = IGACreate(PETSC_COMM_WORLD,&igaPi);CHKERRQ(ierr);
-	ierr = IGASetDim(igaPi,2);CHKERRQ(ierr);														//Spatial dimension of the problem
-	ierr = IGASetDof(igaPi,4);CHKERRQ(ierr);														//Number of degrees of freedom, per node
-	ierr = IGASetOrder(igaPi,1);CHKERRQ(ierr);														//Number of spatial derivatives to calculate
-	ierr = IGASetFromOptions(igaPi);CHKERRQ(ierr);													//Note: The order (or degree) of the shape functions is given by the mesh!
-	ierr = IGARead(igaPi,"./geometry.dat");CHKERRQ(ierr);
-	ierr = IGASetUp(igaPi);CHKERRQ(ierr);
+//Creation of Initialization of S
+	PetscPrintf(PETSC_COMM_WORLD,"System for initial state of S started \n");
+	IGA igaS;
+	ierr = IGACreate(PETSC_COMM_WORLD,&igaS);CHKERRQ(ierr);
+	ierr = IGASetDim(igaS,2);CHKERRQ(ierr);														//Spatial dimension of the problem
+	ierr = IGASetDof(igaS,8);CHKERRQ(ierr);														//Number of degrees of freedom, per node
+	ierr = IGASetOrder(igaS,2);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
+	ierr = IGASetFromOptions(igaS);CHKERRQ(ierr);												//Note: The order (or degree) of the shape functions is given by the mesh!
+	ierr = IGARead(igaS,"./geometry.dat");CHKERRQ(ierr);
+	ierr = IGASetUp(igaS);CHKERRQ(ierr);
 
-	Vec pi0;
-	ierr = IGACreateVec(igaPi,&pi0);CHKERRQ(ierr);  
+	Vec s0;
+	ierr = IGACreateVec(igaS,&s0);CHKERRQ(ierr);
 
-	PetscInt *points;
-	PetscReal *valores;
+	PetscInt nf,nc,numF,cord,counter, *pointsS;
+	PetscReal *valoresS,c,t, g[8];
 
-	points=(PetscInt*)calloc(8192,sizeof(PetscInt));
-	valores=(PetscReal*)calloc(8192,sizeof(PetscReal));
+	nf=(b-1)/2; 
+	nc=(b+1)/2;
+	numF=2;
+	ierr = PetscMalloc1(65536,&pointsS);CHKERRQ(ierr);
+	ierr = PetscMalloc1(65536,&valoresS);CHKERRQ(ierr);
 
-	PetscReal c,t;	c=Lx/nx;	t=Ly/ny;
-	PetscInt center;
+	ierr = VecAssemblyBegin(s0);CHKERRQ(ierr);
+	ierr = VecAssemblyEnd  (s0);CHKERRQ(ierr);
 
-	/*
-	PetscReal a=3.585284301;
-	PetscPrintf(PETSC_COMM_WORLD,"a= %f \n",a);
-	PetscReal beta=-0.100211;
-	PetscReal gamma=-beta*a/(2.0*a*a)/(c*t);
-	PetscPrintf(PETSC_COMM_WORLD,"gamma= %f \n",gamma*c*t);
-	PetscReal tanTh=tan(45.0/180.0*ConstPi)/(c*t);
-	*/
-	PetscReal a=0.0;
-	PetscReal dr=4.0*t;
-	PetscReal normdr2=dr*dr;
-	PetscReal gamma=0.0/normdr2*dr/(c*t);
-	//PetscReal tanTh=-0.0/normdr2*dr/(c*t);
-	PetscReal tanTh=-tan(45.0/180.0*ConstPi)/(c*t);
+	c=Lx/nx;
+	t=Ly/ny;
 
-	PetscInt counter=0;
+	g[0]=0.0;
+	g[1]=0.0;
+	g[2]=0.0;
+	g[3]=-tan(5.0/180.0*ConstPi)/(2.0*t);
+	g[4]=0.0;
+	g[5]=tan(5.0/180.0*ConstPi)/(2.0*t);
+	g[6]=0.0;
+	g[7]=0.0;
 
-	if(b%2==0)		
+	counter=0;
+	for (int i=nf; i<nf+numF; i++)
 	{
-		PetscInt realNumEls=pow(2,numEls-1);
-		center=(nx+1)*ny/2+nx/2;
-		if(M<2)
+		PetscPrintf(PETSC_COMM_WORLD,"El for \n");
+		cord=(nx+1)*i*8;
+		for (int j=0; j<nc; j++)
 		{
-			//M=2;
-		}
-		if(N<2)
-		{
-			//N=2;
-		}
-		for (int i=0; i<pow(2,numEls-1)+1; i++)
-		{
-			for (int j=0; j<pow(2,numEls-1)+1; j++)
+			for (int k=0; k<8; k++)
 			{
-				//points[counter]  =4*center+(N-1)*4*(nx+1)+(M-1)*4-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4+1;		valores[counter]=(-tanTh)/((realNumEls+1)*(realNumEls+1));
-				//points[counter+1]=4*center+(N-1)*4*(nx+1)+(M-1)*4-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4+2;		valores[counter+1]=(tanTh-gamma)/((realNumEls+1)*(realNumEls+1));
-				//points[counter+2]=4*center+(N-1)*4*(nx+1)+(M-1)*4-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4+3;		valores[counter+2]=(-gamma)/((realNumEls+1)*(realNumEls+1));
-
-				points[counter]  =4*center+N*4*(nx+1)+M*4-(i)*4*(nx+1)-(j)*4+1;								valores[counter]=(-tanTh)/((realNumEls+1)*(realNumEls+1));
-				points[counter+1]=4*center+N*4*(nx+1)+M*4-(i)*4*(nx+1)-(j)*4+2;								valores[counter+1]=(tanTh-gamma)/((realNumEls+1)*(realNumEls+1));
-				points[counter+2]=4*center+N*4*(nx+1)+M*4-(i)*4*(nx+1)-(j)*4+3;								valores[counter+2]=(-gamma)/((realNumEls+1)*(realNumEls+1));
-				
-				//points[counter+3]=4*center-N*4*(nx+1)-M*4-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4+1;				valores[counter+3]=(tanTh)/((realNumEls+1)*(realNumEls+1));
-				//points[counter+4]=4*center-N*4*(nx+1)-M*4-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4+2;				valores[counter+4]=((-tanTh+gamma))/((realNumEls+1)*(realNumEls+1));
-				//points[counter+5]=4*center-N*4*(nx+1)-M*4-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4+3;				valores[counter+5]=(gamma)/((realNumEls+1)*(realNumEls+1));
-
-				points[counter+3]=4*center-N*4*(nx+1)-M*4+(i)*4*(nx+1)+(j)*4+1;								valores[counter+3]=(tanTh)/((realNumEls+1)*(realNumEls+1));
-				points[counter+4]=4*center-N*4*(nx+1)-M*4+(i)*4*(nx+1)+(j)*4+2;								valores[counter+4]=((-tanTh+gamma))/((realNumEls+1)*(realNumEls+1));
-				points[counter+5]=4*center-N*4*(nx+1)-M*4+(i)*4*(nx+1)+(j)*4+3;								valores[counter+5]=(gamma)/((realNumEls+1)*(realNumEls+1));
-
-				counter=counter+6;
-			}
-		}
-	}
-	else
-	{
-		center=(nx+1)*ny/2-1;
-		for (int i=0; i<2*numEls; i++)
-		{
-			for (int j=0; j<2*numEls; j++)
-			{
-				//points[counter  ]=4*center+N*4*(nx+1)+M*4+1-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4;			valores[counter  ]=(-tanTh)/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
-				//points[counter+1]=4*center+N*4*(nx+1)+M*4+2-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4;			valores[counter+1]=(tanTh-gamma)/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
-				//points[counter+2]=4*center+N*4*(nx+1)+M*4+3-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4;			valores[counter+2]=(-gamma)/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
-				
-				//points[counter+3]=4*center-N*4*(nx+1)-M*4+1-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4;			valores[counter+3]=(tanTh)/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
-				//points[counter+4]=4*center-N*4*(nx+1)-M*4+2-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4;			valores[counter+4]=(-tanTh+gamma)/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
-				//points[counter+5]=4*center-N*4*(nx+1)-M*4+3-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4;			valores[counter+5]=(gamma)/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
-
-				points[counter  ]=4*center+N*4*(nx+1)+M*4-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4+1;			valores[counter  ]=(-tanTh)/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
-				points[counter+1]=4*center+N*4*(nx+1)+M*4-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4+2;			valores[counter+1]=(tanTh-gamma)/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
-				points[counter+2]=4*center+N*4*(nx+1)+M*4-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4+3;			valores[counter+2]=(-gamma)/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
-				
-				//points[counter+3]=4*center-N*4*(nx+1)-M*4-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4+1;			valores[counter+3]=(tanTh)/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
-				//points[counter+4]=4*center-N*4*(nx+1)-M*4-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4+2;			valores[counter+4]=(-tanTh+gamma)/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
-				//points[counter+5]=4*center-N*4*(nx+1)-M*4-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4+3;			valores[counter+5]=(gamma)/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
-
-				counter=counter+3;
+				pointsS[counter]=cord;
+				valoresS[counter]=g[k];
+				cord++;
+				counter++;
 			}
 		}
 	}
 	
-	ierr = VecAssemblyBegin(pi0);CHKERRQ(ierr);
-	ierr = VecAssemblyEnd  (pi0);CHKERRQ(ierr);
+	ierr = VecSetValues(s0,8*nc*numF,pointsS,valoresS,ADD_VALUES);	
+	ierr = VecAssemblyBegin(s0);CHKERRQ(ierr);
+	ierr = VecAssemblyEnd  (s0);CHKERRQ(ierr);
 
-	ierr = VecSetValues(pi0,8192,points,valores,INSERT_VALUES);
-
-	ierr = VecAssemblyBegin(pi0);CHKERRQ(ierr);
-	ierr = VecAssemblyEnd  (pi0);CHKERRQ(ierr);
-
-	free(points);
-	free(valores);
-
-	char namePi[]="/Input-Pi-2d-0.dat";
-	char pathPi[512];
-	sprintf(pathPi,"%s%s",direct,namePi);
-	ierr = IGAWriteVec(igaPi,pi0,pathPi);CHKERRQ(ierr);
+	char nameS[]="/Input-S-2d-0.dat";
+	char pathS[512];
+	sprintf(pathS,"%s%s",direct,nameS);
+	ierr = IGAWriteVec(igaS,s0,pathS);CHKERRQ(ierr);
 //
 
 //Creation of Initialization of Alfa0
@@ -227,6 +171,9 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	
 	Vec alp0;
 	ierr = IGACreateVec(igaAl,&alp0);CHKERRQ(ierr);
+
+	PetscReal a=0.0;	c=Lx/nx;	t=Ly/ny;
+	PetscInt center;
 
 	PetscReal e1=(0.0+0.0*a)/(c*t);
 	PetscReal e2=0.0*(a-0.100211)/(c*t);
@@ -341,7 +288,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 
 //Destroy all objects not needed anymore (Better to do it here in case different codes call the same IGA, move if memory is a problem)
 	ierr = IGADestroy(&igaAl);CHKERRQ(ierr);
-	ierr = IGADestroy(&igaPi);CHKERRQ(ierr);
+	ierr = IGADestroy(&igaS);CHKERRQ(ierr);
 //
 
 ierr = PetscFinalize();CHKERRQ(ierr);
