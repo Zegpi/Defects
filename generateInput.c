@@ -30,7 +30,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 
 //Generate Mesh and copy cpp to result folder to save for reproduction (check that parameters are the same on file to run)
 
-	PetscInt b=201;					//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
+	PetscInt b=401;					//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
 	PetscReal Lx=20.0;
 	PetscReal Ly=20.0;
 	PetscInt  nx=b;
@@ -85,12 +85,24 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	}
 	closedir(folder);
 
-	ierr=system("cp ~/CodigosPetIGA/generateInput.c ~/Results/");
+	FILE *source, *dest;
+	char buffer[8192];
+	size_t bytes;
+	source = fopen("/home/eazegpi/CodigosPetIga/generateInput.c","r");
+	dest   = fopen("/home/eazegpi/Results/generateInput.c","w");
+
+	while (0 < (bytes = fread(buffer, 1, sizeof(buffer), source)))
+    	fwrite(buffer, 1, bytes, dest);
+
+	fclose(source);
+	fclose(dest);
+
+	//ierr=system("cp /home/eazegpi/CodigosPetIGA/generateInput.c /home/eazegpi/Results/");
 //
 
 //General parameters
-	PetscInt N,M, numEls; 	
-	N=0;	M=0;	numEls=1;
+	PetscInt N,M, numEls;
+	N=0;	M=0;	numEls=2;
 //
 
 //Creation of Initialization of Pi
@@ -105,7 +117,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	ierr = IGASetUp(igaPi);CHKERRQ(ierr);
 
 	Vec pi0;
-	ierr = IGACreateVec(igaPi,&pi0);CHKERRQ(ierr);  
+	ierr = IGACreateVec(igaPi,&pi0);CHKERRQ(ierr);
 
 	PetscInt *points;
 	PetscReal *valores;
@@ -133,7 +145,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 
 	PetscInt counter=0;
 
-	if(b%2==0)		
+	if(b%2==0)
 	{
 		PetscInt realNumEls=pow(2,numEls-1);
 		center=(nx+1)*ny/2+nx/2;
@@ -267,7 +279,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	}
 
 	//Here I build two dislocation cores of the same sign separaed by 2*dist_centro+1 elements
-	
+	/*
 	PetscInt dist_centro, size_elem;
 	center=(nx+1)*ny/2-1;
 	
@@ -285,9 +297,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 			counter=counter+2;
 		}
 	}
-	
-	
-
+	*/
 
 	//ierr = VecSetValues(pi0,24+(Ndisl-0)*48,points,valores,INSERT_VALUES);
 	ierr = VecSetValues(alp0,8192,pointsAl,valoresAl,ADD_VALUES);

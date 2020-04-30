@@ -1,0 +1,20 @@
+Start of PruebaV5 
+Current time is 15:04:40 
+
+ System for initial state of Pi starting 
+
+IGA: dim=2 dof=4 order=1 geometry=2 rational=0 property=0
+Axis 0: basis=BSPLINE[1,0] rule=LEGENDRE[2] periodic=0 nnp=402 nel=401
+Axis 1: basis=BSPLINE[1,0] rule=LEGENDRE[2] periodic=0 nnp=402 nel=401
+Partition - MPI: processors=[2,3,1] total=6
+Partition - nnp: sum=161604 min=26934 max=26934 max/min=1.
+Partition - nel: sum=160801 min=26600 max=26934 max/min=1.01256
+
+ System for curl part of Helmholtz of S starting 
+
+IGA: dim=2 dof=8 order=1 geometry=2 rational=0 property=0
+Axis 0: basis=BSPLINE[1,0] rule=LEGENDRE[2] periodic=0 nnp=402 nel=401
+Axis 1: basis=BSPLINE[1,0] rule=LEGENDRE[2] periodic=0 nnp=402 nel=401
+Partition - MPI: processors=[2,3,1] total=6
+Partition - nnp: sum=161604 min=26934 max=26934 max/min=1.
+Partition - nel: sum=160801 min=26600 max=26934 max/min=1.01256
