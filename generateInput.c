@@ -129,7 +129,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	PetscReal normdr2=dr*dr;
 	PetscReal gamma=0.0/normdr2*dr/(c*t);
 	//PetscReal tanTh=-0.0/normdr2*dr/(c*t);
-	PetscReal tanTh=-tan(45.0/180.0*ConstPi)/(c*t);
+	PetscReal tanTh=0.0*-tan(45.0/180.0*ConstPi)/(c*t);
 
 	PetscInt counter=0;
 
@@ -149,17 +149,9 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 		{
 			for (int j=0; j<pow(2,numEls-1)+1; j++)
 			{
-				//points[counter]  =4*center+(N-1)*4*(nx+1)+(M-1)*4-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4+1;		valores[counter]=(-tanTh)/((realNumEls+1)*(realNumEls+1));
-				//points[counter+1]=4*center+(N-1)*4*(nx+1)+(M-1)*4-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4+2;		valores[counter+1]=(tanTh-gamma)/((realNumEls+1)*(realNumEls+1));
-				//points[counter+2]=4*center+(N-1)*4*(nx+1)+(M-1)*4-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4+3;		valores[counter+2]=(-gamma)/((realNumEls+1)*(realNumEls+1));
-
 				points[counter]  =4*center+N*4*(nx+1)+M*4-(i)*4*(nx+1)-(j)*4+1;								valores[counter]=(-tanTh)/((realNumEls+1)*(realNumEls+1));
 				points[counter+1]=4*center+N*4*(nx+1)+M*4-(i)*4*(nx+1)-(j)*4+2;								valores[counter+1]=(tanTh-gamma)/((realNumEls+1)*(realNumEls+1));
 				points[counter+2]=4*center+N*4*(nx+1)+M*4-(i)*4*(nx+1)-(j)*4+3;								valores[counter+2]=(-gamma)/((realNumEls+1)*(realNumEls+1));
-				
-				//points[counter+3]=4*center-N*4*(nx+1)-M*4-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4+1;				valores[counter+3]=(tanTh)/((realNumEls+1)*(realNumEls+1));
-				//points[counter+4]=4*center-N*4*(nx+1)-M*4-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4+2;				valores[counter+4]=((-tanTh+gamma))/((realNumEls+1)*(realNumEls+1));
-				//points[counter+5]=4*center-N*4*(nx+1)-M*4-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4+3;				valores[counter+5]=(gamma)/((realNumEls+1)*(realNumEls+1));
 
 				points[counter+3]=4*center-N*4*(nx+1)-M*4+(i)*4*(nx+1)+(j)*4+1;								valores[counter+3]=(tanTh)/((realNumEls+1)*(realNumEls+1));
 				points[counter+4]=4*center-N*4*(nx+1)-M*4+(i)*4*(nx+1)+(j)*4+2;								valores[counter+4]=((-tanTh+gamma))/((realNumEls+1)*(realNumEls+1));
@@ -176,22 +168,10 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 		{
 			for (int j=0; j<2*numEls; j++)
 			{
-				//points[counter  ]=4*center+N*4*(nx+1)+M*4+1-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4;			valores[counter  ]=(-tanTh)/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
-				//points[counter+1]=4*center+N*4*(nx+1)+M*4+2-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4;			valores[counter+1]=(tanTh-gamma)/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
-				//points[counter+2]=4*center+N*4*(nx+1)+M*4+3-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4;			valores[counter+2]=(-gamma)/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
-				
-				//points[counter+3]=4*center-N*4*(nx+1)-M*4+1-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4;			valores[counter+3]=(tanTh)/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
-				//points[counter+4]=4*center-N*4*(nx+1)-M*4+2-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4;			valores[counter+4]=(-tanTh+gamma)/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
-				//points[counter+5]=4*center-N*4*(nx+1)-M*4+3-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4;			valores[counter+5]=(gamma)/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
-
 				points[counter  ]=4*center+N*4*(nx+1)+M*4-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4+1;			valores[counter  ]=(-tanTh)/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
 				points[counter+1]=4*center+N*4*(nx+1)+M*4-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4+2;			valores[counter+1]=(tanTh-gamma)/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
 				points[counter+2]=4*center+N*4*(nx+1)+M*4-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4+3;			valores[counter+2]=(-gamma)/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
 				
-				//points[counter+3]=4*center-N*4*(nx+1)-M*4-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4+1;			valores[counter+3]=(tanTh)/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
-				//points[counter+4]=4*center-N*4*(nx+1)-M*4-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4+2;			valores[counter+4]=(-tanTh+gamma)/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
-				//points[counter+5]=4*center-N*4*(nx+1)-M*4-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4+3;			valores[counter+5]=(gamma)/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
-
 				counter=counter+3;
 			}
 		}
@@ -244,14 +224,9 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 
 	PetscPrintf(PETSC_COMM_WORLD,"Commsize es %d \n",commsize);
 
-	//Borrar esto despues
 	N=0; M=0;
-	//N=N-1; M=M-1;
-	//N=-N+1; M=-M+1;
-	//hasta aqui
 
 	counter=0;
-
 	if(b%2==0)		
 	{
 		PetscInt realNumEls=pow(2,numEls-1);
@@ -268,9 +243,6 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 		{
 			for (int j=0; j<pow(2,numEls-1)+1; j++)
 			{
-				//pointsAl[counter]=  2*center-N*2*(nx+1)-M*2+1-(numEls-i-1)*2*(nx+1)-(numEls-j-1)*2-1;				valoresAl[counter]=  e1/((realNumEls+1.0)*(realNumEls+1.0));
-				//pointsAl[counter+1]=2*center-N*2*(nx+1)-M*2+1-(numEls-i-1)*2*(nx+1)-(numEls-j-1)*2;							valoresAl[counter+1]=e2/((realNumEls+1.0)*(realNumEls+1.0));
-									
 				pointsAl[counter]  =2*center+(N+1)*2*(nx+1)+(M+1)*2-(i)*2*(nx+1)-(j)*2;									valoresAl[counter]  =e1/((realNumEls+1.0)*(realNumEls+1.0));
 				pointsAl[counter+1]=2*center+(N+1)*2*(nx+1)+(M+1)*2-(i)*2*(nx+1)-(j)*2+1;								valoresAl[counter+1]=e2/((realNumEls+1.0)*(realNumEls+1.0));
 
@@ -286,13 +258,6 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 		{
 			for (int j=0; j<2*numEls; j++)
 			{
-				//pointsAl[counter]=  2*center+N*2*(nx+1)+M*2+1-(numEls-i-1)*2*(nx+1)-(numEls-j-1)*2-1;				valoresAl[counter]=  e1/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
-				//pointsAl[counter+1]=2*center+N*2*(nx+1)+M*2+1-(numEls-i-1)*2*(nx+1)-(numEls-j-1)*2;					valoresAl[counter+1]=e2/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
-
-				//pointsAl[counter+2]=2*center-N*2*(nx+1)-M*2+1-(numEls-i-1)*2*(nx+1)-(numEls-j-1)*2-1;				valoresAl[counter+2]=e/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
-				//pointsAl[counter+3]=2*center-N*2*(nx+1)-M*2+1-(numEls-i-1)*2*(nx+1)-(numEls-j-1)*2;					valoresAl[counter+3]=e2/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
-
-				//points[counter  ]=4*center+N*4*(nx+1)+M*4+1-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4;
 				pointsAl[counter  ]=2*center+N*2*(nx+1)+M*2  -(numEls-i-1)*2*(nx+1)-(numEls-j-1)*2;			valoresAl[counter  ]=e1/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
 				pointsAl[counter+1]=2*center+N*2*(nx+1)+M*2+1-(numEls-i-1)*2*(nx+1)-(numEls-j-1)*2;			valoresAl[counter+1]=e2/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
 
@@ -301,30 +266,28 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 		}
 	}
 
+	//Here I build two dislocation cores of the same sign separaed by 2*dist_centro+1 elements
+	
+	PetscInt dist_centro, size_elem;
+	center=(nx+1)*ny/2-1;
+	
+	size_elem=4;		//1 is a 1x1 element, 2 is a 3x3 element, 3 is a 5x5 element, and so on
+	dist_centro=7;
 
-	/*
-	for (int i=0; i<commsize; i++)
+	counter=0;
+	for (int i=0;i<2*size_elem;i++)
 	{
-		if (rank==i)
+		for (int j=0;j<2*size_elem;j++)
 		{
-			pointsAl[0]=2*center+2*(nx+1)*N+2*M;						valoresAl[0]=coef/4.0;
-			pointsAl[1]=2*center+2*(nx+1)*N+2*M+2;						valoresAl[1]=coef/4.0;
-			pointsAl[2]=2*center+2*(nx+1)*(N+1)+2*M;					valoresAl[2]=coef/4.0;
-			pointsAl[3]=2*center+2*(nx+1)*(N+1)+2*M+2;					valoresAl[3]=coef/4.0;
+			pointsAl[counter  ]=2*(center-dist_centro-1-(size_elem-1)*(nx+1+1+1))+2*i*(nx+1)+2*j;	valoresAl[counter  ]=1.0/(4.0*c*t*size_elem*size_elem);
+			pointsAl[counter+1]=2*(center+dist_centro+1-(size_elem-1)*(nx+1+1-1))+2*i*(nx+1)+2*j;	valoresAl[counter+1]=1.0/(4.0*c*t*size_elem*size_elem);
 
-			pointsAl[4]=2*center+2*(nx+1)*N+2*M+1;						valoresAl[4]=(coef+e)/4.0;
-			pointsAl[5]=2*center+2*(nx+1)*N+2*M+2+1;					valoresAl[5]=(coef+e)/4.0;
-			pointsAl[6]=2*center+2*(nx+1)*(N+1)+2*M+1;					valoresAl[6]=(coef+e)/4.0;
-			pointsAl[7]=2*center+2*(nx+1)*(N+1)+2*M+2+1;				valoresAl[7]=(coef+e)/4.0;
-
-			for (int j=0; j<8; j++)
-			{
-				PetscPrintf(PETSC_COMM_SELF," rank = %d points[%d]=%d \n ", rank, j, pointsAl[j]);
-				PetscPrintf(PETSC_COMM_SELF," rank = %d valores[%d]=%f \n ", rank, j, valoresAl[j]);
-			}	
+			counter=counter+2;
 		}
 	}
-	*/
+	
+	
+
 
 	//ierr = VecSetValues(pi0,24+(Ndisl-0)*48,points,valores,INSERT_VALUES);
 	ierr = VecSetValues(alp0,8192,pointsAl,valoresAl,ADD_VALUES);

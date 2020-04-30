@@ -5,3 +5,7 @@ Suponiendo que Prueba arroja como resultados los tensores A (2o orden), B(4o ord
 python pospro2.py A* && python pospro4.py B* && python pospro2.py C*
 
 El * despues de cada uno se preocupa de tomar todos los valores (si es una serie de tiempo, por ejemplo) y de ignorar la extension (usualmente sera .dat)
+
+%La version actual de PruebaV5 usa los comandos
+
+python pospro2.py Input-Al-2d* && python pospro8.py Input-S-2d* && python pospro4.py CS-2d* && python pospro2.py u* && python pospro2.py Z0* geometry3 && python pospro4.py ChiUp-2d* geometry2 && python pospro4.py sigma* geometry3 && python pospro8.py ChiS-2d* && python pospro4.py ZS-2d* geometry2 && python pospro2.py Alp-2d* && python pospro4.py ExactStress-2d* geometry3 && python pospro4Diff.py sigma* ExactStress* geometry3 && python pospro2.py lambda* geometry3 && python pospro.py Energia* geometry3 && python pospro4.py Ue* geometry3 && python pospro.py Density* geometry3  && python pospro2.py Va* geometry3 && python pospro4.py classicSigma* geometry3 && python pospro4.py gradZ0* geometry3 && python pospro.py ElasticEnergy* geometry3 && python pospro.py GradEnergy* geometry3 && python pospro4.py FullSigma* geometry3 && python pospro4.py ChiZ* geometry2 && python pospro2.py Za* geometry2 && python pospro8.py GradGradz* geometry3 && python pospro4.py Input-Pi-2d*

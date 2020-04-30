@@ -1,7 +1,7 @@
 TARGETS = \
 Poisson1D Poisson2D Poisson3D \
 poisson2dmod \
-Prueba PruebaV2 PruebaV3 PruebaV4 PruebaV5 PruebaV5-1 PruebaV5S PruebaTest PruebaDislCS Elas Eq Energy generateInput generateInputS\
+Prueba PruebaV2 PruebaV3 PruebaV4 PruebaV5 PruebaV5-1 PruebaV5I PruebaV5S PruebaTest PruebaDislCS Elas Eq Energy generateInput generateInputS\
 PruebaPetsc\
 Prueba1D \
 L2Projection AdaptiveL2Projection \
@@ -74,6 +74,10 @@ PruebaV4: PruebaV4.o chkopts
 	$(RM) -f $<
 
 PruebaV5: PruebaV5.o chkopts
+	$(CLINKER) -o $@ $< $(PETIGA_LIB)
+	$(RM) -f $<
+
+PruebaV5I: PruebaV5I.o chkopts
 	$(CLINKER) -o $@ $< $(PETIGA_LIB)
 	$(RM) -f $<
 

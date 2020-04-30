@@ -30,7 +30,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 
 //Generate Mesh and copy cpp to result folder to save for reproduction (check that parameters are the same on file to run)
 
-	PetscInt b=201;					//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
+	PetscInt b=606;					//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
 	PetscReal Lx=20.0;
 	PetscReal Ly=20.0;
 	PetscInt  nx=b;
@@ -85,7 +85,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	}
 	closedir(folder);
 
-	ierr=system("cp ~/CodigosPetIGA/generateInput.c ~/Results/");
+	ierr=system("cp ~/CodigosPetIGA/generateInputS.c ~/Results/");
 //
 
 //General parameters
@@ -99,7 +99,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	ierr = IGACreate(PETSC_COMM_WORLD,&igaS);CHKERRQ(ierr);
 	ierr = IGASetDim(igaS,2);CHKERRQ(ierr);														//Spatial dimension of the problem
 	ierr = IGASetDof(igaS,8);CHKERRQ(ierr);														//Number of degrees of freedom, per node
-	ierr = IGASetOrder(igaS,2);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
+	ierr = IGASetOrder(igaS,1);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
 	ierr = IGASetFromOptions(igaS);CHKERRQ(ierr);												//Note: The order (or degree) of the shape functions is given by the mesh!
 	ierr = IGARead(igaS,"./geometry.dat");CHKERRQ(ierr);
 	ierr = IGASetUp(igaS);CHKERRQ(ierr);
@@ -110,11 +110,14 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	PetscInt nf,nc,numF,cord,counter, *pointsS;
 	PetscReal *valoresS,c,t, g[8];
 
-	nf=(b-1)/2; 
-	nc=(b+1)/2;
-	numF=2;
-	ierr = PetscMalloc1(65536,&pointsS);CHKERRQ(ierr);
-	ierr = PetscMalloc1(65536,&valoresS);CHKERRQ(ierr);
+	//nf=(b-1)/2; 
+	nf=(b-2)/2;			//For even values of b 
+	//nc=(b+1)/2;		//Half the length of the body, for a disclination on the center
+	nc=b+1;				//Full length of the body, for something like a through twin
+	numF=13;
+	
+	ierr = PetscCalloc1(262144,&pointsS);CHKERRQ(ierr);
+	ierr = PetscCalloc1(262144,&valoresS);CHKERRQ(ierr);
 
 	ierr = VecAssemblyBegin(s0);CHKERRQ(ierr);
 	ierr = VecAssemblyEnd  (s0);CHKERRQ(ierr);
@@ -125,16 +128,18 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	g[0]=0.0;
 	g[1]=0.0;
 	g[2]=0.0;
-	g[3]=-tan(5.0/180.0*ConstPi)/(2.0*t);
+	g[3]=1.0;//-tan(5.0/180.0*ConstPi)/(2.0*t);
 	g[4]=0.0;
-	g[5]=tan(5.0/180.0*ConstPi)/(2.0*t);
+	g[5]=0.0;//tan(5.0/180.0*ConstPi)/(2.0*t);
 	g[6]=0.0;
 	g[7]=0.0;
 
+
+	//nf=nf-(numF-2)/2;		//For odd values of b
+	nf=nf-(numF-3)/2;		//For even values of b
 	counter=0;
 	for (int i=nf; i<nf+numF; i++)
 	{
-		PetscPrintf(PETSC_COMM_WORLD,"El for \n");
 		cord=(nx+1)*i*8;
 		for (int j=0; j<nc; j++)
 		{
@@ -183,13 +188,11 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	PetscInt *pointsAl;
 	PetscReal *valoresAl;
 
-	pointsAl=(PetscInt*)calloc(8192,sizeof(PetscInt));
-	valoresAl=(PetscReal*)calloc(8192,sizeof(PetscReal));
+	ierr = PetscCalloc1(8192,&pointsAl);CHKERRQ(ierr);
+	ierr = PetscCalloc1(8192,&valoresAl);CHKERRQ(ierr);
 
 	ierr = VecAssemblyBegin(alp0);CHKERRQ(ierr);
 	ierr = VecAssemblyEnd  (alp0);CHKERRQ(ierr);
-
-	PetscPrintf(PETSC_COMM_WORLD,"Commsize es %d \n",commsize);
 
 	//Borrar esto despues
 	N=0; M=0;
@@ -273,12 +276,10 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	}
 	*/
 
-	//ierr = VecSetValues(pi0,24+(Ndisl-0)*48,points,valores,INSERT_VALUES);
-	ierr = VecSetValues(alp0,8192,pointsAl,valoresAl,ADD_VALUES);
+	ierr = VecSetValues(alp0,counter+1,pointsAl,valoresAl,ADD_VALUES);
 
 	ierr = VecAssemblyBegin(alp0);CHKERRQ(ierr);
 	ierr = VecAssemblyEnd  (alp0);CHKERRQ(ierr);
-
 	
 	char nameAlp[]="/Input-Al-2d-0.dat";
 	char pathAlp[512];
