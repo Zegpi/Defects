@@ -57,7 +57,7 @@ for infile in glob.glob(fileName):
 	#print(num)
 
 	# write a function to sample the nrbs object
-	uniform = lambda U: linspace(U[0], U[-1], 4*num)
+	uniform = lambda U: linspace(U[0], U[-1], 4*num-3)
 
 
 # write a binary VTK file

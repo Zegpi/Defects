@@ -220,7 +220,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	Vec alp0;
 	ierr = IGACreateVec(igaAl,&alp0);CHKERRQ(ierr);
 
-	PetscReal e1=(0.0+0.0*a)/(c*t);
+	PetscReal e1=(1.0+0.0*a)/(c*t);
 	PetscReal e2=0.0*(a-0.100211)/(c*t);
 	//PetscReal e2=(2.0)/(c*t);
 	//PetscReal lx=2.0*N*Lx/nx;

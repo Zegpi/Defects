@@ -698,200 +698,6 @@ PetscReal delta(PetscInt i, PetscInt j)
 
 //System for z(0)
 	#undef  __FUNCT__
-	#define __FUNCT__ "zLoad"
-	PetscErrorCode zLoad(IGAPoint p, IGAPoint pS, PetscReal *K, PetscReal *F, PetscReal *S, void *ctx)
-	{
-		PetscReal C[3][3][3][3]={0};														//Initialization of elastic tensor
-		const PetscReal *N0,(*N1)[2],(*N2)[2][2];
-		IGAPointGetShapeFuns(p,0,(const PetscReal**)&N0);									//Value of the shape functions
-		IGAPointGetShapeFuns(p,1,(const PetscReal**)&N1);									//Derivatives of the shape functions
-		IGAPointGetShapeFuns(p,2,(const PetscReal**)&N2);									//Second derivatives of the shape funcions
-		//After this command Na_xx=N2[a][0][0], Na_yy=N2[a][1][1], Na_xy=N2[a][0][1], Na_yx[a][1][0] (these last two are equal) (remember a is the index of the shape function)
-		PetscInt a,b,i,j,k,l,u,w,nen=p->nen, dof=p->dof;
-
-		PetscReal x[2];																		//Vector of reals, size equal to problem's dimension
-		IGAPointFormGeomMap(p,x);															//Fills x with the coordinates of p, Gauss's point
-
-		//Change for G=1
-		const PetscReal nu=0.33;
-		const PetscReal mu=1.0;
-		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=mu/100.0;								//Choose later based on whatever Amit says :)
-
-		//PetscReal S0[8];																	//Assign S to a vector
-		//IGAPointFormValue(pS,S,&S0[0]);
-
-		PetscReal fullS[3][3][3]={0};
-		fullS[0][0][0]=S[0]; fullS[0][0][1]=S[1];											//Expand S to full 3rd order form, only non-zero elements
-		fullS[0][1][0]=S[2]; fullS[0][1][1]=S[3];
-		fullS[1][0][0]=S[4]; fullS[1][0][1]=S[5];
-		fullS[1][1][0]=S[6]; fullS[1][1][1]=S[7];
-
-		/*
-		PetscReal dfy;
-		if (x[1]<=(1.5*20.0/101.0) && x[1]>=(1.5*20.0/101.0))
-		{
-			dfy=1.0;
-		}
-		else
-		{
-			dfy=0.0;
-		}
-
-		fullS[0][0][0]=0.0; fullS[0][0][1]=0.0;											//Expand S to full 3rd order form, only non-zero elements
-		fullS[0][1][0]=0.0; fullS[0][1][1]=dfy;
-		fullS[1][0][0]=0.0; fullS[1][0][1]=0.0;
-		fullS[1][1][0]=0.0; fullS[1][1][1]=0.0;
-		*/
-
-		PetscReal (*Keq)[dof][nen][dof] = (typeof(Keq)) K;
-		PetscReal (*Feq)[dof] = (PetscReal (*)[dof])F;
-
-		//Definition of alternating tensor
-		const PetscReal e[3][3][3]=
-		{
-			{{0.0,0.0,0.0},{0.0,0.0,1.0},{0.0,-1.0,0.0}},
-			{{0.0,0.0,-1.0},{0.0,0.0,0.0},{1.0,0.0,0.0}},
-			{{0.0,1.0,0.0},{-1.0,0.0,0.0},{0.0,0.0,0.0}}
-		};
-
-		//Creation of elasticity tensor
-		for (i=0; i<3; i++)
-		{
-			for (j=0; j<3; j++)
-			{
-				for (k=0; k<3; k++)
-				{
-					for (l=0; l<3; l++)
-					{
-						C[i][j][k][l]=lambda*delta(i,j)*delta(k,l)+mu*(delta(i,k)*delta(j,l)+delta(i,l)*delta(j,k));
-					}
-				}
-			}
-		}
-
-		PetscReal n[3]={0};
-		PetscReal z[3]={0};
-		PetscReal v[3]={0};
-
-		if (p->atboundary)
-		{
-			return 0;
-		}
-		else
-		{
-			for (a=0; a<nen; a++) 
-			{
-				PetscReal Na=N0[a];
-
-				for (b=0; b<nen; b++) 
-				{
-					PetscReal Nb=N0[b];
-
-					for (i=0; i<dof; i++)
-					{
-						if (i==0)
-						{
-							v[0]=Na;	v[1]=0.0; 	v[2]=0.0;
-						}
-						else if(i==1)
-						{
-							v[0]=0.0;	v[1]=Na; 	v[2]=0.0;
-						}
-
-						for (j=0; j<dof; j++)
-						{
-							if (j==0)
-							{
-								z[0]=Nb;	z[1]=0.0;	z[2]=0.0;
-							}
-							else if(j==1)
-							{
-								z[0]=0.0;	z[1]=Nb;	z[2]=0.0;
-							}
-
-							Keq[a][i][b][j]=0.0;
-							for (k=0; k<3; k++)
-							{
-								Keq[a][i][b][j]+=z[k]*v[k];
-							}
-						}
-					}
-				}
-			}
-
-			for(a=0;a<nen;a++)
-			{
-				PetscReal Na=N0[a];
-				PetscReal Na_x=N1[a][0];		PetscReal Na_y=N1[a][1];
-				PetscReal Na_xx =N2[a][0][0];	PetscReal Na_yy =N2[a][1][1];
-				PetscReal Na_xy =N2[a][0][1];	PetscReal Na_yx =N2[a][1][0];
-
-				for (i=0; i<dof; i++)
-				{
-					if (i==0)
-					{
-						v[0]=Na; 	   v[1]=0.0; 	  v[2]=0.0;
-						dv[0][0]=Na_x; dv[0][1]=Na_y; dv[0][2]=0.0;
-						dv[1][0]=0.0;  dv[1][1]=0.0;  dv[1][2]=0.0;
-						dv[2][0]=0.0;  dv[2][1]=0.0;  dv[2][2]=0.0;
-
-						d2v[0][0][0]=Na_xx; d2v[0][0][1]=Na_xy; d2v[0][0][2]=0.0; d2v[0][1][0]=Na_yx; d2v[0][1][1]=Na_yy; d2v[0][1][2]=0.0; d2v[0][2][0]=0.0; d2v[0][2][1]=0.0; d2v[0][2][2]=0.0;
-						d2v[1][0][0]=0.00;  d2v[1][0][1]=0.00;  d2v[1][0][2]=0.0; d2v[1][1][0]=0.0;   d2v[1][1][1]=0.0;   d2v[1][1][2]=0.0; d2v[1][2][0]=0.0; d2v[1][2][1]=0.0; d2v[1][2][2]=0.0;
-						d2v[2][0][0]=0.00;  d2v[2][0][1]=0.00;  d2v[2][0][2]=0.0; d2v[2][1][0]=0.0;   d2v[2][1][1]=0.0;   d2v[2][1][2]=0.0; d2v[2][2][0]=0.0; d2v[2][2][1]=0.0; d2v[2][2][2]=0.0;
-					}
-					else if (i==1)
-					{
-						v[0]=0.0; 	   v[1]=Na; 	  v[2]=0.0;
-						dv[0][0]=0.0;  dv[0][1]=0.0;  dv[0][2]=0.0;
-						dv[1][0]=Na_x; dv[1][1]=Na_y; dv[1][2]=0.0;
-						dv[2][0]=0.0;  dv[2][1]=0.0;  dv[2][2]=0.0;
-
-						d2v[0][0][0]=0.00;  d2v[0][0][1]=0.00;  d2v[0][0][2]=0.0; d2v[0][1][0]=0.0;   d2v[0][1][1]=0.0;   d2v[0][1][2]=0.0; d2v[0][2][0]=0.0; d2v[0][2][1]=0.0; d2v[0][2][2]=0.0;
-						d2v[1][0][0]=Na_xx; d2v[1][0][1]=Na_xy; d2v[1][0][2]=0.0; d2v[1][1][0]=Na_yx; d2v[1][1][1]=Na_yy; d2v[1][1][2]=0.0; d2v[1][2][0]=0.0; d2v[1][2][1]=0.0; d2v[1][2][2]=0.0;
-						d2v[2][0][0]=0.00;  d2v[2][0][1]=0.00;  d2v[2][0][2]=0.0; d2v[2][1][0]=0.0;   d2v[2][1][1]=0.0;   d2v[2][1][2]=0.0; d2v[2][2][0]=0.0; d2v[2][2][1]=0.0; d2v[2][2][2]=0.0;
-					}
-
-					Feq[a][i] = 0.0;
-
-					for (k=0; k<3; k++)
-					{
-						for (l=0; l<3; l++)
-						{
-							for (u=0; u<3; u++)
-							{
-								for (w=0; w<3; w++)
-								{
-									Feq[a][i]+=-0.5*(C[k][l][u][w]*(-fullChi[u][w])+C[l][k][u][w]*(-fullChi[u][w]))*0.5*(dv[k][l]+dv[l][k]);
-								}
-							}
-						}
-					}
-
-					for (k=0; k<3; k++)
-					{
-						for (l=0; l<3; l++)
-						{
-							for (u=0; u<3; u++)
-							{
-								Feq[a][i]+=-0.25*eps*(-full_dChi[k][l][u]-full_dChi[k][u][l]-full_dChi[l][k][u]-full_dChi[l][u][k])*0.5*(d2v[k][l][u]+d2v[l][k][u])
-										   +0.25*eps*(-full_dChi[l][k][u]+full_dChi[k][l][u]-full_dChi[l][u][k]+full_dChi[k][u][l])*d2v[k][l][u]
-										   //Next part is the contribution from having S in the energy function
-										   -0.25*eps*(-fullS[k][l][u]-fullS[k][u][l]-fullS[l][k][u]-fullS[l][u][k])*0.5*(d2v[k][l][u]+d2v[l][k][u])
-										   +0.25*eps*(-fullS[l][k][u]+fullS[k][l][u]-fullS[l][u][k]+fullS[k][u][l])*d2v[k][l][u];
-							}
-						}
-					}
-
-				}
-			}
-		}
-		return 0;
-	}
-//
-
-//System for z(0)
-	#undef  __FUNCT__
 	#define __FUNCT__ "Z0sys"
 	PetscErrorCode Z0sys(IGAPoint p, IGAPoint pChi, IGAPoint pS, PetscReal *K, PetscReal *F, PetscReal *UChi, PetscReal *S, void *ctx)
 	{
@@ -2944,7 +2750,13 @@ int main(int argc, char *argv[]) {
 	ierr = IGASetOrder(igaS,1);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
 	ierr = IGASetFromOptions(igaS);CHKERRQ(ierr);												//Note: The order (or degree) of the shape functions is given by the mesh!
 	ierr = IGARead(igaS,"./geometry.dat");CHKERRQ(ierr);
-	ierr = IGASetUp(igaS);CHKERRQ(ierr);
+	
+	for (dir=0; dir<2; dir++)
+	{
+		ierr = IGASetRuleType(igaPi,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
+		ierr = IGASetRuleSize(igaPi,dir,6);CHKERRQ(ierr);
+	}
+	ierr = IGASetUp(igaPi);CHKERRQ(ierr);
 
 	Vec s0;
 	ierr = IGACreateVec(igaS,&s0);CHKERRQ(ierr);  
@@ -3117,6 +2929,12 @@ int main(int argc, char *argv[]) {
 	ierr = IGASetOrder(igachiS,1);CHKERRQ(ierr);														//Number of spatial derivatives to calculate
 	ierr = IGASetFromOptions(igachiS);CHKERRQ(ierr);													//Note: The order (or degree) of the shape functions is given by the mesh!
 	ierr = IGARead(igachiS,"./geometry.dat");CHKERRQ(ierr);
+	
+	for (dir=0; dir<2; dir++)
+	{
+		ierr = IGASetRuleType(igachiS,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
+		ierr = IGASetRuleSize(igachiS,dir,6);CHKERRQ(ierr);
+	}
 	ierr = IGASetUp(igachiS);CHKERRQ(ierr);
 	//PetscInt dir,side;
 	for (dir=0; dir<2; dir++) 
@@ -3444,6 +3262,12 @@ int main(int argc, char *argv[]) {
 	ierr = IGASetOrder(igaAl,1);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
 	ierr = IGASetFromOptions(igaAl);CHKERRQ(ierr);												//Note: The order (or degree) of the shape functions is given by the mesh!
 	ierr = IGARead(igaAl,"./geometry.dat");CHKERRQ(ierr);
+	
+	for (dir=0; dir<2; dir++)
+	{
+		ierr = IGASetRuleType(igaAl,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
+		ierr = IGASetRuleSize(igaAl,dir,6);CHKERRQ(ierr);
+	}
 	ierr = IGASetUp(igaAl);CHKERRQ(ierr);
 	//PetscInt dir,side;
 	for (dir=0; dir<2; dir++) 
@@ -3558,7 +3382,6 @@ int main(int argc, char *argv[]) {
 //
 
 //Creation of types and systems for the Helmholtz decomposition of Up (or Ue), curl part
-	//System for ZS
 	T=time(NULL);
 	tm=*localtime(&T);
 	PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.tm_min,tm.tm_sec);
@@ -3570,6 +3393,12 @@ int main(int argc, char *argv[]) {
 	ierr = IGASetOrder(igachiUp,2);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
 	ierr = IGASetFromOptions(igachiUp);CHKERRQ(ierr);												//Note: The order (or degree) of the shape functions is given by the mesh!
 	ierr = IGARead(igachiUp,"./geometry2.dat");CHKERRQ(ierr);
+	
+	for (dir=0; dir<2; dir++)
+	{
+		ierr = IGASetRuleType(igachiUp,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
+		ierr = IGASetRuleSize(igachiUp,dir,6);CHKERRQ(ierr);
+	}
 	ierr = IGASetUp(igachiUp);CHKERRQ(ierr);
 
 	//ierr = IGASetBoundaryValue(iga,dir,side,dof,val);CHKERRQ(ierr);
@@ -3697,22 +3526,16 @@ int main(int argc, char *argv[]) {
 	ierr = IGASetDof(igaZ0,2);CHKERRQ(ierr);													//Number of degrees of freedom, per node
 	ierr = IGASetOrder(igaZ0,3);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
 	ierr = IGASetFromOptions(igaZ0);CHKERRQ(ierr);												//Note: The order (or degree) of the shape functions is given by the mesh!
-	ierr = IGARead(igaZ0,"./geometry3.dat");CHKERRQ(ierr);
-	//ierr = IGASetUp(igaZ0);CHKERRQ(ierr);
-
-	PetscInt fijaPunto=0;																		//Fix a single point (1) or a side (chosen in blocks below)
-
-
-	//Code to increase number of quadrature points
+	ierr = IGARead(igaZ0,"./geometry4.dat");CHKERRQ(ierr);
+	
 	for (dir=0; dir<2; dir++)
 	{
 		ierr = IGASetRuleType(igaZ0,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
-		ierr = IGASetRuleSize(igaZ0,dir,9);CHKERRQ(ierr);
-		ierr = IGASetRuleType(igachiUp,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
-		ierr = IGASetRuleSize(igachiUp,dir,9);CHKERRQ(ierr);
-		ierr = IGASetRuleType(igaS,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
-		ierr = IGASetRuleSize(igaS,dir,9);CHKERRQ(ierr);
+		ierr = IGASetRuleSize(igaZ0,dir,6);CHKERRQ(ierr);
 	}
+	ierr = IGASetUp(igaZ0);CHKERRQ(ierr);
+
+	PetscInt fijaPunto=0;																		//Fix a single point (1) or a side (chosen in blocks below)
 
 	ierr = IGASetUp(igaZ0);CHKERRQ(ierr);
 	ierr = IGASetUp(igachiUp);CHKERRQ(ierr);
@@ -3975,6 +3798,12 @@ int main(int argc, char *argv[]) {
 	ierr = IGASetOrder(igaStress,2);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
 	ierr = IGASetFromOptions(igaStress);CHKERRQ(ierr);												//Note: The order (or degree) of the shape functions is given by the mesh!
 	ierr = IGARead(igaStress,"./geometry3.dat");CHKERRQ(ierr);
+	
+	for (dir=0; dir<2; dir++)
+	{
+		ierr = IGASetRuleType(igaStress,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
+		ierr = IGASetRuleSize(igaStress,dir,6);CHKERRQ(ierr);
+	}
 	ierr = IGASetUp(igaStress);CHKERRQ(ierr);
 
 	for (dir=0; dir<2; dir++) 
@@ -4137,6 +3966,12 @@ int main(int argc, char *argv[]) {
 	ierr = IGASetOrder(igaClassicStress,2);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
 	ierr = IGASetFromOptions(igaClassicStress);CHKERRQ(ierr);												//Note: The order (or degree) of the shape functions is given by the mesh!
 	ierr = IGARead(igaClassicStress,"./geometry3.dat");CHKERRQ(ierr);
+	
+	for (dir=0; dir<2; dir++)
+	{
+		ierr = IGASetRuleType(igaClassicStress,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
+		ierr = IGASetRuleSize(igaClassicStress,dir,6);CHKERRQ(ierr);
+	}
 	ierr = IGASetUp(igaClassicStress);CHKERRQ(ierr);
 
 	for (dir=0; dir<2; dir++) 
@@ -4282,6 +4117,12 @@ int main(int argc, char *argv[]) {
 	ierr = IGASetOrder(igaCS,2);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
 	ierr = IGASetFromOptions(igaCS);CHKERRQ(ierr);												//Note: The order (or degree) of the shape functions is given by the mesh!
 	ierr = IGARead(igaCS,"./geometry3.dat");CHKERRQ(ierr);
+	
+	for (dir=0; dir<2; dir++)
+	{
+		ierr = IGASetRuleType(igaCS,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
+		ierr = IGASetRuleSize(igaCS,dir,6);CHKERRQ(ierr);
+	}
 	ierr = IGASetUp(igaCS);CHKERRQ(ierr);
 
 	for (dir=0; dir<2; dir++) 
@@ -4440,6 +4281,12 @@ int main(int argc, char *argv[]) {
 	ierr = IGASetOrder(igaED,2);CHKERRQ(ierr);												//Number of spatial derivatives to calculate
 	ierr = IGASetFromOptions(igaED);CHKERRQ(ierr);											//Note: The order (or degree) of the shape functions is given by the mesh!
 	ierr = IGARead(igaED,"./geometry3.dat");CHKERRQ(ierr);
+	
+	for (dir=0; dir<2; dir++)
+	{
+		ierr = IGASetRuleType(igaED,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
+		ierr = IGASetRuleSize(igaED,dir,6);CHKERRQ(ierr);
+	}
 	ierr = IGASetUp(igaED);CHKERRQ(ierr);
 
 	for (dir=0; dir<2; dir++) 
@@ -4895,6 +4742,12 @@ int main(int argc, char *argv[]) {
 	ierr = IGASetOrder(igaFullS,2);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
 	ierr = IGASetFromOptions(igaFullS);CHKERRQ(ierr);												//Note: The order (or degree) of the shape functions is given by the mesh!
 	ierr = IGARead(igaFullS,"./geometry3.dat");CHKERRQ(ierr);
+	
+	for (dir=0; dir<2; dir++)
+	{
+		ierr = IGASetRuleType(igaFullS,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
+		ierr = IGASetRuleSize(igaFullS,dir,6);CHKERRQ(ierr);
+	}
 	ierr = IGASetUp(igaFullS);CHKERRQ(ierr);
 
 	for (dir=0; dir<2; dir++) 
@@ -5059,6 +4912,12 @@ int main(int argc, char *argv[]) {
 	ierr = IGASetOrder(igaVa,2);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
 	ierr = IGASetFromOptions(igaVa);CHKERRQ(ierr);												//Note: The order (or degree) of the shape functions is given by the mesh!
 	ierr = IGARead(igaVa,"./geometry3.dat");CHKERRQ(ierr);
+	
+	for (dir=0; dir<2; dir++)
+	{
+		ierr = IGASetRuleType(igaVa,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
+		ierr = IGASetRuleSize(igaVa,dir,6);CHKERRQ(ierr);
+	}
 	ierr = IGASetUp(igaVa);CHKERRQ(ierr);
 
 	for (dir=0; dir<2; dir++) 
@@ -5214,6 +5073,12 @@ int main(int argc, char *argv[]) {
 	ierr = IGASetOrder(igaExact,2);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
 	ierr = IGASetFromOptions(igaExact);CHKERRQ(ierr);												//Note: The order (or degree) of the shape functions is given by the mesh!
 	ierr = IGARead(igaExact,"./geometry3.dat");CHKERRQ(ierr);
+	
+	for (dir=0; dir<2; dir++)
+	{
+		ierr = IGASetRuleType(igaExact,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
+		ierr = IGASetRuleSize(igaExact,dir,6);CHKERRQ(ierr);
+	}
 	ierr = IGASetUp(igaExact);CHKERRQ(ierr);
 	
 	for (dir=0; dir<2; dir++) 
@@ -5224,14 +5089,6 @@ int main(int argc, char *argv[]) {
 			ierr = IGASetBoundaryForm(igaExact,dir,side,PETSC_TRUE);CHKERRQ(ierr);  				// Neumann boundary conditions
 		}
 	}
-
-	for (dir=0; dir<2; dir++)
-	{
-		ierr = IGASetRuleType(igaExact,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
-		ierr = IGASetRuleSize(igaExact,dir,6);CHKERRQ(ierr);
-	}
-
-	ierr = IGASetUp(igaExact);CHKERRQ(ierr);
 
 	Vec e0;
 	Mat Kl2e;
@@ -5270,6 +5127,12 @@ int main(int argc, char *argv[]) {
 	ierr = IGASetOrder(igaGrad,2);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
 	ierr = IGASetFromOptions(igaGrad);CHKERRQ(ierr);												//Note: The order (or degree) of the shape functions is given by the mesh!
 	ierr = IGARead(igaGrad,"./geometry3.dat");CHKERRQ(ierr);
+	
+	for (dir=0; dir<2; dir++)
+	{
+		ierr = IGASetRuleType(igaGrad,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
+		ierr = IGASetRuleSize(igaGrad,dir,6);CHKERRQ(ierr);
+	}
 	ierr = IGASetUp(igaGrad);CHKERRQ(ierr);
 	
 	for (dir=0; dir<2; dir++) 

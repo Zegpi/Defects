@@ -1630,7 +1630,7 @@ int main(int argc, char *argv[]) {
 //
 
 //Creation of types and systems for the Initialization of Pi
-	PetscPrintf(PETSC_COMM_WORLD,"\n System for initial state of Pi starting \n\n");
+	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for initial state of Pi starting \n\n");
 	IGA igaPi;
 	ierr = IGACreate(PETSC_COMM_WORLD,&igaPi);CHKERRQ(ierr);
 	ierr = IGASetDim(igaPi,2);CHKERRQ(ierr);														//Spatial dimension of the problem
@@ -1638,6 +1638,12 @@ int main(int argc, char *argv[]) {
 	ierr = IGASetOrder(igaPi,1);CHKERRQ(ierr);														//Number of spatial derivatives to calculate
 	ierr = IGASetFromOptions(igaPi);CHKERRQ(ierr);													//Note: The order (or degree) of the shape functions is given by the mesh!
 	ierr = IGARead(igaPi,"./geometry.dat");CHKERRQ(ierr);
+	
+	for (dir=0; dir<2; dir++)
+	{
+		ierr = IGASetRuleType(igaPi,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
+		ierr = IGASetRuleSize(igaPi,dir,6);CHKERRQ(ierr);
+	}
 	ierr = IGASetUp(igaPi);CHKERRQ(ierr);
 
 	Vec pi0;
@@ -1651,7 +1657,10 @@ int main(int argc, char *argv[]) {
 
 //Creation of types and systems for the Helmholtz decomposition of S, curl part
 	//System for chiS
-	PetscPrintf(PETSC_COMM_WORLD,"\n System for curl part of Helmholtz of S starting \n\n");
+	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for curl part of Helmholtz of S starting \n\n");
+	T=time(NULL);
+	tm=*localtime(&T);
+	PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.tm_min,tm.tm_sec);
 	IGA igachiS;
 	ierr = IGACreate(PETSC_COMM_WORLD,&igachiS);CHKERRQ(ierr);
 	ierr = IGASetDim(igachiS,2);CHKERRQ(ierr);														//Spatial dimension of the problem
@@ -1659,6 +1668,12 @@ int main(int argc, char *argv[]) {
 	ierr = IGASetOrder(igachiS,1);CHKERRQ(ierr);														//Number of spatial derivatives to calculate
 	ierr = IGASetFromOptions(igachiS);CHKERRQ(ierr);													//Note: The order (or degree) of the shape functions is given by the mesh!
 	ierr = IGARead(igachiS,"./geometry.dat");CHKERRQ(ierr);
+	
+	for (dir=0; dir<2; dir++)
+	{
+		ierr = IGASetRuleType(igachiS,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
+		ierr = IGASetRuleSize(igachiS,dir,6);CHKERRQ(ierr);
+	}
 	ierr = IGASetUp(igachiS);CHKERRQ(ierr);
 	//PetscInt dir,side;
 	for (dir=0; dir<2; dir++) 
@@ -1798,7 +1813,10 @@ int main(int argc, char *argv[]) {
 
 //Creation of types and systems for the L2 projection of Alfa0-Sp:X
 	//System for Alfa
-	PetscPrintf(PETSC_COMM_WORLD,"\n System for L2 projection for Alfa+Sp:X starting \n\n");
+	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for L2 projection for Alfa+Sp:X starting \n\n");
+	T=time(NULL);
+	tm=*localtime(&T);
+	PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.tm_min,tm.tm_sec);
 	IGA igaAl;
 	ierr = IGACreate(PETSC_COMM_WORLD,&igaAl);CHKERRQ(ierr);
 	ierr = IGASetDim(igaAl,2);CHKERRQ(ierr);														//Spatial dimension of the problem
@@ -1806,6 +1824,12 @@ int main(int argc, char *argv[]) {
 	ierr = IGASetOrder(igaAl,1);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
 	ierr = IGASetFromOptions(igaAl);CHKERRQ(ierr);												//Note: The order (or degree) of the shape functions is given by the mesh!
 	ierr = IGARead(igaAl,"./geometry.dat");CHKERRQ(ierr);
+	
+	for (dir=0; dir<2; dir++)
+	{
+		ierr = IGASetRuleType(igaAl,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
+		ierr = IGASetRuleSize(igaAl,dir,6);CHKERRQ(ierr);
+	}
 	ierr = IGASetUp(igaAl);CHKERRQ(ierr);
 	//PetscInt dir,side;
 	for (dir=0; dir<2; dir++) 
@@ -1921,7 +1945,10 @@ int main(int argc, char *argv[]) {
 
 //Creation of types and systems for the Helmholtz decomposition of Up (or Ue), curl part
 	//System for chiU
-	PetscPrintf(PETSC_COMM_WORLD,"\n System for curl part of Helmholtz of Up starting \n\n");
+	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for curl part of Helmholtz of Up starting \n\n");
+	T=time(NULL);
+	tm=*localtime(&T);
+	PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.tm_min,tm.tm_sec);
 	IGA igachiUp;
 	ierr = IGACreate(PETSC_COMM_WORLD,&igachiUp);CHKERRQ(ierr);
 	ierr = IGASetDim(igachiUp,2);CHKERRQ(ierr);														//Spatial dimension of the problem
@@ -1929,6 +1956,12 @@ int main(int argc, char *argv[]) {
 	ierr = IGASetOrder(igachiUp,2);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
 	ierr = IGASetFromOptions(igachiUp);CHKERRQ(ierr);												//Note: The order (or degree) of the shape functions is given by the mesh!
 	ierr = IGARead(igachiUp,"./geometry2.dat");CHKERRQ(ierr);
+	
+	for (dir=0; dir<2; dir++)
+	{
+		ierr = IGASetRuleType(igachiUp,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
+		ierr = IGASetRuleSize(igachiUp,dir,6);CHKERRQ(ierr);
+	}
 	ierr = IGASetUp(igachiUp);CHKERRQ(ierr);
 
 	//ierr = IGASetBoundaryValue(iga,dir,side,dof,val);CHKERRQ(ierr);
@@ -2045,7 +2078,10 @@ int main(int argc, char *argv[]) {
 //
 
 //System for initial state of z0
-	PetscPrintf(PETSC_COMM_WORLD,"\n System for Z0 starting \n\n");
+	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for Z0 starting \n\n");
+	T=time(NULL);
+	tm=*localtime(&T);
+	PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.tm_min,tm.tm_sec);
 	IGA igaZ0;
 	ierr = IGACreate(PETSC_COMM_WORLD,&igaZ0);CHKERRQ(ierr);
 	ierr = IGASetDim(igaZ0,2);CHKERRQ(ierr);													//Spatial dimension of the problem
@@ -2053,6 +2089,12 @@ int main(int argc, char *argv[]) {
 	ierr = IGASetOrder(igaZ0,3);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
 	ierr = IGASetFromOptions(igaZ0);CHKERRQ(ierr);												//Note: The order (or degree) of the shape functions is given by the mesh!
 	ierr = IGARead(igaZ0,"./geometry3.dat");CHKERRQ(ierr);
+	
+	for (dir=0; dir<2; dir++)
+	{
+		ierr = IGASetRuleType(igaZ0,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
+		ierr = IGASetRuleSize(igaZ0,dir,6);CHKERRQ(ierr);
+	}
 	ierr = IGASetUp(igaZ0);CHKERRQ(ierr);
 
 	PetscInt fijaPunto=1;																		//Fix a single point (1) or a side (chosen in blocks below)
@@ -2220,19 +2262,19 @@ int main(int argc, char *argv[]) {
 		}
 
 		rows=0;
-		vals[rows]=1.0e6;
+		vals[rows]=1.0e12;
 		ierr = MatSetValues(KZ0,1,&rows,m,cols,vals,INSERT_VALUES);CHKERRQ(ierr);
 		ierr = MatSetValues(KZ0,n,cols,1,&rows,vals,INSERT_VALUES);CHKERRQ(ierr);
 		vals[rows]=0.0;
 		rows=1;
-		vals[rows]=1.0e6;
+		vals[rows]=1.0e12;
 		ierr = MatSetValues(KZ0,1,&rows,m,cols,vals,INSERT_VALUES);CHKERRQ(ierr);
 		ierr = MatSetValues(KZ0,n,cols,1,&rows,vals,INSERT_VALUES);CHKERRQ(ierr);
 		vals[rows]=0.0;
 		rows=2*(nx+3)*(ny+3)-2*(nx+2)-2; 										//This is for when z is a 3rd order nurb
 		//rows=2*(nx+2)*(ny+2)-2*(nx+1)-2; 										//This is for when z is a 2nd order nurb
 		//rows=2*(nx+1)-1;														//This is the dof in x on the upper right corner for 1st order elements
-		vals[rows]=1.0e6;
+		vals[rows]=1.0e12;
 		ierr = MatSetValues(KZ0,1,&rows,m,cols,vals,INSERT_VALUES);CHKERRQ(ierr);
 		ierr = MatSetValues(KZ0,n,cols,1,&rows,vals,INSERT_VALUES);CHKERRQ(ierr);
 		vals[rows]=0.0;
@@ -2285,7 +2327,10 @@ int main(int argc, char *argv[]) {
 //
 
 //System for L2 projection of stress
-	PetscPrintf(PETSC_COMM_WORLD,"\n System for Stress starting \n\n");
+	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for Stress starting \n\n");
+	T=time(NULL);
+	tm=*localtime(&T);
+	PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.tm_min,tm.tm_sec);
 	IGA igaStress;
 	ierr = IGACreate(PETSC_COMM_WORLD,&igaStress);CHKERRQ(ierr);
 	ierr = IGASetDim(igaStress,2);CHKERRQ(ierr);													//Spatial dimension of the problem
@@ -2293,6 +2338,12 @@ int main(int argc, char *argv[]) {
 	ierr = IGASetOrder(igaStress,2);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
 	ierr = IGASetFromOptions(igaStress);CHKERRQ(ierr);												//Note: The order (or degree) of the shape functions is given by the mesh!
 	ierr = IGARead(igaStress,"./geometry3.dat");CHKERRQ(ierr);
+	
+	for (dir=0; dir<2; dir++)
+	{
+		ierr = IGASetRuleType(igaStress,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
+		ierr = IGASetRuleSize(igaStress,dir,6);CHKERRQ(ierr);
+	}
 	ierr = IGASetUp(igaStress);CHKERRQ(ierr);
 
 	for (dir=0; dir<2; dir++) 
@@ -2431,7 +2482,10 @@ int main(int argc, char *argv[]) {
 //
 
 //System for L2 projection of classic stress (C*Ue)
-	PetscPrintf(PETSC_COMM_WORLD,"\n System for Classic Stress starting \n\n");
+	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for Classic Stress starting \n\n");
+	T=time(NULL);
+	tm=*localtime(&T);
+	PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.tm_min,tm.tm_sec);
 	IGA igaClassicStress;
 	ierr = IGACreate(PETSC_COMM_WORLD,&igaClassicStress);CHKERRQ(ierr);
 	ierr = IGASetDim(igaClassicStress,2);CHKERRQ(ierr);													//Spatial dimension of the problem
@@ -2439,6 +2493,12 @@ int main(int argc, char *argv[]) {
 	ierr = IGASetOrder(igaClassicStress,2);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
 	ierr = IGASetFromOptions(igaClassicStress);CHKERRQ(ierr);												//Note: The order (or degree) of the shape functions is given by the mesh!
 	ierr = IGARead(igaClassicStress,"./geometry3.dat");CHKERRQ(ierr);
+	
+	for (dir=0; dir<2; dir++)
+	{
+		ierr = IGASetRuleType(igaClassicStress,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
+		ierr = IGASetRuleSize(igaClassicStress,dir,6);CHKERRQ(ierr);
+	}
 	ierr = IGASetUp(igaClassicStress);CHKERRQ(ierr);
 
 	for (dir=0; dir<2; dir++) 
@@ -2576,7 +2636,10 @@ int main(int argc, char *argv[]) {
 //
 
 //System for L2 projection of couple stress
-	PetscPrintf(PETSC_COMM_WORLD,"\n System for CoupleStress starting \n\n");
+	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for CoupleStress starting \n\n");
+	T=time(NULL);
+	tm=*localtime(&T);
+	PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.tm_min,tm.tm_sec);
 	IGA igaCS;
 	ierr = IGACreate(PETSC_COMM_WORLD,&igaCS);CHKERRQ(ierr);
 	ierr = IGASetDim(igaCS,2);CHKERRQ(ierr);													//Spatial dimension of the problem
@@ -2584,6 +2647,12 @@ int main(int argc, char *argv[]) {
 	ierr = IGASetOrder(igaCS,2);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
 	ierr = IGASetFromOptions(igaCS);CHKERRQ(ierr);												//Note: The order (or degree) of the shape functions is given by the mesh!
 	ierr = IGARead(igaCS,"./geometry3.dat");CHKERRQ(ierr);
+	
+	for (dir=0; dir<2; dir++)
+	{
+		ierr = IGASetRuleType(igaCS,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
+		ierr = IGASetRuleSize(igaCS,dir,6);CHKERRQ(ierr);
+	}
 	ierr = IGASetUp(igaCS);CHKERRQ(ierr);
 
 	for (dir=0; dir<2; dir++) 
@@ -2719,7 +2788,10 @@ int main(int argc, char *argv[]) {
 //
 
 //System for L2 projection of Energy Density
-	PetscPrintf(PETSC_COMM_WORLD,"\n System for Energy Density starting \n\n");
+	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for Energy Density starting \n\n");
+	T=time(NULL);
+	tm=*localtime(&T);
+	PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.tm_min,tm.tm_sec);
 	IGA igaED;
 	ierr = IGACreate(PETSC_COMM_WORLD,&igaED);CHKERRQ(ierr);
 	ierr = IGASetDim(igaED,2);CHKERRQ(ierr);													//Spatial dimension of the problem
@@ -2727,6 +2799,12 @@ int main(int argc, char *argv[]) {
 	ierr = IGASetOrder(igaED,2);CHKERRQ(ierr);												//Number of spatial derivatives to calculate
 	ierr = IGASetFromOptions(igaED);CHKERRQ(ierr);											//Note: The order (or degree) of the shape functions is given by the mesh!
 	ierr = IGARead(igaED,"./geometry3.dat");CHKERRQ(ierr);
+	
+	for (dir=0; dir<2; dir++)
+	{
+		ierr = IGASetRuleType(igaED,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
+		ierr = IGASetRuleSize(igaED,dir,6);CHKERRQ(ierr);
+	}
 	ierr = IGASetUp(igaED);CHKERRQ(ierr);
 
 	for (dir=0; dir<2; dir++) 
@@ -2855,7 +2933,10 @@ int main(int argc, char *argv[]) {
 //
 
 //System for L2 projection of V^{alpha}
-	PetscPrintf(PETSC_COMM_WORLD,"\n System for V-alpha starting \n\n");
+	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for V-alpha starting \n\n");
+	T=time(NULL);
+	tm=*localtime(&T);
+	PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.tm_min,tm.tm_sec);
 	IGA igaVa;
 	ierr = IGACreate(PETSC_COMM_WORLD,&igaVa);CHKERRQ(ierr);
 	ierr = IGASetDim(igaVa,2);CHKERRQ(ierr);													//Spatial dimension of the problem
@@ -2863,6 +2944,12 @@ int main(int argc, char *argv[]) {
 	ierr = IGASetOrder(igaVa,2);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
 	ierr = IGASetFromOptions(igaVa);CHKERRQ(ierr);												//Note: The order (or degree) of the shape functions is given by the mesh!
 	ierr = IGARead(igaVa,"./geometry3.dat");CHKERRQ(ierr);
+	
+	for (dir=0; dir<2; dir++)
+	{
+		ierr = IGASetRuleType(igaVa,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
+		ierr = IGASetRuleSize(igaVa,dir,6);CHKERRQ(ierr);
+	}
 	ierr = IGASetUp(igaVa);CHKERRQ(ierr);
 
 	for (dir=0; dir<2; dir++) 
@@ -3010,7 +3097,10 @@ int main(int argc, char *argv[]) {
 //
 
 //System for L2 projection of exact stress
-	PetscPrintf(PETSC_COMM_WORLD,"\n System for L2 projection for exact stress starting \n\n");
+	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for L2 projection for exact stress starting \n\n");
+	T=time(NULL);
+	tm=*localtime(&T);
+	PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.tm_min,tm.tm_sec);
 	IGA igaExact;
 	ierr = IGACreate(PETSC_COMM_WORLD,&igaExact);CHKERRQ(ierr);
 	ierr = IGASetDim(igaExact,2);CHKERRQ(ierr);														//Spatial dimension of the problem
@@ -3018,6 +3108,12 @@ int main(int argc, char *argv[]) {
 	ierr = IGASetOrder(igaExact,2);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
 	ierr = IGASetFromOptions(igaExact);CHKERRQ(ierr);												//Note: The order (or degree) of the shape functions is given by the mesh!
 	ierr = IGARead(igaExact,"./geometry3.dat");CHKERRQ(ierr);
+	
+	for (dir=0; dir<2; dir++)
+	{
+		ierr = IGASetRuleType(igaExact,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
+		ierr = IGASetRuleSize(igaExact,dir,6);CHKERRQ(ierr);
+	}
 	ierr = IGASetUp(igaExact);CHKERRQ(ierr);
 	
 	for (dir=0; dir<2; dir++) 
@@ -3028,14 +3124,6 @@ int main(int argc, char *argv[]) {
 			ierr = IGASetBoundaryForm(igaExact,dir,side,PETSC_TRUE);CHKERRQ(ierr);  				// Neumann boundary conditions
 		}
 	}
-
-	for (dir=0; dir<2; dir++)
-	{
-		ierr = IGASetRuleType(igaExact,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
-		ierr = IGASetRuleSize(igaExact,dir,6);CHKERRQ(ierr);
-	}
-
-	ierr = IGASetUp(igaExact);CHKERRQ(ierr);
 
 	Vec e0;
 	Mat Kl2e;
@@ -3066,7 +3154,10 @@ int main(int argc, char *argv[]) {
 //
 
 //System for L2 projection of grad(Z0)
-	PetscPrintf(PETSC_COMM_WORLD,"\n System for L2 projection for grad(Z0) \n\n");
+	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for L2 projection for grad(Z0) \n\n");
+	T=time(NULL);
+	tm=*localtime(&T);
+	PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.tm_min,tm.tm_sec);
 	IGA igaGrad;
 	ierr = IGACreate(PETSC_COMM_WORLD,&igaGrad);CHKERRQ(ierr);
 	ierr = IGASetDim(igaGrad,2);CHKERRQ(ierr);														//Spatial dimension of the problem
@@ -3074,6 +3165,12 @@ int main(int argc, char *argv[]) {
 	ierr = IGASetOrder(igaGrad,2);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
 	ierr = IGASetFromOptions(igaGrad);CHKERRQ(ierr);												//Note: The order (or degree) of the shape functions is given by the mesh!
 	ierr = IGARead(igaGrad,"./geometry3.dat");CHKERRQ(ierr);
+	
+	for (dir=0; dir<2; dir++)
+	{
+		ierr = IGASetRuleType(igaGrad,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
+		ierr = IGASetRuleSize(igaGrad,dir,6);CHKERRQ(ierr);
+	}
 	ierr = IGASetUp(igaGrad);CHKERRQ(ierr);
 	
 	for (dir=0; dir<2; dir++) 
@@ -3199,6 +3296,9 @@ int main(int argc, char *argv[]) {
 //
 
 //Destroy all objects not needed anymore (Better to do it here in case different codes call the same IGA, move if memory is a problem)
+	T=time(NULL);
+	tm=*localtime(&T);
+	PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.tm_min,tm.tm_sec);
 	ierr = IGADestroy(&igaAl);CHKERRQ(ierr);
 	ierr = IGADestroy(&igachiS);CHKERRQ(ierr);
 	ierr = IGADestroy(&igachiUp);CHKERRQ(ierr);
