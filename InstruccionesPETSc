@@ -1,0 +1,146 @@
+
+Open a terminal 
+
+vi .bashrc
+
+Copy inside:
+
+absolutepath should be /home/eazegpi   			(Replace 3.8.2 by relevant version number)
+
+*Do not forget to replace absolutepath*
+
+alias petsc="/absolutepath/petsc-3.8.2/arch-linux2-c-debug/bin/mpiexec" 
+#alias petsc="/absolutepath/petsc-3.8.2/optimO3/bin/mpiexec"
+export PETSC_DIR="/absolutepath/petsc-3.8.2"
+export PETSC_ARCH="arch-linux2-c-debug"
+#export PETSC_ARCH="optimO3"
+export PETIGA_DIR="/absolutepath/PetIGA"
+
+source .bashrc
+
+
+//Packages
+sudo apt-get install g++
+sudo apt-get install valgrind
+sudo apt-get install gfortran
+sudo apt-get install libbison-dev 
+sudo apt-get install flex
+sudo apt-get install python-dev
+sudo apt-get install python3-dev
+sudo apt-get install python-numpy
+sudo apt-get install git
+sudo apt-get install mercurial
+
+
+
+// Install Petsc !!
+
+git clone -b maint https://bitbucket.org/petsc/petsc petsc-3.8.2
+
+cd petsc-3.8.2
+unset PETSC_DIR
+unset PETSC_ARCH
+echo $PETSC_DIR
+
+// Debug version
+
+./configure --with-cc=gcc --with-fc=gfortran --download-mpich --download-fblaslapack --download-scalapack --download-mumps --download-parmetis --download-metis --download-ptscotch --download-hypre --download-ml --download-cmake
+
+make PETSC_DIR=/home/eazegpi/petsc-3.8.2 PETSC_ARCH=arch-linux2-c-debug all
+
+make PETSC_DIR=/home/eazegpi/petsc-3.8.2 PETSC_ARCH=arch-linux2-c-debug test
+
+make PETSC_DIR=/home/eazegpi/petsc-3.8.2 PETSC_ARCH=arch-linux2-c-debug streams NPMAX=4
+
+source .bashrc	// Esto no resultó en el directorio de petsc (lo hice en el general)
+
+
+// Optimized version
+
+unset PETSC_DIR
+unset PETSC_ARCH
+echo $PETSC_DIR
+
+./configure  --with-cc=gcc --with-fc=gfortran --download-fblaslapack --download-mpich --with-debugging=0 COPTFLAGS=-O3 FOPTFLAGS=-O3 CXXOPTFLAGS=-O3 PETSC_ARCH=optimO3 --download-mumps --download-hypre --download-ml --download-scalapack --download-parmetis --download-metis
+
+make PETSC_DIR=/home/eazegpi/petsc-3.8.2 PETSC_ARCH=optimO3 all
+
+make PETSC_DIR=/home/eazegpi/petsc-3.8.2 PETSC_ARCH=optimO3 test
+
+make PETSC_DIR=/home/eazegpi/petsc-3.8.2 PETSC_ARCH=optimO3 streams NPMAX=4
+
+source .bashrc
+
+
+// Update Petsc  !!
+
+cd petsc-3.8.2
+
+git pull
+
+and compile again
+
+
+
+
+
+
+// Install igakit !!
+
+Open a terminal in home
+
+hg clone https://bitbucket.org/dalcinl/igakit
+
+cd igakit
+
+python setup.py install --user
+
+
+// Update igakit !!
+
+Open a terminal in home
+
+cd igakit
+
+hg pull
+
+hg update
+
+python setup.py install --user
+
+
+
+
+// Install PetIGA  !!
+
+Open a terminal in home
+
+git clone https://bitbucket.org/dalcinl/PetIGA.git
+
+cd PetIGA
+
+make all
+
+make test
+
+
+// Update PetIGA  !!
+
+cd PetIGA
+
+hg pull
+
+hg update
+
+make all
+
+make test
+
+
+sudo apt-get install whatever it asks for
+
+
+// Run codes
+
+time petsc -np 2 ./<códigoCompilado> -iga_view -monitor 1 -output 1 -ts_monitor -ts_view -ts_max_snes_failures 20000 -snes_monitor -snes_converged_reason -snes_linesearch_type cp -snes_max_it 150 -ksp_converged_reason -iga_fd -log_view > o1.txt
+

@@ -1,0 +1,7 @@
+time petsc -np 1 ./Prueba -iga_view -ksp_converged_reason -ksp_monitor -ksp_view -log_view > o1.txt
+
+Suponiendo que Prueba arroja como resultados los tensores A (2o orden), B(4o orden) y C(2o orden) a continuacion usar
+
+python pospro2.py A* && python pospro4.py B* && python pospro2.py C*
+
+El * despues de cada uno se preocupa de tomar todos los valores (si es una serie de tiempo, por ejemplo) y de ignorar la extension (usualmente sera .dat)
