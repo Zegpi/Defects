@@ -1396,7 +1396,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 									{
 										for (d=0;d<3;d++)
 										{
-											FCS[a][i]+=C[j][k][l][m]*(-fulld_z[l][m]-fullChi[l][m])*e[k][c][d]*fullAlfa[j][c]*v[d];
+											FCS[a][i]+=C[j][k][l][m]*(-fulld_z[l][m]-fullChi[l][m])*e[k][c][d]*fullAlfa[j][c]*v[d]*(x[0]<0.0);
 										}
 									}
 								}
@@ -1413,7 +1413,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 								{
 									for (c=0;c<3;c++)
 									{
-										FCS[a][i]+=-eps*(-fulld3_z[j][k][l][l]-fulld2_Chi[j][k][l][l])*e[k][m][c]*fullAlfa[j][m]*v[c];
+										FCS[a][i]+=-eps*(-fulld3_z[j][k][l][l]-fulld2_Chi[j][k][l][l])*e[k][m][c]*fullAlfa[j][m]*v[c]*(x[0]<0.0);
 									}
 								}
 							}
@@ -1575,7 +1575,7 @@ int main(int argc, char *argv[]) {
 
 //App context creation and some data
 	//Mesh parameters (to fix specific points in z0 system)
-	PetscInt b=401;				//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
+	PetscInt b=301;				//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
 	PetscReal Lx=20.0;
 	PetscReal Ly=20.0;
 	PetscInt  nx=b;
@@ -1622,7 +1622,7 @@ int main(int argc, char *argv[]) {
 		dest   = fopen("/home/eazegpi/Results/PruebaV5.c","w");
 
 		while (0 < (bytes = fread(buffer, 1, sizeof(buffer), source)))
-	    	fwrite(buffer, 1, bytes, dest);
+			fwrite(buffer, 1, bytes, dest);
 
 		fclose(source);
 		fclose(dest);

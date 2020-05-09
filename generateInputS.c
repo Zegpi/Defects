@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
 //Creation of variables
 	PetscErrorCode  ierr;
 	ierr = PetscInitialize(&argc,&argv,0,0);CHKERRQ(ierr);										//Always initialize PETSc
-	PetscPrintf(PETSC_COMM_WORLD,"Start of generateInput \n");
+	PetscPrintf(PETSC_COMM_WORLD,"Start of generateInputS \n");
 
 	PetscInt commsize,rank;
 	ierr = MPI_Comm_size(PETSC_COMM_WORLD,&commsize);CHKERRQ(ierr);
@@ -30,7 +30,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 
 //Generate Mesh and copy cpp to result folder to save for reproduction (check that parameters are the same on file to run)
 
-	PetscInt b=201;					//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
+	PetscInt b=300;					//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
 	PetscReal Lx=20.0;
 	PetscReal Ly=20.0;
 	PetscInt  nx=b;
@@ -53,9 +53,6 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	sprintf(comando,"exec python rectangle3.py %s %f %f %d %d\n",nombreMalla,Lx,Ly,nx,ny);
 	ierr=system(comando);
 
-	strcpy(nombreMalla,"geometry4");
-	sprintf(comando,"exec python rectangle4.py %s %f %f %d %d\n",nombreMalla,Lx,Ly,nx,ny);
-	ierr=system(comando);
 //
 
 //Delete files in result folder
@@ -89,7 +86,17 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	}
 	closedir(folder);
 
-	ierr=system("cp ~/CodigosPetIGA/generateInputS.c ~/Results/");
+	FILE *source, *dest;
+	char buffer[8192];
+	size_t bytes;
+	source = fopen("/home/eazegpi/CodigosPetIga/generateInputS.c","r");
+	dest   = fopen("/home/eazegpi/Results/generateInputS.c","w");
+
+	while (0 < (bytes = fread(buffer, 1, sizeof(buffer), source)))
+    	fwrite(buffer, 1, bytes, dest);
+
+	fclose(source);
+	fclose(dest);
 //
 
 //General parameters
@@ -118,7 +125,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	nf=(b-2)/2;			//For even values of b 
 	//nc=(b+1)/2;		//Half the length of the body, for a disclination on the center
 	nc=b+1;				//Full length of the body, for something like a through twin
-	numF=13;
+	numF=7;
 	
 	ierr = PetscCalloc1(262144,&pointsS);CHKERRQ(ierr);
 	ierr = PetscCalloc1(262144,&valoresS);CHKERRQ(ierr);

@@ -1,121 +1,21 @@
-Start of PruebaV5 
-Current time is 16:10:12 
-
+Start of generateInput 
+Current time is 14:49:37 
+h= 0.049875
 System for initial state of Pi starting 
-
 IGA: dim=2 dof=4 order=1 geometry=2 rational=0 property=0
-Axis 0: basis=BSPLINE[1,0] rule=LEGENDRE[6] periodic=0 nnp=402 nel=401
-Axis 1: basis=BSPLINE[1,0] rule=LEGENDRE[6] periodic=0 nnp=402 nel=401
-Partition - MPI: processors=[3,4,1] total=12
-Partition - nnp: sum=161604 min=13400 max=13534 max/min=1.01
-Partition - nel: sum=160801 min=13300 max=13534 max/min=1.01759
-
-System for curl part of Helmholtz of S starting 
-
-Current time is 16:10:12 
-IGA: dim=2 dof=8 order=1 geometry=2 rational=0 property=0
-Axis 0: basis=BSPLINE[1,0] rule=LEGENDRE[6] periodic=0 nnp=402 nel=401
-Axis 1: basis=BSPLINE[1,0] rule=LEGENDRE[6] periodic=0 nnp=402 nel=401
-Partition - MPI: processors=[3,4,1] total=12
-Partition - nnp: sum=161604 min=13400 max=13534 max/min=1.01
-Partition - nel: sum=160801 min=13300 max=13534 max/min=1.01759
-
-System for L2 projection for Alfa+Sp:X starting 
-
+Axis 0: basis=BSPLINE[1,0] rule=LEGENDRE[2] periodic=0 nnp=402 nel=401
+Axis 1: basis=BSPLINE[1,0] rule=LEGENDRE[2] periodic=0 nnp=402 nel=401
+Partition - MPI: processors=[1,1,1] total=1
+Partition - nnp: sum=161604 min=161604 max=161604 max/min=1.
+Partition - nel: sum=160801 min=160801 max=160801 max/min=1.
+System for initial state of Alpha starting 
 IGA: dim=2 dof=2 order=1 geometry=2 rational=0 property=0
-Axis 0: basis=BSPLINE[1,0] rule=LEGENDRE[6] periodic=0 nnp=402 nel=401
-Axis 1: basis=BSPLINE[1,0] rule=LEGENDRE[6] periodic=0 nnp=402 nel=401
-Partition - MPI: processors=[3,4,1] total=12
-Partition - nnp: sum=161604 min=13400 max=13534 max/min=1.01
-Partition - nel: sum=160801 min=13300 max=13534 max/min=1.01759
-Linear solve converged due to CONVERGED_ATOL iterations 0
-
-System for curl part of Helmholtz of Up starting 
-
-IGA: dim=2 dof=4 order=2 geometry=2 rational=0 property=0
-Axis 0: basis=BSPLINE[2,1] rule=LEGENDRE[6] periodic=0 nnp=403 nel=401
-Axis 1: basis=BSPLINE[2,1] rule=LEGENDRE[6] periodic=0 nnp=403 nel=401
-Partition - MPI: processors=[3,4,1] total=12
-Partition - nnp: sum=162409 min=13400 max=13770 max/min=1.02761
-Partition - nel: sum=160801 min=13300 max=13534 max/min=1.01759
-
-System for Z0 starting 
-
-Current time is 16:46:17 
-IGA: dim=2 dof=2 order=3 geometry=2 rational=0 property=0
-Axis 0: basis=BSPLINE[3,2] rule=LEGENDRE[6] periodic=0 nnp=404 nel=401
-Axis 1: basis=BSPLINE[3,2] rule=LEGENDRE[6] periodic=0 nnp=404 nel=401
-Partition - MPI: processors=[3,4,1] total=12
-Partition - nnp: sum=163216 min=13400 max=14008 max/min=1.04537
-Partition - nel: sum=160801 min=13300 max=13534 max/min=1.01759
-
-System for Stress starting 
-
-IGA: dim=2 dof=4 order=2 geometry=2 rational=0 property=0
-Axis 0: basis=BSPLINE[3,2] rule=LEGENDRE[6] periodic=0 nnp=404 nel=401
-Axis 1: basis=BSPLINE[3,2] rule=LEGENDRE[6] periodic=0 nnp=404 nel=401
-Partition - MPI: processors=[3,4,1] total=12
-Partition - nnp: sum=163216 min=13400 max=14008 max/min=1.04537
-Partition - nel: sum=160801 min=13300 max=13534 max/min=1.01759
-Linear solve converged due to CONVERGED_RTOL iterations 41
-
-System for Classic Stress starting 
-
-IGA: dim=2 dof=4 order=2 geometry=2 rational=0 property=0
-Axis 0: basis=BSPLINE[3,2] rule=LEGENDRE[6] periodic=0 nnp=404 nel=401
-Axis 1: basis=BSPLINE[3,2] rule=LEGENDRE[6] periodic=0 nnp=404 nel=401
-Partition - MPI: processors=[3,4,1] total=12
-Partition - nnp: sum=163216 min=13400 max=14008 max/min=1.04537
-Partition - nel: sum=160801 min=13300 max=13534 max/min=1.01759
-Linear solve converged due to CONVERGED_RTOL iterations 37
-
-System for CoupleStress starting 
-
-IGA: dim=2 dof=2 order=2 geometry=2 rational=0 property=0
-Axis 0: basis=BSPLINE[3,2] rule=LEGENDRE[6] periodic=0 nnp=404 nel=401
-Axis 1: basis=BSPLINE[3,2] rule=LEGENDRE[6] periodic=0 nnp=404 nel=401
-Partition - MPI: processors=[3,4,1] total=12
-Partition - nnp: sum=163216 min=13400 max=14008 max/min=1.04537
-Partition - nel: sum=160801 min=13300 max=13534 max/min=1.01759
-
-System for Energy Density starting 
-
-IGA: dim=2 dof=1 order=2 geometry=2 rational=0 property=0
-Axis 0: basis=BSPLINE[3,2] rule=LEGENDRE[6] periodic=0 nnp=404 nel=401
-Axis 1: basis=BSPLINE[3,2] rule=LEGENDRE[6] periodic=0 nnp=404 nel=401
-Partition - MPI: processors=[3,4,1] total=12
-Partition - nnp: sum=163216 min=13400 max=14008 max/min=1.04537
-Partition - nel: sum=160801 min=13300 max=13534 max/min=1.01759
-
-System for V-alpha starting 
-
-IGA: dim=2 dof=2 order=2 geometry=2 rational=0 property=0
-Axis 0: basis=BSPLINE[3,2] rule=LEGENDRE[6] periodic=0 nnp=404 nel=401
-Axis 1: basis=BSPLINE[3,2] rule=LEGENDRE[6] periodic=0 nnp=404 nel=401
-Partition - MPI: processors=[3,4,1] total=12
-Partition - nnp: sum=163216 min=13400 max=14008 max/min=1.04537
-Partition - nel: sum=160801 min=13300 max=13534 max/min=1.01759
-Linear solve converged due to CONVERGED_RTOL iterations 39
-
-System for L2 projection for exact stress starting 
-
-IGA: dim=2 dof=4 order=2 geometry=2 rational=0 property=0
-Axis 0: basis=BSPLINE[3,2] rule=LEGENDRE[6] periodic=0 nnp=404 nel=401
-Axis 1: basis=BSPLINE[3,2] rule=LEGENDRE[6] periodic=0 nnp=404 nel=401
-Partition - MPI: processors=[3,4,1] total=12
-Partition - nnp: sum=163216 min=13400 max=14008 max/min=1.04537
-Partition - nel: sum=160801 min=13300 max=13534 max/min=1.01759
-Linear solve converged due to CONVERGED_RTOL iterations 16
-
-System for L2 projection for grad(Z0) 
-
-IGA: dim=2 dof=4 order=2 geometry=2 rational=0 property=0
-Axis 0: basis=BSPLINE[3,2] rule=LEGENDRE[6] periodic=0 nnp=404 nel=401
-Axis 1: basis=BSPLINE[3,2] rule=LEGENDRE[6] periodic=0 nnp=404 nel=401
-Partition - MPI: processors=[3,4,1] total=12
-Partition - nnp: sum=163216 min=13400 max=14008 max/min=1.04537
-Partition - nel: sum=160801 min=13300 max=13534 max/min=1.01759
-Linear solve converged due to CONVERGED_RTOL iterations 17
+Axis 0: basis=BSPLINE[1,0] rule=LEGENDRE[2] periodic=0 nnp=402 nel=401
+Axis 1: basis=BSPLINE[1,0] rule=LEGENDRE[2] periodic=0 nnp=402 nel=401
+Partition - MPI: processors=[1,1,1] total=1
+Partition - nnp: sum=161604 min=161604 max=161604 max/min=1.
+Partition - nel: sum=160801 min=160801 max=160801 max/min=1.
+Commsize es 1 
 ************************************************************************************************************************
 ***             WIDEN YOUR WINDOW TO 120 CHARACTERS.  Use 'enscript -r -fCourier9' to print this document            ***
 ************************************************************************************************************************
@@ -136,18 +36,18 @@ Linear solve converged due to CONVERGED_RTOL iterations 17
       ##########################################################
 
 
-./PruebaV5 on a arch-linux2-c-debug named DESKTOP-NCAM2GT with 12 processors, by eazegpi Thu Apr 30 17:25:06 2020
+./generateInput on a arch-linux2-c-debug named DESKTOP-NCAM2GT with 1 processor, by eazegpi Thu May  7 14:49:38 2020
 Using Petsc Release Version 3.12.4, unknown 
 
                          Max       Max/Min     Avg       Total 
-Time (sec):           4.494e+03     1.000   4.494e+03
-Objects:              1.238e+03     1.000   1.238e+03
-Flop:                 1.023e+12     1.141   9.503e+11  1.140e+13
-Flop/sec:             2.276e+08     1.141   2.115e+08  2.538e+09
-Memory:               3.077e+08     1.035   3.014e+08  3.617e+09
-MPI Messages:         2.624e+03     1.718   1.987e+03  2.384e+04
-MPI Message Lengths:  1.600e+08     2.537   3.990e+04  9.513e+08
-MPI Reductions:       8.614e+03     1.000
+Time (sec):           7.006e-01     1.000   7.006e-01
+Objects:              7.000e+01     1.000   7.000e+01
+Flop:                 0.000e+00     0.000   0.000e+00  0.000e+00
+Flop/sec:             0.000e+00     0.000   0.000e+00  0.000e+00
+Memory:               3.339e+07     1.000   3.339e+07  3.339e+07
+MPI Messages:         0.000e+00     0.000   0.000e+00  0.000e+00
+MPI Message Lengths:  0.000e+00     0.000   0.000e+00  0.000e+00
+MPI Reductions:       0.000e+00     0.000
 
 Flop counting convention: 1 flop = 1 real number operation of type (multiply/divide/add/subtract)
                             e.g., VecAXPY() for real vectors of length N --> 2N flop
@@ -155,7 +55,7 @@ Flop counting convention: 1 flop = 1 real number operation of type (multiply/div
 
 Summary of Stages:   ----- Time ------  ----- Flop ------  --- Messages ---  -- Message Lengths --  -- Reductions --
                         Avg     %Total     Avg     %Total    Count   %Total     Avg         %Total    Count   %Total 
- 0:      Main Stage: 4.4937e+03 100.0%  1.1403e+13 100.0%  2.384e+04 100.0%  3.990e+04      100.0%  8.606e+03  99.9% 
+ 0:      Main Stage: 7.0061e-01 100.0%  0.0000e+00   0.0%  0.000e+00   0.0%  0.000e+00        0.0%  0.000e+00   0.0% 
 
 ------------------------------------------------------------------------------------------------------------------------
 See the 'Profiling' chapter of the users' manual for details on interpreting output.
@@ -193,47 +93,12 @@ Event                Count      Time (sec)     Flop                             
 
 --- Event Stage 0: Main Stage
 
-BuildTwoSided         89 1.0 2.4141e-01 1.1 0.00e+00 0.0 1.2e+03 4.0e+00 0.0e+00  0  0  5  0  0   0  0  5  0  0     0
-BuildTwoSidedF        70 1.0 9.1746e-01 1.6 0.00e+00 0.0 1.3e+03 4.0e+05 0.0e+00  0  0  5 53  0   0  0  5 53  0     0
-PCSetUp               17 1.0 6.6304e+02 1.0 4.61e+09 1.0 0.0e+00 0.0e+00 1.1e+02 15  0  0  0  1  15  0  0  0  1    82
-PCSetUpOnBlocks        6 1.0 5.4261e+00 1.1 4.23e+09 1.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0  9065
-PCApply              167 1.0 8.5726e+00 1.0 9.93e+11 1.1 1.6e+03 5.1e+04 9.3e+01  0 97  7  8  1   0 97  7  8  1 1289273
-MatMult              156 1.0 5.1963e+00 1.1 2.67e+09 1.0 9.1e+03 6.4e+03 0.0e+00  0  0 38  6  0   0  0 38  6  0  6025
-MatSolve             167 1.0 8.5446e+00 1.0 9.93e+11 1.1 1.6e+03 5.1e+04 9.3e+01  0 97  7  8  1   0 97  7  8  1 1293464
-MatLUFactorSym         5 1.0 3.9074e+01 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 2.0e+01  1  0  0  0  0   1  0  0  0  0     0
-MatLUFactorNum        11 1.0 6.2324e+02 1.0 4.61e+09 1.0 0.0e+00 0.0e+00 0.0e+00 14  0  0  0  0  14  0  0  0  0    87
-MatILUFactorSym        6 1.0 6.4184e-01 1.1 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
-MatAssemblyBegin      24 1.0 2.0908e+0215.2 0.00e+00 0.0 5.8e+02 8.7e+05 8.8e+01  4  0  2 53  1   4  0  2 53  1     0
-MatAssemblyEnd        24 1.0 1.7610e+00 1.0 2.50e+04 0.0 1.1e+03 1.6e+03 4.0e+02  0  0  5  0  5   0  0  5  0  5     0
-MatGetRowIJ            7 1.0 1.7881e-05 1.2 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
-MatGetOrdering         7 1.0 3.2446e-02 1.7 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
-MatZeroEntries         1 1.0 4.2062e-02 1.2 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
-IGAFormSystem          1 1.0 1.7279e+01 1.1 4.07e+09 1.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0  2792
-VecView               11 1.0 3.5563e-01 1.0 0.00e+00 0.0 1.2e+02 3.7e+05 1.1e+01  0  0  1  5  0   0  0  1  5  0     0
-VecMDot              120 1.0 3.4952e-01 1.1 1.44e+08 1.0 0.0e+00 0.0e+00 2.4e+02  0  0  0  0  3   0  0  0  0  3  4785
-VecTDot               66 1.0 2.7065e-01 1.7 7.40e+06 1.0 0.0e+00 0.0e+00 1.3e+02  0  0  0  0  2   0  0  0  0  2   318
-VecNorm              326 1.0 3.6850e-01 1.4 3.16e+07 1.0 0.0e+00 0.0e+00 3.3e+02  0  0  0  0  4   0  0  0  0  4   999
-VecScale             129 1.0 2.8188e-02 1.6 5.94e+06 1.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0  2455
-VecCopy               16 1.0 3.2611e-03 1.4 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
-VecSet               226 1.0 9.2626e-03 1.3 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
-VecAXPY               79 1.0 3.0325e-02 1.3 8.49e+06 1.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0  3261
-VecAYPX               31 1.0 1.2055e-02 1.3 3.47e+06 1.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0  3358
-VecMAXPY             129 1.0 3.2357e-01 1.1 1.55e+08 1.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0  5569
-VecAssemblyBegin      26 1.0 4.0822e-01 2.3 0.00e+00 0.0 6.9e+02 2.4e+03 5.2e+01  0  0  3  0  1   0  0  3  0  1     0
-VecAssemblyEnd        26 1.0 4.2303e-03 5.3 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
-VecLoad               14 1.0 3.3826e-01 1.0 0.00e+00 0.0 1.5e+02 3.3e+05 6.0e+01  0  0  1  5  1   0  0  1  5  1     0
-VecScatterBegin      225 1.0 1.6987e-01 1.5 0.00e+00 0.0 1.1e+04 1.6e+04 8.0e+00  0  0 45 18  0   0  0 45 18  0     0
-VecScatterEnd        225 1.0 1.0284e-01 1.5 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
-VecNormalize         132 1.0 1.8663e-01 1.1 1.81e+07 1.0 0.0e+00 0.0e+00 2.6e+02  0  0  0  0  3   0  0  0  0  3  1133
-SFSetGraph            89 1.0 8.6741e-03 1.3 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
-SFSetUp               94 1.0 4.6621e-01 1.1 0.00e+00 0.0 3.6e+03 8.0e+03 0.0e+00  0  0 15  3  0   0  0 15  3  0     0
-SFBcastOpBegin       213 1.0 1.4430e-01 1.6 0.00e+00 0.0 1.0e+04 1.4e+04 8.0e+00  0  0 44 15  0   0  0 44 15  0     0
-SFBcastOpEnd         213 1.0 9.4021e-02 1.5 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
-SFReduceBegin         12 1.0 2.6133e-02 1.3 0.00e+00 0.0 2.9e+02 1.1e+05 0.0e+00  0  0  1  3  0   0  0  1  3  0     0
-SFReduceEnd           12 1.0 9.2182e-03 1.9 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
-KSPSetUp              17 1.0 2.1056e-01 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
-KSPSolve              11 1.0 6.7973e+02 1.0 1.00e+12 1.1 1.1e+04 1.3e+04 3.3e+03 15 98 45 14 38  15 98 45 14 38 16392
-KSPGMRESOrthog       120 1.0 1.7324e+00 1.1 2.87e+08 1.0 0.0e+00 0.0e+00 2.3e+03  0  0  0  0 26   0  0  0  0 26  1931
+VecView                2 1.0 6.0716e-02 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  9  0  0  0  0   9  0  0  0  0     0
+VecSet                14 1.0 1.7014e-03 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+VecAssemblyBegin       6 1.0 1.4782e-05 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+VecAssemblyEnd         6 1.0 6.6757e-06 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+VecLoad                2 1.0 3.1164e-02 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  4  0  0  0  0   4  0  0  0  0     0
+VecScatterBegin        6 1.0 2.0516e-03 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
 ------------------------------------------------------------------------------------------------------------------------
 
 Memory usage is given in bytes:
@@ -243,23 +108,15 @@ Reports information only for process 0.
 
 --- Event Stage 0: Main Stage
 
-                 IGA    12              1         1224     0.
-      Preconditioner    17             16        15472     0.
-    Distributed Mesh     6              6        29424     0.
-              Matrix    45             41  18446744074596876288     0.
-           Index Set   395            382     12628248     0.
-   IS L to G Mapping    35             24      1370544     0.
-              Viewer    27             26        21840     0.
-         Vec Scatter    94             47        37224     0.
-              Vector   454            419    100907048     0.
-   Star Forest Graph   106             59        57064     0.
-   Application Order    24             13      1418488     0.
-       Krylov Solver    17             16       160464     0.
-     Discrete System     6              6         5664     0.
+                 IGA     2              0            0     0.
+           Index Set    28             26      6484256     0.
+   IS L to G Mapping     4              2      1294176     0.
+              Viewer     6              5         4200     0.
+         Vec Scatter    12              4         3072     0.
+              Vector    14             10     38800560     0.
+   Application Order     4              2      2587008     0.
 ========================================================================================================================
-Average time to get PetscTime(): 3.8147e-07
-Average time for MPI_Barrier(): 0.00072279
-Average time for zero size MPI_Send(): 4.49022e-05
+Average time to get PetscTime(): 1.16825e-06
 #PETSc Option Table entries:
 -iga_fd
 -iga_view
@@ -305,5 +162,6 @@ Using libraries: -Wl,-rpath,/home/eazegpi/petsc/arch-linux2-c-debug/lib -L/home/
 
 WARNING! There are options you set that were not used!
 WARNING! could be spelling mistake, etc!
-There is one unused database option. It is:
+There are 2 unused database options. They are:
 Option left: name:-iga_fd (no value)
+Option left: name:-ksp_converged_reason (no value)

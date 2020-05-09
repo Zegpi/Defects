@@ -1,4 +1,4 @@
-time petsc -np 1 ./Prueba -iga_view -ksp_converged_reason -ksp_monitor -ksp_view -log_view > o1.txt
+time petsc -np 1 ./Prueba    -iga_view -ksp_converged_reason -ksp_monitor -ksp_view -log_view > o1.txt
 
 Suponiendo que Prueba arroja como resultados los tensores A (2o orden), B(4o orden) y C(2o orden) a continuacion usar
 

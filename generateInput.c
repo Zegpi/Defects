@@ -220,7 +220,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	Vec alp0;
 	ierr = IGACreateVec(igaAl,&alp0);CHKERRQ(ierr);
 
-	PetscReal e1=(1.0+0.0*a)/(c*t);
+	PetscReal e1=(0.0+0.0*a)/(c*t);
 	PetscReal e2=0.0*(a-0.100211)/(c*t);
 	//PetscReal e2=(2.0)/(c*t);
 	//PetscReal lx=2.0*N*Lx/nx;
@@ -279,11 +279,11 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	}
 
 	//Here I build two dislocation cores of the same sign separaed by 2*dist_centro+1 elements
-	/*
+	
 	PetscInt dist_centro, size_elem;
 	center=(nx+1)*ny/2-1;
 	
-	size_elem=4;		//1 is a 1x1 element, 2 is a 3x3 element, 3 is a 5x5 element, and so on
+	size_elem=2;		//1 is a 1x1 element, 2 is a 3x3 element, 3 is a 5x5 element, and so on
 	dist_centro=7;
 
 	counter=0;
@@ -293,11 +293,9 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 		{
 			pointsAl[counter  ]=2*(center-dist_centro-1-(size_elem-1)*(nx+1+1+1))+2*i*(nx+1)+2*j;	valoresAl[counter  ]=1.0/(4.0*c*t*size_elem*size_elem);
 			pointsAl[counter+1]=2*(center+dist_centro+1-(size_elem-1)*(nx+1+1-1))+2*i*(nx+1)+2*j;	valoresAl[counter+1]=1.0/(4.0*c*t*size_elem*size_elem);
-
 			counter=counter+2;
 		}
 	}
-	*/
 
 	//ierr = VecSetValues(pi0,24+(Ndisl-0)*48,points,valores,INSERT_VALUES);
 	ierr = VecSetValues(alp0,8192,pointsAl,valoresAl,ADD_VALUES);
