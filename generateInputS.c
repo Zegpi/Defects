@@ -30,7 +30,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 
 //Generate Mesh and copy cpp to result folder to save for reproduction (check that parameters are the same on file to run)
 
-	PetscInt b=300;					//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
+	PetscInt b=400;					//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
 	PetscReal Lx=20.0;
 	PetscReal Ly=20.0;
 	PetscInt  nx=b;
@@ -101,7 +101,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 
 //General parameters
 	PetscInt N,M, numEls; 	
-	N=0;	M=0;	numEls=1;
+	N=0;	M=0;	numEls=4;
 //
 
 //Creation of Initialization of S
@@ -118,17 +118,18 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	Vec s0;
 	ierr = IGACreateVec(igaS,&s0);CHKERRQ(ierr);
 
-	PetscInt nf,nc,numF,cord,counter, *pointsS;
+	PetscInt nf,nc,numF,cord,counter, *pointsS, dist;
 	PetscReal *valoresS,c,t, g[8];
 
-	//nf=(b-1)/2; 
+	//nf=(b-1)/2; 		//For odd values of b 
 	nf=(b-2)/2;			//For even values of b 
 	//nc=(b+1)/2;		//Half the length of the body, for a disclination on the center
 	nc=b+1;				//Full length of the body, for something like a through twin
-	numF=7;
+	numF=9;			//Number of rows to assign, rows of elements will be one less
+	dist=10;
 	
-	ierr = PetscCalloc1(262144,&pointsS);CHKERRQ(ierr);
-	ierr = PetscCalloc1(262144,&valoresS);CHKERRQ(ierr);
+	ierr = PetscCalloc1(524288,&pointsS);CHKERRQ(ierr);
+	ierr = PetscCalloc1(524288,&valoresS);CHKERRQ(ierr);
 
 	ierr = VecAssemblyBegin(s0);CHKERRQ(ierr);
 	ierr = VecAssemblyEnd  (s0);CHKERRQ(ierr);
@@ -156,15 +157,34 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 		{
 			for (int k=0; k<8; k++)
 			{
-				pointsS[counter]=cord;
+				pointsS[counter]=cord+8*(nx+1)*dist;
+				//pointsS[counter+1]=cord-8*(nx+1)*dist;
 				valoresS[counter]=g[k];
-				cord++;
-				counter++;
+				//valoresS[counter+1]=g[k];
+				cord=cord+1;
+				counter=counter+1;
 			}
 		}
 	}
 	
-	ierr = VecSetValues(s0,8*nc*numF,pointsS,valoresS,ADD_VALUES);	
+	for (int i=nf; i<nf+numF; i++)
+	{
+		cord=(nx+1)*i*8;
+		for (int j=0; j<nc; j++)
+		{
+			for (int k=0; k<8; k++)
+			{
+				//pointsS[counter]=cord+8*(nx+1)*dist;
+				pointsS[counter]=cord-8*(nx+1)*dist;
+				//valoresS[counter]=g[k];
+				valoresS[counter]=g[k];
+				cord=cord+1;
+				counter=counter+1;
+			}
+		}
+	}
+
+	ierr = VecSetValues(s0,8*nc*numF*4,pointsS,valoresS,ADD_VALUES);	
 	ierr = VecAssemblyBegin(s0);CHKERRQ(ierr);
 	ierr = VecAssemblyEnd  (s0);CHKERRQ(ierr);
 
@@ -216,15 +236,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	if(b%2==0)		
 	{
 		PetscInt realNumEls=pow(2,numEls-1);
-		center=(nx+1)*ny/2+nx/2;
-		if(M<2)
-		{
-			//M=2;
-		}
-		if(N<2)
-		{
-			//N=2;
-		}
+		center=(nx+1)*(ny/2-(numEls+1))+nx/2-(numEls+1);
 		for (int i=0; i<pow(2,numEls-1)+1; i++)
 		{
 			for (int j=0; j<pow(2,numEls-1)+1; j++)
@@ -232,8 +244,8 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 				//pointsAl[counter]=  2*center-N*2*(nx+1)-M*2+1-(numEls-i-1)*2*(nx+1)-(numEls-j-1)*2-1;				valoresAl[counter]=  e1/((realNumEls+1.0)*(realNumEls+1.0));
 				//pointsAl[counter+1]=2*center-N*2*(nx+1)-M*2+1-(numEls-i-1)*2*(nx+1)-(numEls-j-1)*2;							valoresAl[counter+1]=e2/((realNumEls+1.0)*(realNumEls+1.0));
 									
-				pointsAl[counter]  =2*center+(N+1)*2*(nx+1)+(M+1)*2-(i)*2*(nx+1)-(j)*2;									valoresAl[counter]  =e1/((realNumEls+1.0)*(realNumEls+1.0));
-				pointsAl[counter+1]=2*center+(N+1)*2*(nx+1)+(M+1)*2-(i)*2*(nx+1)-(j)*2+1;								valoresAl[counter+1]=e2/((realNumEls+1.0)*(realNumEls+1.0));
+				pointsAl[counter]  =2*center+(N+1)*2*(nx+1)+(M+1)*2+(i)*2*(nx+1)+(j)*2;									valoresAl[counter]  =e1/((realNumEls+1.0)*(realNumEls+1.0));
+				pointsAl[counter+1]=2*center+(N+1)*2*(nx+1)+(M+1)*2+(i)*2*(nx+1)+(j)*2+1;								valoresAl[counter+1]=e2/((realNumEls+1.0)*(realNumEls+1.0));
 
 				counter=counter+2;					//Modify accodringly to hoy many gdl you are setting
 			}
@@ -261,31 +273,6 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 			}
 		}
 	}
-
-
-	/*
-	for (int i=0; i<commsize; i++)
-	{
-		if (rank==i)
-		{
-			pointsAl[0]=2*center+2*(nx+1)*N+2*M;						valoresAl[0]=coef/4.0;
-			pointsAl[1]=2*center+2*(nx+1)*N+2*M+2;						valoresAl[1]=coef/4.0;
-			pointsAl[2]=2*center+2*(nx+1)*(N+1)+2*M;					valoresAl[2]=coef/4.0;
-			pointsAl[3]=2*center+2*(nx+1)*(N+1)+2*M+2;					valoresAl[3]=coef/4.0;
-
-			pointsAl[4]=2*center+2*(nx+1)*N+2*M+1;						valoresAl[4]=(coef+e)/4.0;
-			pointsAl[5]=2*center+2*(nx+1)*N+2*M+2+1;					valoresAl[5]=(coef+e)/4.0;
-			pointsAl[6]=2*center+2*(nx+1)*(N+1)+2*M+1;					valoresAl[6]=(coef+e)/4.0;
-			pointsAl[7]=2*center+2*(nx+1)*(N+1)+2*M+2+1;				valoresAl[7]=(coef+e)/4.0;
-
-			for (int j=0; j<8; j++)
-			{
-				PetscPrintf(PETSC_COMM_SELF," rank = %d points[%d]=%d \n ", rank, j, pointsAl[j]);
-				PetscPrintf(PETSC_COMM_SELF," rank = %d valores[%d]=%f \n ", rank, j, valoresAl[j]);
-			}	
-		}
-	}
-	*/
 
 	ierr = VecSetValues(alp0,counter+1,pointsAl,valoresAl,ADD_VALUES);
 

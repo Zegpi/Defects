@@ -20,16 +20,16 @@ try:
 except:
 	fileNameInput="sigma-2d*"
 
-fileName1="./results/"+fileNameInput+".dat"
-fileName2="../Results/"+fileNameInput+".dat"
+fName1="./results/"+fileNameInput+".dat"
+fName2="../Results/"+fileNameInput+".dat"
 
-Lista1=glob.glob(fileName1)
-Lista2=glob.glob(fileName2)
+Lista1=glob.glob(fName1)
+Lista2=glob.glob(fName2)
 
 if len(Lista2)>0:
-	fileName=fileName2
+	fileName1=fName2
 else:
-	fileName=fileName1
+	fileName1=fName1
 
 nombre=fileNameInput.split("*")[0]
 
@@ -38,16 +38,16 @@ try:
 except:
 	fileNameInput2="stress-2d*"
 
-fileName3="./results/"+fileNameInput2+".dat"
-fileName4="../Results/"+fileNameInput2+".dat"
+fName3="./results/"+fileNameInput2+".dat"
+fName4="../Results/"+fileNameInput2+".dat"
 
-Lista1=glob.glob(fileName3)
-Lista2=glob.glob(fileName4)
+Lista1=glob.glob(fName3)
+Lista2=glob.glob(fName4)
 
 if len(Lista2)>0:
-	fileName2=fileName4
+	fileName2=fName4
 else:
-	fileName2=fileName3
+	fileName2=fName3
 
 try:
 	meshName=sys.argv[3]
@@ -58,7 +58,7 @@ meshName="./"+meshName+".dat"
 # read in discretization info and potentially geometry
 nrb = PetIGA().read(meshName)
 
-Lista1=glob.glob(fileName)
+Lista1=glob.glob(fileName1)
 Lista2=glob.glob(fileName2)
 
 num1=len(Lista1)

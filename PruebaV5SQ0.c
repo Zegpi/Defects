@@ -744,11 +744,6 @@ PetscReal delta(PetscInt i, PetscInt j)
 		//IGAPointFormValue(pS,S,&S0[0]);
 
 		PetscReal fullS[3][3][3]={0};
-		//fullS[0][0][0]=S[0]; fullS[0][0][1]=S[1];											//Expand S to full 3rd order form, only non-zero elements
-		//fullS[0][1][0]=S[2]; fullS[0][1][1]=S[3];
-		//fullS[1][0][0]=S[4]; fullS[1][0][1]=S[5];
-		//fullS[1][1][0]=S[6]; fullS[1][1][1]=S[7];
-
 		PetscReal dfy;
 		if (x[1]<=(20.0/100.0) && x[1]>=(-20.0/100.0))
 		{

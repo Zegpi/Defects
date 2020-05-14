@@ -71,10 +71,10 @@ int main(int argc, char *argv[]) {
   ierr = PetscOptionsEnd();CHKERRQ(ierr);
 
   ierr = IGAOptionsAlias("-d",  "2", "-iga_dim");
-  ierr = IGAOptionsAlias("-N", "32", "-iga_elements");
-  ierr = IGAOptionsAlias("-p", NULL, "-iga_degree");
-  ierr = IGAOptionsAlias("-k", NULL, "-iga_continuity");
-  ierr = IGAOptionsAlias("-q", NULL, "-iga_quadrature");
+  //ierr = IGAOptionsAlias("-N", "32", "-iga_elements");
+  //ierr = IGAOptionsAlias("-p", NULL, "-iga_degree");
+  //ierr = IGAOptionsAlias("-k", NULL, "-iga_continuity");
+  //ierr = IGAOptionsAlias("-q", NULL, "-iga_quadrature");
 
   // Setup discretization
   IGA iga;
@@ -83,6 +83,7 @@ int main(int argc, char *argv[]) {
   ierr = IGAGetDim(iga,&dim);CHKERRQ(ierr);
   ierr = IGASetDof(iga,dim);CHKERRQ(ierr);
   ierr = IGASetOrder(iga,1);CHKERRQ(ierr);
+  ierr = IGARead(iga,"./geometry3.dat");CHKERRQ(ierr);
   ierr = IGASetUp(iga);CHKERRQ(ierr);
 
   const char *fieldname[3] = {"u", "v", "w"};
@@ -120,7 +121,7 @@ int main(int argc, char *argv[]) {
   // Save geometry and solution vector
   PetscBool save = IGAGetOptBool(NULL,"-save",PETSC_FALSE);
   if (save) {ierr = IGAWrite(iga,"Elasticity-geometry.dat");CHKERRQ(ierr);}
-  if (save) {ierr = IGAWriteVec(iga,x,"Elasticity-solution.dat");CHKERRQ(ierr);}
+  ierr = IGAWriteVec(iga,x,"../Results/Elasticity-sol.dat");CHKERRQ(ierr);
 
   // Draw solution vector
   PetscBool draw = IGAGetOptBool(NULL,"-draw",PETSC_FALSE);

@@ -699,7 +699,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 //System for z(0)
 	#undef  __FUNCT__
 	#define __FUNCT__ "Z0sys"
-	PetscErrorCode Z0sys(IGAPoint p, IGAPoint pChi, IGAPoint pS, PetscReal *K, PetscReal *F, PetscReal *UChi, PetscReal *S, void *ctx)
+	PetscErrorCode Z0sys(IGAPoint p, IGAPoint pChi, IGAPoint pS, PetscReal *K, PetscReal *F, PetscReal *UChi, PetscReal *US, void *ctx)
 	{
 		PetscReal C[3][3][3][3]={0};														//Initialization of elastic tensor
 		const PetscReal *N0,(*N1)[2],(*N2)[2][2];
@@ -741,13 +741,13 @@ PetscReal delta(PetscInt i, PetscInt j)
 		full_dChi[1][1][0]=dChi0[3][0]; full_dChi[1][1][1]=dChi0[3][1];
 
 		PetscReal S0[8];																	//Assign S to a vector
-		IGAPointFormValue(pS,S,&S0[0]);
+		IGAPointFormValue(pS,US,&S0[0]);
 
 		PetscReal fullS[3][3][3]={0};
-		fullS[0][0][0]=S[0]; fullS[0][0][1]=S[1];											//Expand S to full 3rd order form, only non-zero elements
-		fullS[0][1][0]=S[2]; fullS[0][1][1]=S[3];
-		fullS[1][0][0]=S[4]; fullS[1][0][1]=S[5];
-		fullS[1][1][0]=S[6]; fullS[1][1][1]=S[7];
+		fullS[0][0][0]=S0[0]; fullS[0][0][1]=S0[1];											//Expand S to full 3rd order form, only non-zero elements
+		fullS[0][1][0]=S0[2]; fullS[0][1][1]=S0[3];
+		fullS[1][0][0]=S0[4]; fullS[1][0][1]=S0[5];
+		fullS[1][1][0]=S0[6]; fullS[1][1][1]=S0[7];
 
 		PetscReal (*Keq)[dof][nen][dof] = (typeof(Keq)) K;
 		PetscReal (*Feq)[dof] = (PetscReal (*)[dof])F;
@@ -1033,7 +1033,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 								{
 									for (u=0; u<3; u++)
 									{
-										Keq[a][i][b][j]+=0.0*+0.5*eps*(-d2z[k][l][u]-d2z[l][k][u])*0.5*(d2v[k][l][u]+d2v[l][k][u])
+										Keq[a][i][b][j]+= 0.5*eps*(-d2z[k][l][u]-d2z[l][k][u])*0.5*(d2v[k][l][u]+d2v[l][k][u])
 														 -0.5*eps*(-d2z[l][k][u]+d2z[k][l][u])*d2v[k][l][u];
 									}
 								}
@@ -1505,7 +1505,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 	#undef  __FUNCT__
 	#define __FUNCT__ "EnergyDensity"
 	//PetscErrorCode Stress(IGAPoint p,IGAPoint pU, IGAPoint pHs,IGAPoint pChi,IGAPoint pZu,PetscReal *K,PetscReal *F,PetscReal *U,PetscReal *HS, PetscReal *Chi,PetscReal *Zu,void *ctx)		//When other fields like Pi or S (etc.) come into this, declare a IGAPoint pPi or pS and a new PescReal *UPi or *US for each
-	PetscErrorCode EnergyDensity(IGAPoint p, IGAPoint pChi, IGAPoint pZu, IGAPoint pS, PetscReal *K, PetscReal *F, PetscReal *Chi, PetscReal *Zu, PetscReal *S0, void *ctx)		//When other fields like Pi or S (etc.) come into this, declare a IGAPoint pPi or pS and a new PestcReal *UPi or *US for each
+	PetscErrorCode EnergyDensity(IGAPoint p, IGAPoint pChi, IGAPoint pZu, IGAPoint pS, PetscReal *K, PetscReal *F, PetscReal *Chi, PetscReal *Zu, PetscReal *S, void *ctx)		//When other fields like Pi or S (etc.) come into this, declare a IGAPoint pPi or pS and a new PestcReal *UPi or *US for each
 	{
 		const PetscReal *N0;
 		IGAPointGetShapeFuns(p,0,(const PetscReal**)&N0);									//Value of the shape functions
@@ -1553,7 +1553,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		IGAPointFormGrad (pZu,Zu,&d_Z0[0][0]);												//Same for the gradient
 		IGAPointFormHess (pZu,Zu,&d2_Z0[0][0][0]);											//Same for the hessian (second derivatives)
 
-		PetscReal S[8];																		//Array to contain the vector S0
+		PetscReal S0[8];																		//Array to contain the vector S0
 		IGAPointFormValue(pS,S,&S0[0]);														//Assign chi to its container
 
 		//The four non-zero components of Chi are stored as a vector, restore them to an array with the correct indexing for value and derivative
@@ -1579,10 +1579,10 @@ PetscReal delta(PetscInt i, PetscInt j)
 		fulld2_z[1][1][0]=d2_Z0[1][1][0]; fulld2_z[1][1][1]=d2_Z0[1][1][1];
 
 		PetscReal fullS[3][3][3]={0};
-		fullS[0][0][0]=S[0]; fullS[0][0][1]=S[1];											//Expand S to full 3rd order form, only non-zero elements
-		fullS[0][1][0]=S[2]; fullS[0][1][1]=S[3];
-		fullS[1][0][0]=S[4]; fullS[1][0][1]=S[5];
-		fullS[1][1][0]=S[6]; fullS[1][1][1]=S[7];
+		fullS[0][0][0]=S0[0]; fullS[0][0][1]=S0[1];											//Expand S to full 3rd order form, only non-zero elements
+		fullS[0][1][0]=S0[2]; fullS[0][1][1]=S0[3];
+		fullS[1][0][0]=S0[4]; fullS[1][0][1]=S0[5];
+		fullS[1][1][0]=S0[6]; fullS[1][1][1]=S0[7];
 
 		PetscReal (*KED)[dof][nen][dof] = (typeof(KED)) K;
 		PetscReal (*FED)[dof] = (PetscReal (*)[dof])F;
@@ -1641,7 +1641,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 	#undef  __FUNCT__
 	#define __FUNCT__ "ElasEnergyDensity"
 	//PetscErrorCode Stress(IGAPoint p,IGAPoint pU, IGAPoint pHs,IGAPoint pChi,IGAPoint pZu,PetscReal *K,PetscReal *F,PetscReal *U,PetscReal *HS, PetscReal *Chi,PetscReal *Zu,void *ctx)		//When other fields like Pi or S (etc.) come into this, declare a IGAPoint pPi or pS and a new PescReal *UPi or *US for each
-	PetscErrorCode ElasEnergyDensity(IGAPoint p, IGAPoint pChi, IGAPoint pZu, IGAPoint pS, PetscReal *K, PetscReal *F, PetscReal *Chi, PetscReal *Zu, PetscReal *S0, void *ctx)		//When other fields like Pi or S (etc.) come into this, declare a IGAPoint pPi or pS and a new PestcReal *UPi or *US for each
+	PetscErrorCode ElasEnergyDensity(IGAPoint p, IGAPoint pChi, IGAPoint pZu, IGAPoint pS, PetscReal *K, PetscReal *F, PetscReal *Chi, PetscReal *Zu, PetscReal *S, void *ctx)		//When other fields like Pi or S (etc.) come into this, declare a IGAPoint pPi or pS and a new PestcReal *UPi or *US for each
 	{
 		const PetscReal *N0;
 		IGAPointGetShapeFuns(p,0,(const PetscReal**)&N0);									//Value of the shape functions
@@ -1751,7 +1751,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 	#undef  __FUNCT__
 	#define __FUNCT__ "GradEnergyDensity"
 	//PetscErrorCode Stress(IGAPoint p,IGAPoint pU, IGAPoint pHs,IGAPoint pChi,IGAPoint pZu,PetscReal *K,PetscReal *F,PetscReal *U,PetscReal *HS, PetscReal *Chi,PetscReal *Zu,void *ctx)		//When other fields like Pi or S (etc.) come into this, declare a IGAPoint pPi or pS and a new PescReal *UPi or *US for each
-	PetscErrorCode GradEnergyDensity(IGAPoint p, IGAPoint pChi, IGAPoint pZu, IGAPoint pS, PetscReal *K, PetscReal *F, PetscReal *Chi, PetscReal *Zu, PetscReal *S0, void *ctx)		//When other fields like Pi or S (etc.) come into this, declare a IGAPoint pPi or pS and a new PestcReal *UPi or *US for each
+	PetscErrorCode GradEnergyDensity(IGAPoint p, IGAPoint pChi, IGAPoint pZu, IGAPoint pS, PetscReal *K, PetscReal *F, PetscReal *Chi, PetscReal *Zu, PetscReal *S, void *ctx)		//When other fields like Pi or S (etc.) come into this, declare a IGAPoint pPi or pS and a new PestcReal *UPi or *US for each
 	{
 		const PetscReal *N0;
 		IGAPointGetShapeFuns(p,0,(const PetscReal**)&N0);									//Value of the shape functions
@@ -1770,7 +1770,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		PetscReal d2_Z0[2][2][2];															//Same for its 2nd order partial derivatives
 		IGAPointFormHess (pZu,Zu,&d2_Z0[0][0][0]);											//Same for the hessian (second derivatives)
 
-		PetscReal S[8];																		//Array to contain the vector S0
+		PetscReal S0[8];																		//Array to contain the vector S0
 		IGAPointFormValue(pS,S,&S0[0]);														//Assign chi to its container
 
 		PetscReal fulld_Chi[3][3][3]={0};
@@ -1786,10 +1786,10 @@ PetscReal delta(PetscInt i, PetscInt j)
 		fulld2_z[1][1][0]=d2_Z0[1][1][0]; fulld2_z[1][1][1]=d2_Z0[1][1][1];
 
 		PetscReal fullS[3][3][3]={0};
-		fullS[0][0][0]=S[0]; fullS[0][0][1]=S[1];											//Expand S to full 3rd order form, only non-zero elements
-		fullS[0][1][0]=S[2]; fullS[0][1][1]=S[3];
-		fullS[1][0][0]=S[4]; fullS[1][0][1]=S[5];
-		fullS[1][1][0]=S[6]; fullS[1][1][1]=S[7];
+		fullS[0][0][0]=S0[0]; fullS[0][0][1]=S0[1];											//Expand S to full 3rd order form, only non-zero elements
+		fullS[0][1][0]=S0[2]; fullS[0][1][1]=S0[3];
+		fullS[1][0][0]=S0[4]; fullS[1][0][1]=S0[5];
+		fullS[1][1][0]=S0[6]; fullS[1][1][1]=S0[7];
 
 		PetscReal (*KED)[dof][nen][dof] = (typeof(KED)) K;
 		PetscReal (*FED)[dof] = (PetscReal (*)[dof])F;
@@ -1983,7 +1983,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 	}
 //
 
-//System for L2 projection of V^{alpha} //Not correct, look at PruebaV5
+//System for L2 projection of V^{alpha}
 	#undef  __FUNCT__
 	#define __FUNCT__ "Valpha"
 	//PetscErrorCode Stress(IGAPoint p,IGAPoint pU, IGAPoint pHs,IGAPoint pChi,IGAPoint pZu,PetscReal *K,PetscReal *F,PetscReal *U,PetscReal *HS, PetscReal *Chi,PetscReal *Zu,void *ctx)		//When other fields like Pi or S (etc.) come into this, declare a IGAPoint pPi or pS and a new PescReal *UPi or *US for each
@@ -2156,6 +2156,9 @@ PetscReal delta(PetscInt i, PetscInt j)
 		//const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
 		const PetscReal eps=mu/100.0;														//Choose later based on whatever Amit says :)
 
+		PetscReal x[2];																		//Vector of reals, size equal to problem's dimension
+		IGAPointFormGeomMap(p,x);															//Fills x with the coordinates of p, Gauss's point
+
 		PetscReal S0[8];																	//Assign S to a vector
 		PetscReal dS[8][2];																	//And its derivative
 		IGAPointFormValue(pS,S,&S0[0]);																
@@ -2166,10 +2169,8 @@ PetscReal delta(PetscInt i, PetscInt j)
 		//IGAPointFormValue(pChi,Chi,&chi0[0]);												//Assign chi to its container
 		IGAPointFormHess (pChi,Chi,&d2_Chi0[0][0][0]);										//This should be the 3-rd order tensor Chi_{i,jk} (remember that we are storing Chi_{kl} as a column vector)
 
-		//PetscReal d_Z0[2][2];																//Z gradient
-		PetscReal d3_Z0[2][2][2][2];														//Same for its 3rd order partial derivatives
-		//IGAPointFormGrad (pZu,Zu,&d_Z0[0][0]);												//Same for the gradient
-		IGAPointFormDer3 (pZu,Zu,&d3_Z0[0][0][0][0]);										//Same for the thir derivatives
+		PetscReal d3_Z0[2][2][2][2];														//Array to store 3rd order partial derivative of z
+		IGAPointFormDer3 (pZu,Zu,&d3_Z0[0][0][0][0]);										//Calculate and store in array
 
 		//The four non-zero components of Chi are stored as a vector, restore them to an array with the correct indexing for value and derivative
 		PetscReal fulld2_Chi[3][3][3][3]={0};
@@ -2187,10 +2188,10 @@ PetscReal delta(PetscInt i, PetscInt j)
 
 		//Inflate stored vectors to full tensor form
 		PetscReal fullS[3][3][3]={0};
-		fullS[0][0][0]=S[0]; fullS[0][0][1]=S[1];											//Expand S to full 3rd order form, only non-zero elements
-		fullS[0][1][0]=S[2]; fullS[0][1][1]=S[3];
-		fullS[1][0][0]=S[4]; fullS[1][0][1]=S[5];
-		fullS[1][1][0]=S[6]; fullS[1][1][1]=S[7];
+		fullS[0][0][0]=S0[0]; fullS[0][0][1]=S0[1];											//Expand S to full 3rd order form, only non-zero elements
+		fullS[0][1][0]=S0[2]; fullS[0][1][1]=S0[3];
+		fullS[1][0][0]=S0[4]; fullS[1][0][1]=S0[5];
+		fullS[1][1][0]=S0[6]; fullS[1][1][1]=S0[7];
 
 		PetscReal fulld_S[3][3][3][3]={0};													//Expand grad(S) to full tensor order form, only non-zero elements
 		fulld_S[0][0][0][0]=dS[0][0]; fulld_S[0][0][0][1]=dS[0][1]; 
@@ -2202,10 +2203,10 @@ PetscReal delta(PetscInt i, PetscInt j)
 		fulld_S[1][1][0][0]=dS[6][0]; fulld_S[1][1][0][1]=dS[6][1]; 
 		fulld_S[1][1][1][0]=dS[7][0]; fulld_S[1][1][1][1]=dS[7][1];
 
-		PetscReal (*KCS)[dof][nen][dof] = (typeof(KCS)) K;
-		PetscReal (*FCS)[dof] = (PetscReal (*)[dof])F;
+		PetscReal (*KVS)[dof][nen][dof] = (typeof(KVS)) K;
+		PetscReal (*FVS)[dof] = (PetscReal (*)[dof])F;
 
-		PetscReal v[3]={0};
+		PetscReal v[3]={0.0};
 
 		if (p->atboundary)
 		{
@@ -2219,7 +2220,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 				{
 					for (i=0; i<dof; i++)
 					{
-						KCS[a][i][b][i]=N0[a]*N0[b];
+						KVS[a][i][b][i]=N0[a]*N0[b];
 					}
 				}
 			}
@@ -2236,8 +2237,12 @@ PetscReal delta(PetscInt i, PetscInt j)
 					{
 						v[0]=0.0; v[1]=N0[a]; v[2]=0.0;
 					}
-					
-					FCS[a][i]=0.0;
+					else if (i==2)
+					{
+						v[0]=0.0; v[1]=0.0; v[2]=N0[a];
+					}
+
+					FVS[a][i]=0.0;
 					for (j=0;j<3;j++)
 					{
 						for(k=0;k<3;k++)
@@ -2246,7 +2251,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 							{
 								for(m=0;m<3;m++)
 								{
-									FCS[a][i]+=eps*(fulld_S[j][k][l][l]+fulld3_z[j][k][l][l]+fulld2_Chi[j][k][l][l])*fullS[j][k][m]*v[m];
+									FVS[a][i]+=eps*(fulld_S[j][k][l][l]+fulld3_z[j][k][l][l]+fulld2_Chi[j][k][l][l])*fullS[j][k][m]*v[m]*(x[1]>0);
 								}
 							}
 						}
@@ -2765,7 +2770,7 @@ int main(int argc, char *argv[]) {
 
 //App context creation and some data
 	//Mesh parameters (to fix specific points in z0 system)
-	PetscInt b=300;				//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
+	PetscInt b=400;				//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
 	PetscReal Lx=20.0;
 	PetscReal Ly=20.0;
 	PetscInt  nx=b;
@@ -5065,7 +5070,7 @@ int main(int argc, char *argv[]) {
 	IGA igaVs;
 	ierr = IGACreate(PETSC_COMM_WORLD,&igaVs);CHKERRQ(ierr);
 	ierr = IGASetDim(igaVs,2);CHKERRQ(ierr);													//Spatial dimension of the problem
-	ierr = IGASetDof(igaVs,2);CHKERRQ(ierr);													//Number of degrees of freedom, per node
+	ierr = IGASetDof(igaVs,4);CHKERRQ(ierr);													//Number of degrees of freedom, per node
 	ierr = IGASetOrder(igaVs,2);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
 	ierr = IGASetFromOptions(igaVs);CHKERRQ(ierr);												//Note: The order (or degree) of the shape functions is given by the mesh!
 	ierr = IGARead(igaVs,"./geometry2.dat");CHKERRQ(ierr);
