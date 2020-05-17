@@ -5070,7 +5070,7 @@ int main(int argc, char *argv[]) {
 	IGA igaVs;
 	ierr = IGACreate(PETSC_COMM_WORLD,&igaVs);CHKERRQ(ierr);
 	ierr = IGASetDim(igaVs,2);CHKERRQ(ierr);													//Spatial dimension of the problem
-	ierr = IGASetDof(igaVs,4);CHKERRQ(ierr);													//Number of degrees of freedom, per node
+	ierr = IGASetDof(igaVs,2);CHKERRQ(ierr);													//Number of degrees of freedom, per node
 	ierr = IGASetOrder(igaVs,2);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
 	ierr = IGASetFromOptions(igaVs);CHKERRQ(ierr);												//Note: The order (or degree) of the shape functions is given by the mesh!
 	ierr = IGARead(igaVs,"./geometry2.dat");CHKERRQ(ierr);
