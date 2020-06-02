@@ -30,7 +30,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 
 //Generate Mesh and copy cpp to result folder to save for reproduction (check that parameters are the same on file to run)
 
-	PetscInt b=401;					//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
+	PetscInt b=201;					//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
 	PetscReal Lx=20.0;
 	PetscReal Ly=20.0;
 	PetscInt  nx=b;
@@ -217,24 +217,28 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	ierr = IGARead(igaAl,"./geometry.dat");CHKERRQ(ierr);
 	ierr = IGASetUp(igaAl);CHKERRQ(ierr);
 	
-	Vec alp0;
+	Vec alp0,alp1;
 	ierr = IGACreateVec(igaAl,&alp0);CHKERRQ(ierr);
+	ierr = IGACreateVec(igaAl,&alp1);CHKERRQ(ierr);
 
 	PetscReal e1=(0.0+0.0*a)/(c*t);
 	PetscReal e2=0.0*(a-0.100211)/(c*t);
 	//PetscReal e2=(2.0)/(c*t);
 	//PetscReal lx=2.0*N*Lx/nx;
 
-	PetscInt *pointsAl;
-	PetscReal *valoresAl;
+	PetscInt *pointsAl1,*pointsAl2 ;
+	PetscReal *valoresAl1,*valoresAl2;
 
-	pointsAl=(PetscInt*)calloc(8192,sizeof(PetscInt));
-	valoresAl=(PetscReal*)calloc(8192,sizeof(PetscReal));
+	pointsAl1=(PetscInt*)calloc(8192,sizeof(PetscInt));
+	pointsAl2=(PetscInt*)calloc(8192,sizeof(PetscInt));
+	valoresAl1=(PetscReal*)calloc(8192,sizeof(PetscReal));
+	valoresAl2=(PetscReal*)calloc(8192,sizeof(PetscReal));
 
 	ierr = VecAssemblyBegin(alp0);CHKERRQ(ierr);
 	ierr = VecAssemblyEnd  (alp0);CHKERRQ(ierr);
 
-	PetscPrintf(PETSC_COMM_WORLD,"Commsize es %d \n",commsize);
+	ierr = VecAssemblyBegin(alp1);CHKERRQ(ierr);
+	ierr = VecAssemblyEnd  (alp1);CHKERRQ(ierr);
 
 	N=0; M=0;
 
@@ -255,8 +259,8 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 		{
 			for (int j=0; j<pow(2,numEls-1)+1; j++)
 			{
-				pointsAl[counter]  =2*center+(N+1)*2*(nx+1)+(M+1)*2-(i)*2*(nx+1)-(j)*2;									valoresAl[counter]  =e1/((realNumEls+1.0)*(realNumEls+1.0));
-				pointsAl[counter+1]=2*center+(N+1)*2*(nx+1)+(M+1)*2-(i)*2*(nx+1)-(j)*2+1;								valoresAl[counter+1]=e2/((realNumEls+1.0)*(realNumEls+1.0));
+				pointsAl1[counter]  =2*center+(N+1)*2*(nx+1)+(M+1)*2-(i)*2*(nx+1)-(j)*2;									valoresAl1[counter]  =e1/((realNumEls+1.0)*(realNumEls+1.0));
+				pointsAl1[counter+1]=2*center+(N+1)*2*(nx+1)+(M+1)*2-(i)*2*(nx+1)-(j)*2+1;								valoresAl1[counter+1]=e2/((realNumEls+1.0)*(realNumEls+1.0));
 
 				counter=counter+2;					//Modify accodringly to hoy many gdl you are setting
 			}
@@ -270,44 +274,55 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 		{
 			for (int j=0; j<2*numEls; j++)
 			{
-				pointsAl[counter  ]=2*center+N*2*(nx+1)+M*2  -(numEls-i-1)*2*(nx+1)-(numEls-j-1)*2;			valoresAl[counter  ]=e1/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
-				pointsAl[counter+1]=2*center+N*2*(nx+1)+M*2+1-(numEls-i-1)*2*(nx+1)-(numEls-j-1)*2;			valoresAl[counter+1]=e2/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
+				pointsAl1[counter  ]=2*center+N*2*(nx+1)+M*2  -(numEls-i-1)*2*(nx+1)-(numEls-j-1)*2;			valoresAl1[counter  ]=e1/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
+				pointsAl1[counter+1]=2*center+N*2*(nx+1)+M*2+1-(numEls-i-1)*2*(nx+1)-(numEls-j-1)*2;			valoresAl1[counter+1]=e2/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
 
 				counter=counter+2;					//Modify accodringly to hoy many gdl you are setting
 			}
 		}
 	}
 
-	//Here I build two dislocation cores of the same sign separaed by 2*dist_centro+1 elements
+	//Here I build two dislocation cores with 2*dist_centro+1 elements between them, or 2*(dist_centro+1) center-to-center
 	
 	PetscInt dist_centro, size_elem;
 	center=(nx+1)*ny/2-1;
 	
-	size_elem=2;		//1 is a 1x1 element, 2 is a 3x3 element, 3 is a 5x5 element, and so on
-	dist_centro=7;
+	size_elem=1;		//1 is a 1x1 element, 2 is a 3x3 element, 3 is a 5x5 element, and so on
+	dist_centro=4;
 
 	counter=0;
 	for (int i=0;i<2*size_elem;i++)
 	{
 		for (int j=0;j<2*size_elem;j++)
 		{
-			pointsAl[counter  ]=2*(center-dist_centro-1-(size_elem-1)*(nx+1+1+1))+2*i*(nx+1)+2*j;	valoresAl[counter  ]=1.0/(4.0*c*t*size_elem*size_elem);
-			pointsAl[counter+1]=2*(center+dist_centro+1-(size_elem-1)*(nx+1+1-1))+2*i*(nx+1)+2*j;	valoresAl[counter+1]=1.0/(4.0*c*t*size_elem*size_elem);
-			counter=counter+2;
+			pointsAl1[counter  ]=2*(center-dist_centro-1-(size_elem-1)*(nx+1+1+1))+2*i*(nx+1)+2*j;	valoresAl1[counter  ]=1.0/(4.0*c*t*size_elem*size_elem);
+			pointsAl2[counter+1]=2*(center+dist_centro+1-(size_elem-1)*(nx+1+1-1))+2*i*(nx+1)+2*j;	valoresAl2[counter+1]=1.0/(4.0*c*t*size_elem*size_elem);
+			counter=counter+1; //Check this, may not be right
 		}
 	}
 
-	//ierr = VecSetValues(pi0,24+(Ndisl-0)*48,points,valores,INSERT_VALUES);
-	ierr = VecSetValues(alp0,8192,pointsAl,valoresAl,ADD_VALUES);
+	ierr = VecSetValues(alp0,8192,pointsAl1,valoresAl1,ADD_VALUES);
+	ierr = VecSetValues(alp1,8192,pointsAl2,valoresAl2,ADD_VALUES);
 
 	ierr = VecAssemblyBegin(alp0);CHKERRQ(ierr);
 	ierr = VecAssemblyEnd  (alp0);CHKERRQ(ierr);
+
+	ierr = VecAssemblyBegin(alp1);CHKERRQ(ierr);
+	ierr = VecAssemblyEnd  (alp1);CHKERRQ(ierr);
 
 	
 	char nameAlp[]="/Input-Al-2d-0.dat";
 	char pathAlp[512];
 	sprintf(pathAlp,"%s%s",direct,nameAlp);
 	ierr = IGAWriteVec(igaAl,alp0,pathAlp);CHKERRQ(ierr);
+	
+	memset(&pathAlp[0], 0, sizeof(pathAlp));		//This should clear pathAlp
+	memset(&nameAlp[0],0,sizeof(nameAlp));
+	sprintf(nameAlp,"%s","/Input-Al-2d-1.dat");
+	sprintf(pathAlp,"%s%s",direct,nameAlp);
+	PetscPrintf(PETSC_COMM_WORLD,"La ubicacion del archivo es %s \n",pathAlp);
+	ierr = IGAWriteVec(igaAl,alp1,pathAlp);CHKERRQ(ierr);
+
 //
 
 //Destroy all objects not needed anymore (Better to do it here in case different codes call the same IGA, move if memory is a problem)
