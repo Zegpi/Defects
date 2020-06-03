@@ -1475,11 +1475,11 @@ PetscReal delta(PetscInt i, PetscInt j)
 
 	#undef  __FUNCT__
 	#define __FUNCT__ "ProjValpha"
-	PetscErrorCode ProjValpha(IGAPoint pV,IGAPoint pAl1,PetscReal *FVa1,PetscReal *FVa2,PetscReal Valpha1a,PetscReal Valpha2a,PetscReal Valpha1b,PetscReal Valpha2b,PetscReal *Al1,PetscReal *Al2,void *ctx)		//When other fields like Pi or S (etc.) come into this, declare a IGAPoint pPi or pS and a new PetscReal *UPi or *US for each
+	PetscErrorCode ProjValpha(IGAPoint pV,IGAPoint pAl1,PetscReal *FVa1,PetscReal *FVa2,PetscReal *Al1,PetscReal *Al2,void *ctx)		//When other fields like Pi or S (etc.) come into this, declare a IGAPoint pPi or pS and a new PetscReal *UPi or *US for each
 	{
 		const PetscReal *N0;
 		IGAPointGetShapeFuns(pV,0,(const PetscReal**)&N0);									//Value of the shape functions
-		PetscInt a,i,nen=pV->nen,dof=pV->dof;
+		PetscInt a,nen=pV->nen,dof=pV->dof;
 
 		PetscReal alfa1[2];																	//Create array to recieve Alfa
 		IGAPointFormValue(pAl1,Al1,&alfa1[0]);												//This fills the values
@@ -1491,13 +1491,11 @@ PetscReal delta(PetscInt i, PetscInt j)
 		if (alfa1[0]>0 || alfa1[1]>0 || alfa1[0]<0 || alfa1[1]<0)
 		{
 			xi1=1.0;
-			PetscPrintf(PETSC_COMM_SELF,"Va1a= %15.8f, Va2a= %15.8f \n",Valpha1a,Valpha2a);
 		}
 
 		if (alfa2[0]>0 || alfa2[1]>0 || alfa2[0]<0 || alfa2[1]<0)
 		{
 			xi2=1.0;
-			PetscPrintf(PETSC_COMM_SELF,"Va1b= %15.8f, Va2b= %15.8f \n",Valpha1b,Valpha2b);
 		}
 
 		PetscReal (*FV1)[dof] = (PetscReal (*)[dof])FVa1;
@@ -1511,22 +1509,15 @@ PetscReal delta(PetscInt i, PetscInt j)
 		{
 			for(a=0;a<nen;a++)
 			{
-				for (i=0;i<dof;i++)
-				{
-		
-				}
+				FV1[a][0]+=xi1*N0[a];
+				FV1[a][1]+=xi1*N0[a];
 
-				FV1[a][0]+=xi1*Valpha1a*N0[a];
-				FV1[a][1]+=xi1*Valpha2a*N0[a];
-
-				FV2[a][0]+=xi2*Valpha1b*N0[a];
-				FV2[a][1]+=xi2*Valpha2b*N0[a];
-
+				FV2[a][0]+=xi2*N0[a];
+				FV2[a][1]+=xi2*N0[a];
 			}
 		}
 		return 0;
 	}
-
 //
 
 //System for L2 projection of exact stress
@@ -3320,13 +3311,11 @@ int main(int argc, char *argv[]) {
 	ierr = VecAssemblyBegin(Int2bVec);CHKERRQ(ierr);
 	ierr = VecAssemblyEnd  (Int2bVec);CHKERRQ(ierr);
 
+	//Here add all values at Gauss points
 	ierr = VecSum(Int1aVec,&Int1a);CHKERRQ(ierr);
 	ierr = VecSum(Int2aVec,&Int2a);CHKERRQ(ierr);
 	ierr = VecSum(Int1bVec,&Int1b);CHKERRQ(ierr);
 	ierr = VecSum(Int2bVec,&Int2b);CHKERRQ(ierr);
-
-	ierr = PetscPrintf(PETSC_COMM_WORLD,"Int1a= %15.8g, Int2a= %15.8g \n",Int1a,Int2a);CHKERRQ(ierr);
-	ierr = PetscPrintf(PETSC_COMM_WORLD,"Int1b= %15.8g, Int2b= %15.8g \n",Int1b,Int2b);CHKERRQ(ierr);
 
 	//Now put those velocities on each defect location
 	Vec FVaSmooth1,FVaSmooth2,Va1Smooth,Va2Smooth;
@@ -3382,7 +3371,7 @@ int main(int argc, char *argv[]) {
 					ierr = IGAPointGetWorkVec(pointVa,&VaSmooth1Point);CHKERRQ(ierr);
 					ierr = IGAPointGetWorkVec(pointVa,&VaSmooth2Point);CHKERRQ(ierr);
 					//	   ProjValpha(IGAPoint pV,IGAPoint pAl1,PetscReal *FVa1,PetscReal *FVa2,PetscReal Valpha1a,PetscReal Valpha2a,PetscReal Valpha1b,PetscReal Valpha2b,PetscReal *Al1,PetscReal *Al2,void *ctx)
-					ierr = ProjValpha(pointVa,pointAlp,VaSmooth1Point,VaSmooth2Point,Int1a,Int2a,Int1b,Int2b,Al1aVa,Al1bVa,NULL);CHKERRQ(ierr);
+					ierr = ProjValpha(pointVa,pointAlp,VaSmooth1Point,VaSmooth2Point,Al1aVa,Al1bVa,NULL);CHKERRQ(ierr);
 					ierr = IGAPointAddVec(pointVa,VaSmooth1Point,locSmooth1);CHKERRQ(ierr);
 					ierr = IGAPointAddVec(pointVa,VaSmooth2Point,locSmooth2);CHKERRQ(ierr);
 				}
@@ -3406,13 +3395,66 @@ int main(int argc, char *argv[]) {
 	ierr = IGARestoreLocalVecArray(igaAl,alInput2,&localAl1bVa,&arrayAl1bVa);CHKERRQ(ierr);
 	ierr = IGARestoreLocalVecArray(igaVa,Va0,&localVa0,&arrayVa0);CHKERRQ(ierr);
 
+	//Here we have a vector with an L2 Projection of the integrated velocity.
 	ierr = VecAssemblyBegin(FVaSmooth1);CHKERRQ(ierr);
 	ierr = VecAssemblyEnd  (FVaSmooth1);CHKERRQ(ierr);
 	ierr = VecAssemblyBegin(FVaSmooth2);CHKERRQ(ierr);
 	ierr = VecAssemblyEnd  (FVaSmooth2);CHKERRQ(ierr);
 
+	//Here we solved the L2 projection system
 	ierr = KSPSolve(kspVa,FVaSmooth1,Va1Smooth);CHKERRQ(ierr);
 	ierr = KSPSolve(kspVa,FVaSmooth2,Va2Smooth);CHKERRQ(ierr);
+
+	//Solutions are in Va1Smooth (for core #1) and Va2Smooth (for core #2)
+	PetscInt indLow1,indHigh1,numInd1,indLow2,indHigh2,numInd2;
+	ierr = VecGetOwnershipRange(Va1Smooth,&indLow1,&indHigh1);CHKERRQ(ierr);
+	ierr = VecGetOwnershipRange(Va2Smooth,&indLow2,&indHigh2);CHKERRQ(ierr);
+	numInd1=indHigh1-indLow1;
+	numInd2=indHigh2-indLow2;
+
+	PetscInt *indices1,*indices2,i,count;
+	indices1=(PetscInt*)calloc(numInd1,sizeof(PetscInt));
+	indices2=(PetscInt*)calloc(numInd2,sizeof(PetscInt));
+
+	count=0;
+	while(count<numInd1)
+	{
+		indices1[count]=indLow1+count;
+		count++;
+	}
+
+	count=0;
+	while(count<numInd2)
+	{
+		indices2[count]=indLow2+count;
+		count++;
+	}
+
+	PetscReal *valores1,*valores2;
+	valores1=(PetscReal*)calloc(numInd1,sizeof(PetscReal));
+	valores2=(PetscReal*)calloc(numInd2,sizeof(PetscReal));
+
+	ierr = VecGetValues(Va1Smooth,numInd1,indices1,valores1);
+	ierr = VecGetValues(Va2Smooth,numInd2,indices2,valores2);
+
+	for (i=0;i<numInd1;i=i+2)
+	{
+		valores1[i]=valores1[i]*valores1[i]*Int1a;
+		valores1[i+1]=valores1[i+1]*valores1[i+1]*Int2a;
+	}
+	for (i=0;i<numInd2;i=i+2)
+	{
+		valores2[i]=valores2[i]*valores2[i]*Int1b;
+		valores2[i+1]=valores2[i+1]*valores2[i+1]*Int2b;
+	}
+
+	ierr = VecSetValues(Va1Smooth,numInd1,indices1,valores1,INSERT_VALUES);CHKERRQ(ierr);
+	ierr = VecSetValues(Va2Smooth,numInd2,indices2,valores2,INSERT_VALUES);CHKERRQ(ierr);
+
+	ierr = VecAssemblyBegin(Va1Smooth);CHKERRQ(ierr);
+	ierr = VecAssemblyEnd  (Va1Smooth);CHKERRQ(ierr);
+	ierr = VecAssemblyBegin(Va2Smooth);CHKERRQ(ierr);
+	ierr = VecAssemblyEnd  (Va2Smooth);CHKERRQ(ierr);
 
 	char nameVaS1[]="/VaSmooth1-2d-0.dat";
 	char pathVaS1[512];
