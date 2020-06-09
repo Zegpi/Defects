@@ -126,7 +126,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	//nc=(b+1)/2;		//Half the length of the body, for a disclination on the center
 	nc=b+1;				//Full length of the body, for something like a through twin
 	numF=9;			//Number of rows to assign, rows of elements will be one less
-	dist=10;
+	dist=0;
 	
 	ierr = PetscCalloc1(524288,&pointsS);CHKERRQ(ierr);
 	ierr = PetscCalloc1(524288,&valoresS);CHKERRQ(ierr);
@@ -166,7 +166,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 			}
 		}
 	}
-	
+	/* Uncomment for 2 eigenwalls
 	for (int i=nf; i<nf+numF; i++)
 	{
 		cord=(nx+1)*i*8;
@@ -183,6 +183,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 			}
 		}
 	}
+	*/
 
 	ierr = VecSetValues(s0,8*nc*numF*4,pointsS,valoresS,ADD_VALUES);	
 	ierr = VecAssemblyBegin(s0);CHKERRQ(ierr);

@@ -89,7 +89,7 @@ and compile again
 
 Open a terminal in home
 
-hg clone https://bitbucket.org/dalcinl/igakit
+git clone https://bitbucket.org/dalcinl/igakit
 
 cd igakit
 

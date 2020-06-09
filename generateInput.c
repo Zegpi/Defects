@@ -88,8 +88,8 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	FILE *source, *dest;
 	char buffer[8192];
 	size_t bytes;
-	source = fopen("/home/eazegpi/CodigosPetIga/generateInput.c","r");
-	dest   = fopen("/home/eazegpi/Results/generateInput.c","w");
+	source = fopen("./generateInput.c","r");
+	dest   = fopen("../Results/generateInput.c","w");
 
 	while (0 < (bytes = fread(buffer, 1, sizeof(buffer), source)))
     	fwrite(buffer, 1, bytes, dest);
@@ -141,7 +141,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	PetscReal normdr2=dr*dr;
 	PetscReal gamma=0.0/normdr2*dr/(c*t);
 	//PetscReal tanTh=-0.0/normdr2*dr/(c*t);
-	PetscReal tanTh=0.0*-tan(45.0/180.0*ConstPi)/(c*t);
+	PetscReal tanTh=-tan(45.0/180.0*ConstPi)/(c*t);
 
 	PetscInt counter=0;
 
