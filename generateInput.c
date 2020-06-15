@@ -288,7 +288,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	center=(nx+1)*ny/2-1;
 	
 	size_elem=1;		//1 is a 1x1 element, 2 is a 3x3 element, 3 is a 5x5 element, and so on
-	dist_centro=4;
+	dist_centro=0;
 
 	counter=0;
 	for (int i=0;i<2*size_elem;i++)
@@ -297,7 +297,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 		{
 			pointsAl1[counter  ]=2*(center-dist_centro-1-(size_elem-1)*(nx+1+1+1))+2*i*(nx+1)+2*j;	valoresAl1[counter  ]=1.0/(4.0*c*t*size_elem*size_elem);
 			pointsAl2[counter+1]=2*(center+dist_centro+1-(size_elem-1)*(nx+1+1-1))+2*i*(nx+1)+2*j;	valoresAl2[counter+1]=1.0/(4.0*c*t*size_elem*size_elem);
-			counter=counter+1; //Check this, may not be right
+			counter=counter+1;
 		}
 	}
 
