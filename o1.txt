@@ -1,73 +1,155 @@
-Start of PruebaV2 
-Current time is 12:20:52 
+Start of PruebaV5 
+Current time is 15:19:34 
 
-System for Reading Alpha 
+System for initial state of Pi starting 
 
-Current time is 12:20:52 
-IGA: dim=2 dof=2 order=1 geometry=2 rational=0 property=0
-Axis 0: basis=BSPLINE[1,0] rule=LEGENDRE[4] periodic=0 nnp=202 nel=201
-Axis 1: basis=BSPLINE[1,0] rule=LEGENDRE[4] periodic=0 nnp=202 nel=201
+IGA: dim=2 dof=4 order=1 geometry=2 rational=0 property=0
+Axis 0: basis=BSPLINE[1,0] rule=LEGENDRE[4] periodic=0 nnp=402 nel=401
+Axis 1: basis=BSPLINE[1,0] rule=LEGENDRE[4] periodic=0 nnp=402 nel=401
 Partition - MPI: processors=[3,4,1] total=12
-Partition - nnp: sum=40804 min=3350 max=3468 max/min=1.03522
-Partition - nel: sum=40401 min=3350 max=3417 max/min=1.02
+Partition - nnp: sum=161604 min=13400 max=13534 max/min=1.01
+Partition - nel: sum=160801 min=13300 max=13534 max/min=1.01759
+
+System for curl part of Helmholtz of S starting 
+
+Current time is 15:19:35 
+IGA: dim=2 dof=8 order=1 geometry=2 rational=0 property=0
+Axis 0: basis=BSPLINE[1,0] rule=LEGENDRE[4] periodic=0 nnp=402 nel=401
+Axis 1: basis=BSPLINE[1,0] rule=LEGENDRE[4] periodic=0 nnp=402 nel=401
+Partition - MPI: processors=[3,4,1] total=12
+Partition - nnp: sum=161604 min=13400 max=13534 max/min=1.01
+Partition - nel: sum=160801 min=13300 max=13534 max/min=1.01759
+
+System for L2 projection for Alfa+Sp:X starting 
+
+Current time is 15:31:37 
+IGA: dim=2 dof=2 order=1 geometry=2 rational=0 property=0
+Axis 0: basis=BSPLINE[1,0] rule=LEGENDRE[4] periodic=0 nnp=402 nel=401
+Axis 1: basis=BSPLINE[1,0] rule=LEGENDRE[4] periodic=0 nnp=402 nel=401
+Partition - MPI: processors=[3,4,1] total=12
+Partition - nnp: sum=161604 min=13400 max=13534 max/min=1.01
+Partition - nel: sum=160801 min=13300 max=13534 max/min=1.01759
+  0 KSP Residual norm 0.000000000000e+00 
+Linear solve converged due to CONVERGED_ATOL iterations 0
+KSP Object: 12 MPI processes
+  type: gmres
+    restart=30, using Classical (unmodified) Gram-Schmidt Orthogonalization with no iterative refinement
+    happy breakdown tolerance 1e-30
+  maximum iterations=10000, initial guess is zero
+  tolerances:  relative=1e-25, absolute=1e-40, divergence=10000.
+  left preconditioning
+  using PRECONDITIONED norm type for convergence test
+PC Object: 12 MPI processes
+  type: bjacobi
+    number of blocks = 12
+    Local solve is same for all blocks, in the following KSP and PC objects:
+  KSP Object: (sub_) 1 MPI processes
+    type: preonly
+    maximum iterations=10000, initial guess is zero
+    tolerances:  relative=1e-05, absolute=1e-50, divergence=10000.
+    left preconditioning
+    using NONE norm type for convergence test
+  PC Object: (sub_) 1 MPI processes
+    type: ilu
+      out-of-place factorization
+      0 levels of fill
+      tolerance for zero pivot 2.22045e-14
+      matrix ordering: natural
+      factor fill ratio given 1., needed 1.
+        Factored matrix follows:
+          Mat Object: 1 MPI processes
+            type: seqbaij
+            rows=27068, cols=27068, bs=2
+            package used to perform factorization: petsc
+            total: nonzeros=481600, allocated nonzeros=481600
+            total number of mallocs used during MatSetValues calls=0
+                block size is 2
+    linear system matrix = precond matrix:
+    Mat Object: 1 MPI processes
+      type: seqbaij
+      rows=27068, cols=27068, bs=2
+      total: nonzeros=481600, allocated nonzeros=481600
+      total number of mallocs used during MatSetValues calls=0
+          block size is 2
+  linear system matrix = precond matrix:
+  Mat Object: 12 MPI processes
+    type: mpibaij
+    rows=323208, cols=323208, bs=2
+    total: nonzeros=5798464, allocated nonzeros=5798464
+    total number of mallocs used during MatSetValues calls=0
+
+System for curl part of Helmholtz of Up starting 
+
+Current time is 15:31:39 
+IGA: dim=2 dof=4 order=2 geometry=2 rational=0 property=0
+Axis 0: basis=BSPLINE[2,1] rule=LEGENDRE[4] periodic=0 nnp=403 nel=401
+Axis 1: basis=BSPLINE[2,1] rule=LEGENDRE[4] periodic=0 nnp=403 nel=401
+Partition - MPI: processors=[3,4,1] total=12
+Partition - nnp: sum=162409 min=13400 max=13770 max/min=1.02761
+Partition - nel: sum=160801 min=13300 max=13534 max/min=1.01759
 
 System for Z0 starting 
 
-Current time is 12:20:52 
+Current time is 15:39:31 
 IGA: dim=2 dof=2 order=3 geometry=2 rational=0 property=0
-Axis 0: basis=BSPLINE[1,0] rule=LEGENDRE[4] periodic=0 nnp=202 nel=201
-Axis 1: basis=BSPLINE[1,0] rule=LEGENDRE[4] periodic=0 nnp=202 nel=201
+Axis 0: basis=BSPLINE[3,2] rule=LEGENDRE[4] periodic=0 nnp=404 nel=401
+Axis 1: basis=BSPLINE[3,2] rule=LEGENDRE[4] periodic=0 nnp=404 nel=401
 Partition - MPI: processors=[3,4,1] total=12
-Partition - nnp: sum=40804 min=3350 max=3468 max/min=1.03522
-Partition - nel: sum=40401 min=3350 max=3417 max/min=1.02
+Partition - nnp: sum=163216 min=13400 max=14008 max/min=1.04537
+Partition - nel: sum=160801 min=13300 max=13534 max/min=1.01759
 
 System for Stress starting 
 
-Current time is 12:21:02 
-IGA: dim=2 dof=4 order=1 geometry=2 rational=0 property=0
-Axis 0: basis=BSPLINE[1,0] rule=LEGENDRE[4] periodic=0 nnp=202 nel=201
-Axis 1: basis=BSPLINE[1,0] rule=LEGENDRE[4] periodic=0 nnp=202 nel=201
+Current time is 15:57:12 
+IGA: dim=2 dof=4 order=2 geometry=2 rational=0 property=0
+Axis 0: basis=BSPLINE[3,2] rule=LEGENDRE[4] periodic=0 nnp=404 nel=401
+Axis 1: basis=BSPLINE[3,2] rule=LEGENDRE[4] periodic=0 nnp=404 nel=401
 Partition - MPI: processors=[3,4,1] total=12
-Partition - nnp: sum=40804 min=3350 max=3468 max/min=1.03522
-Partition - nel: sum=40401 min=3350 max=3417 max/min=1.02
-  0 KSP Residual norm 1.649250233361e+01 
-  1 KSP Residual norm 1.800574227854e+00 
-  2 KSP Residual norm 1.635389216091e-01 
-  3 KSP Residual norm 5.923913881698e-02 
-  4 KSP Residual norm 1.638254661236e-05 
-  5 KSP Residual norm 1.738757327894e-06 
-  6 KSP Residual norm 2.469508085697e-14 
-  7 KSP Residual norm 1.744738838534e-14 
-  8 KSP Residual norm 1.424336622316e-14 
-  9 KSP Residual norm 1.233189880058e-14 
- 10 KSP Residual norm 1.102856322799e-14 
- 11 KSP Residual norm 1.006669984334e-14 
- 12 KSP Residual norm 9.319337433354e-15 
- 13 KSP Residual norm 8.717007402529e-15 
- 14 KSP Residual norm 8.218155204364e-15 
- 15 KSP Residual norm 7.796185062610e-15 
- 16 KSP Residual norm 7.433182407459e-15 
- 17 KSP Residual norm 7.116580036513e-15 
- 18 KSP Residual norm 6.837266757723e-15 
- 19 KSP Residual norm 6.588454195871e-15 
- 20 KSP Residual norm 6.364966975807e-15 
- 21 KSP Residual norm 6.162781198955e-15 
- 22 KSP Residual norm 5.978714693297e-15 
- 23 KSP Residual norm 5.810213371379e-15 
- 24 KSP Residual norm 5.655200332570e-15 
- 25 KSP Residual norm 5.511967033604e-15 
- 26 KSP Residual norm 5.379093334366e-15 
- 27 KSP Residual norm 5.255387780535e-15 
- 28 KSP Residual norm 5.139842335589e-15 
- 29 KSP Residual norm 5.031597604127e-15 
- 30 KSP Residual norm 2.180557361864e-14 
- 31 KSP Residual norm 2.846588480626e-15 
- 32 KSP Residual norm 4.076796606241e-16 
- 33 KSP Residual norm 1.313996555433e-16 
- 34 KSP Residual norm 5.443815880953e-18 
- 35 KSP Residual norm 1.855054033147e-19 
- 36 KSP Residual norm 4.698489250907e-29 
-Linear solve converged due to CONVERGED_RTOL iterations 36
+Partition - nnp: sum=163216 min=13400 max=14008 max/min=1.04537
+Partition - nel: sum=160801 min=13300 max=13534 max/min=1.01759
+  0 KSP Residual norm 1.254253601542e+02 
+  1 KSP Residual norm 3.287422227164e+01 
+  2 KSP Residual norm 6.970234384785e+00 
+  3 KSP Residual norm 5.186728227835e+00 
+  4 KSP Residual norm 2.175922243745e-01 
+  5 KSP Residual norm 1.134564030705e-02 
+  6 KSP Residual norm 7.320917144970e-04 
+  7 KSP Residual norm 1.727401022450e-04 
+  8 KSP Residual norm 1.667024741618e-05 
+  9 KSP Residual norm 1.335040637828e-05 
+ 10 KSP Residual norm 4.470372600345e-06 
+ 11 KSP Residual norm 1.404434781383e-06 
+ 12 KSP Residual norm 2.357673584561e-09 
+ 13 KSP Residual norm 4.377883669271e-10 
+ 14 KSP Residual norm 1.237271075100e-10 
+ 15 KSP Residual norm 2.719145743796e-11 
+ 16 KSP Residual norm 7.449998187577e-13 
+ 17 KSP Residual norm 5.269820506017e-13 
+ 18 KSP Residual norm 4.303334547681e-13 
+ 19 KSP Residual norm 3.727022313024e-13 
+ 20 KSP Residual norm 3.333672536632e-13 
+ 21 KSP Residual norm 3.043287043559e-13 
+ 22 KSP Residual norm 2.817585477569e-13 
+ 23 KSP Residual norm 2.635644368385e-13 
+ 24 KSP Residual norm 2.484934633186e-13 
+ 25 KSP Residual norm 2.357435179242e-13 
+ 26 KSP Residual norm 2.247741225217e-13 
+ 27 KSP Residual norm 2.152060328545e-13 
+ 28 KSP Residual norm 2.067642397342e-13 
+ 29 KSP Residual norm 1.992438091569e-13 
+ 30 KSP Residual norm 1.416905097885e-12 
+ 31 KSP Residual norm 3.131527248528e-13 
+ 32 KSP Residual norm 1.894085035923e-13 
+ 33 KSP Residual norm 1.276413490010e-13 
+ 34 KSP Residual norm 7.730286899703e-15 
+ 35 KSP Residual norm 5.658363230617e-15 
+ 36 KSP Residual norm 2.492971888318e-15 
+ 37 KSP Residual norm 7.827287398650e-16 
+ 38 KSP Residual norm 3.956683821381e-17 
+ 39 KSP Residual norm 1.977068856228e-17 
+ 40 KSP Residual norm 8.717435516491e-18 
+ 41 KSP Residual norm 5.156459740194e-20 
+Linear solve converged due to CONVERGED_RTOL iterations 41
 KSP Object: 12 MPI processes
   type: gmres
     restart=30, using Classical (unmodified) Gram-Schmidt Orthogonalization with no iterative refinement
@@ -96,25 +178,540 @@ PC Object: 12 MPI processes
         Factored matrix follows:
           Mat Object: 1 MPI processes
             type: seqbaij
-            rows=13668, cols=13668, bs=4
+            rows=54136, cols=54136, bs=4
             package used to perform factorization: petsc
-            total: nonzeros=480784, allocated nonzeros=480784
+            total: nonzeros=10297120, allocated nonzeros=10297120
             total number of mallocs used during MatSetValues calls=0
                 block size is 4
     linear system matrix = precond matrix:
     Mat Object: 1 MPI processes
       type: seqbaij
-      rows=13668, cols=13668, bs=4
-      total: nonzeros=480784, allocated nonzeros=480784
+      rows=54136, cols=54136, bs=4
+      total: nonzeros=10297120, allocated nonzeros=10297120
       total number of mallocs used during MatSetValues calls=0
           block size is 4
   linear system matrix = precond matrix:
   Mat Object: 12 MPI processes
     type: mpibaij
-    rows=163216, cols=163216, bs=4
-    total: nonzeros=5837056, allocated nonzeros=5837056
+    rows=652864, cols=652864, bs=4
+    total: nonzeros=126877696, allocated nonzeros=126877696
     total number of mallocs used during MatSetValues calls=0
-Current time is 12:21:04 
+
+System for Classic Stress starting 
+
+Current time is 15:57:43 
+IGA: dim=2 dof=4 order=2 geometry=2 rational=0 property=0
+Axis 0: basis=BSPLINE[3,2] rule=LEGENDRE[4] periodic=0 nnp=404 nel=401
+Axis 1: basis=BSPLINE[3,2] rule=LEGENDRE[4] periodic=0 nnp=404 nel=401
+Partition - MPI: processors=[3,4,1] total=12
+Partition - nnp: sum=163216 min=13400 max=14008 max/min=1.04537
+Partition - nel: sum=160801 min=13300 max=13534 max/min=1.01759
+  0 KSP Residual norm 7.924041494602e+01 
+  1 KSP Residual norm 2.313579262217e+01 
+  2 KSP Residual norm 3.442124552392e+00 
+  3 KSP Residual norm 1.347158114493e+00 
+  4 KSP Residual norm 1.036169838086e-01 
+  5 KSP Residual norm 1.086393130606e-02 
+  6 KSP Residual norm 5.528183362216e-04 
+  7 KSP Residual norm 1.419834838638e-04 
+  8 KSP Residual norm 1.659996117889e-05 
+  9 KSP Residual norm 1.328747978704e-05 
+ 10 KSP Residual norm 4.454285449905e-06 
+ 11 KSP Residual norm 1.394323645240e-06 
+ 12 KSP Residual norm 2.347031275294e-09 
+ 13 KSP Residual norm 4.331599918654e-10 
+ 14 KSP Residual norm 1.225229825025e-10 
+ 15 KSP Residual norm 2.707527817508e-11 
+ 16 KSP Residual norm 9.162850206727e-13 
+ 17 KSP Residual norm 6.478911056874e-13 
+ 18 KSP Residual norm 5.289971430114e-13 
+ 19 KSP Residual norm 4.581230159616e-13 
+ 20 KSP Residual norm 4.097566767791e-13 
+ 21 KSP Residual norm 3.740543419891e-13 
+ 22 KSP Residual norm 3.463066210823e-13 
+ 23 KSP Residual norm 3.239398960505e-13 
+ 24 KSP Residual norm 3.054132534517e-13 
+ 25 KSP Residual norm 2.897402935735e-13 
+ 26 KSP Residual norm 2.762564064989e-13 
+ 27 KSP Residual norm 2.644952733230e-13 
+ 28 KSP Residual norm 2.541187584018e-13 
+ 29 KSP Residual norm 2.448748963785e-13 
+ 30 KSP Residual norm 1.482658199470e-12 
+ 31 KSP Residual norm 4.350404191290e-13 
+ 32 KSP Residual norm 1.079394800372e-13 
+ 33 KSP Residual norm 8.012149398006e-14 
+ 34 KSP Residual norm 1.411953872335e-14 
+ 35 KSP Residual norm 6.993645620097e-15 
+Linear solve converged due to CONVERGED_RTOL iterations 35
+KSP Object: 12 MPI processes
+  type: gmres
+    restart=30, using Classical (unmodified) Gram-Schmidt Orthogonalization with no iterative refinement
+    happy breakdown tolerance 1e-30
+  maximum iterations=10000, initial guess is zero
+  tolerances:  relative=1e-16, absolute=1e-50, divergence=10000.
+  left preconditioning
+  using PRECONDITIONED norm type for convergence test
+PC Object: 12 MPI processes
+  type: bjacobi
+    number of blocks = 12
+    Local solve is same for all blocks, in the following KSP and PC objects:
+  KSP Object: (sub_) 1 MPI processes
+    type: preonly
+    maximum iterations=10000, initial guess is zero
+    tolerances:  relative=1e-05, absolute=1e-50, divergence=10000.
+    left preconditioning
+    using NONE norm type for convergence test
+  PC Object: (sub_) 1 MPI processes
+    type: ilu
+      out-of-place factorization
+      0 levels of fill
+      tolerance for zero pivot 2.22045e-14
+      matrix ordering: natural
+      factor fill ratio given 1., needed 1.
+        Factored matrix follows:
+          Mat Object: 1 MPI processes
+            type: seqbaij
+            rows=54136, cols=54136, bs=4
+            package used to perform factorization: petsc
+            total: nonzeros=10297120, allocated nonzeros=10297120
+            total number of mallocs used during MatSetValues calls=0
+                block size is 4
+    linear system matrix = precond matrix:
+    Mat Object: 1 MPI processes
+      type: seqbaij
+      rows=54136, cols=54136, bs=4
+      total: nonzeros=10297120, allocated nonzeros=10297120
+      total number of mallocs used during MatSetValues calls=0
+          block size is 4
+  linear system matrix = precond matrix:
+  Mat Object: 12 MPI processes
+    type: mpibaij
+    rows=652864, cols=652864, bs=4
+    total: nonzeros=126877696, allocated nonzeros=126877696
+    total number of mallocs used during MatSetValues calls=0
+
+System for CoupleStress starting 
+
+Current time is 15:58:15 
+IGA: dim=2 dof=2 order=2 geometry=2 rational=0 property=0
+Axis 0: basis=BSPLINE[3,2] rule=LEGENDRE[4] periodic=0 nnp=404 nel=401
+Axis 1: basis=BSPLINE[3,2] rule=LEGENDRE[4] periodic=0 nnp=404 nel=401
+Partition - MPI: processors=[3,4,1] total=12
+Partition - nnp: sum=163216 min=13400 max=14008 max/min=1.04537
+Partition - nel: sum=160801 min=13300 max=13534 max/min=1.01759
+
+System for Energy Density starting 
+
+Current time is 16:00:06 
+IGA: dim=2 dof=1 order=2 geometry=2 rational=0 property=0
+Axis 0: basis=BSPLINE[3,2] rule=LEGENDRE[4] periodic=0 nnp=404 nel=401
+Axis 1: basis=BSPLINE[3,2] rule=LEGENDRE[4] periodic=0 nnp=404 nel=401
+Partition - MPI: processors=[3,4,1] total=12
+Partition - nnp: sum=163216 min=13400 max=14008 max/min=1.04537
+Partition - nel: sum=160801 min=13300 max=13534 max/min=1.01759
+
+System for V-alpha starting 
+
+Current time is 16:00:59 
+IGA: dim=2 dof=2 order=1 geometry=2 rational=0 property=0
+Axis 0: basis=BSPLINE[1,0] rule=LEGENDRE[4] periodic=0 nnp=402 nel=401
+Axis 1: basis=BSPLINE[1,0] rule=LEGENDRE[4] periodic=0 nnp=402 nel=401
+Partition - MPI: processors=[3,4,1] total=12
+Partition - nnp: sum=161604 min=13400 max=13534 max/min=1.01
+Partition - nel: sum=160801 min=13300 max=13534 max/min=1.01759
+  0 KSP Residual norm 6.272495134361e+03 
+  1 KSP Residual norm 1.551920012100e+03 
+  2 KSP Residual norm 1.712460698586e+02 
+  3 KSP Residual norm 5.051525467440e-12 
+  4 KSP Residual norm 3.571135528826e-12 
+  5 KSP Residual norm 2.915690790451e-12 
+  6 KSP Residual norm 2.524908343248e-12 
+  7 KSP Residual norm 2.258276497015e-12 
+  8 KSP Residual norm 2.061468312226e-12 
+  9 KSP Residual norm 1.908518638061e-12 
+ 10 KSP Residual norm 1.785234431070e-12 
+ 11 KSP Residual norm 1.683119575888e-12 
+ 12 KSP Residual norm 1.596735597922e-12 
+ 13 KSP Residual norm 1.522418427626e-12 
+ 14 KSP Residual norm 1.457597307895e-12 
+ 15 KSP Residual norm 1.400408208840e-12 
+ 16 KSP Residual norm 1.349462171561e-12 
+ 17 KSP Residual norm 1.303700175515e-12 
+ 18 KSP Residual norm 1.262298759609e-12 
+ 19 KSP Residual norm 1.224606672200e-12 
+ 20 KSP Residual norm 1.190101172381e-12 
+ 21 KSP Residual norm 1.158357162183e-12 
+ 22 KSP Residual norm 1.129024922455e-12 
+ 23 KSP Residual norm 1.101813754784e-12 
+ 24 KSP Residual norm 1.076479762915e-12 
+ 25 KSP Residual norm 1.052816590072e-12 
+ 26 KSP Residual norm 1.030648302605e-12 
+ 27 KSP Residual norm 1.009823855930e-12 
+ 28 KSP Residual norm 9.902127431027e-13 
+ 29 KSP Residual norm 9.717015385032e-13 
+ 30 KSP Residual norm 5.496232001038e-12 
+ 31 KSP Residual norm 1.488531667959e-12 
+ 32 KSP Residual norm 1.196228215054e-13 
+ 33 KSP Residual norm 1.152654893242e-26 
+Linear solve converged due to CONVERGED_RTOL iterations 33
+KSP Object: 12 MPI processes
+  type: gmres
+    restart=30, using Classical (unmodified) Gram-Schmidt Orthogonalization with no iterative refinement
+    happy breakdown tolerance 1e-30
+  maximum iterations=10000, initial guess is zero
+  tolerances:  relative=1e-24, absolute=1e-50, divergence=10000.
+  left preconditioning
+  using PRECONDITIONED norm type for convergence test
+PC Object: 12 MPI processes
+  type: bjacobi
+    number of blocks = 12
+    Local solve is same for all blocks, in the following KSP and PC objects:
+  KSP Object: (sub_) 1 MPI processes
+    type: preonly
+    maximum iterations=10000, initial guess is zero
+    tolerances:  relative=1e-05, absolute=1e-50, divergence=10000.
+    left preconditioning
+    using NONE norm type for convergence test
+  PC Object: (sub_) 1 MPI processes
+    type: ilu
+      out-of-place factorization
+      0 levels of fill
+      tolerance for zero pivot 2.22045e-14
+      matrix ordering: natural
+      factor fill ratio given 1., needed 1.
+        Factored matrix follows:
+          Mat Object: 1 MPI processes
+            type: seqbaij
+            rows=27068, cols=27068, bs=2
+            package used to perform factorization: petsc
+            total: nonzeros=481600, allocated nonzeros=481600
+            total number of mallocs used during MatSetValues calls=0
+                block size is 2
+    linear system matrix = precond matrix:
+    Mat Object: 1 MPI processes
+      type: seqbaij
+      rows=27068, cols=27068, bs=2
+      total: nonzeros=481600, allocated nonzeros=481600
+      total number of mallocs used during MatSetValues calls=0
+          block size is 2
+  linear system matrix = precond matrix:
+  Mat Object: 12 MPI processes
+    type: mpibaij
+    rows=323208, cols=323208, bs=2
+    total: nonzeros=5798464, allocated nonzeros=5798464
+    total number of mallocs used during MatSetValues calls=0
+
+System for Int(V-alpha) starting 
+
+Current time is 16:01:41 
+  0 KSP Residual norm 5.041272746718e+00 
+  1 KSP Residual norm 5.966655740852e-01 
+  2 KSP Residual norm 3.535230195960e-15 
+  3 KSP Residual norm 2.485794813861e-15 
+  4 KSP Residual norm 2.027505495859e-15 
+  5 KSP Residual norm 1.754622868699e-15 
+  6 KSP Residual norm 1.568753976318e-15 
+  7 KSP Residual norm 1.431682653681e-15 
+  8 KSP Residual norm 1.325225260975e-15 
+  9 KSP Residual norm 1.239455629192e-15 
+ 10 KSP Residual norm 1.168438702844e-15 
+ 11 KSP Residual norm 1.108378684143e-15 
+ 12 KSP Residual norm 1.056719932127e-15 
+ 13 KSP Residual norm 1.011670345058e-15 
+ 14 KSP Residual norm 9.719310626708e-16 
+ 15 KSP Residual norm 9.365346132031e-16 
+ 16 KSP Residual norm 9.047435731966e-16 
+ 17 KSP Residual norm 8.759847000509e-16 
+ 18 KSP Residual norm 8.498047390042e-16 
+ 19 KSP Residual norm 8.258399503484e-16 
+ 20 KSP Residual norm 8.037945912184e-16 
+ 21 KSP Residual norm 7.834253995934e-16 
+ 22 KSP Residual norm 7.645301971929e-16 
+ 23 KSP Residual norm 7.469393784477e-16 
+ 24 KSP Residual norm 7.305094597818e-16 
+ 25 KSP Residual norm 7.151181245784e-16 
+ 26 KSP Residual norm 7.006603705359e-16 
+ 27 KSP Residual norm 6.870454808144e-16 
+ 28 KSP Residual norm 6.741946185774e-16 
+ 29 KSP Residual norm 6.620388987562e-16 
+ 30 KSP Residual norm 4.580255815548e-15 
+ 31 KSP Residual norm 5.743697730204e-16 
+ 32 KSP Residual norm 3.918935538960e-17 
+ 33 KSP Residual norm 6.007425801821e-31 
+Linear solve converged due to CONVERGED_RTOL iterations 33
+KSP Object: 12 MPI processes
+  type: gmres
+    restart=30, using Classical (unmodified) Gram-Schmidt Orthogonalization with no iterative refinement
+    happy breakdown tolerance 1e-30
+  maximum iterations=10000, initial guess is zero
+  tolerances:  relative=1e-24, absolute=1e-50, divergence=10000.
+  left preconditioning
+  using PRECONDITIONED norm type for convergence test
+PC Object: 12 MPI processes
+  type: bjacobi
+    number of blocks = 12
+    Local solve is same for all blocks, in the following KSP and PC objects:
+  KSP Object: (sub_) 1 MPI processes
+    type: preonly
+    maximum iterations=10000, initial guess is zero
+    tolerances:  relative=1e-05, absolute=1e-50, divergence=10000.
+    left preconditioning
+    using NONE norm type for convergence test
+  PC Object: (sub_) 1 MPI processes
+    type: ilu
+      out-of-place factorization
+      0 levels of fill
+      tolerance for zero pivot 2.22045e-14
+      matrix ordering: natural
+      factor fill ratio given 1., needed 1.
+        Factored matrix follows:
+          Mat Object: 1 MPI processes
+            type: seqbaij
+            rows=27068, cols=27068, bs=2
+            package used to perform factorization: petsc
+            total: nonzeros=481600, allocated nonzeros=481600
+            total number of mallocs used during MatSetValues calls=0
+                block size is 2
+    linear system matrix = precond matrix:
+    Mat Object: 1 MPI processes
+      type: seqbaij
+      rows=27068, cols=27068, bs=2
+      total: nonzeros=481600, allocated nonzeros=481600
+      total number of mallocs used during MatSetValues calls=0
+          block size is 2
+  linear system matrix = precond matrix:
+  Mat Object: 12 MPI processes
+    type: mpibaij
+    rows=323208, cols=323208, bs=2
+    total: nonzeros=5798464, allocated nonzeros=5798464
+    total number of mallocs used during MatSetValues calls=0
+  0 KSP Residual norm 5.041272746718e+00 
+  1 KSP Residual norm 5.966655740852e-01 
+  2 KSP Residual norm 5.235163650770e-15 
+  3 KSP Residual norm 3.692325930666e-15 
+  4 KSP Residual norm 3.013293923106e-15 
+  5 KSP Residual norm 2.608743209114e-15 
+  6 KSP Residual norm 2.332902313808e-15 
+  7 KSP Residual norm 2.129374910042e-15 
+  8 KSP Residual norm 1.971244047973e-15 
+  9 KSP Residual norm 1.843807852916e-15 
+ 10 KSP Residual norm 1.738269190993e-15 
+ 11 KSP Residual norm 1.648999014440e-15 
+ 12 KSP Residual norm 1.572205879803e-15 
+ 13 KSP Residual norm 1.505230253694e-15 
+ 14 KSP Residual norm 1.446144084636e-15 
+ 15 KSP Residual norm 1.393510926681e-15 
+ 16 KSP Residual norm 1.346235693412e-15 
+ 17 KSP Residual norm 1.303466974225e-15 
+ 18 KSP Residual norm 1.264531477737e-15 
+ 19 KSP Residual norm 1.228888817940e-15 
+ 20 KSP Residual norm 1.196099580459e-15 
+ 21 KSP Residual norm 1.165802292347e-15 
+ 22 KSP Residual norm 1.137696502921e-15 
+ 23 KSP Residual norm 1.111530147296e-15 
+ 24 KSP Residual norm 1.087089967717e-15 
+ 25 KSP Residual norm 1.064194155018e-15 
+ 26 KSP Residual norm 1.042686626619e-15 
+ 27 KSP Residual norm 1.022432527613e-15 
+ 28 KSP Residual norm 1.003314657509e-15 
+ 29 KSP Residual norm 9.852306056643e-16 
+ 30 KSP Residual norm 4.209730499848e-15 
+ 31 KSP Residual norm 5.461419948416e-16 
+ 32 KSP Residual norm 8.241218281050e-17 
+ 33 KSP Residual norm 3.945131196287e-30 
+Linear solve converged due to CONVERGED_RTOL iterations 33
+KSP Object: 12 MPI processes
+  type: gmres
+    restart=30, using Classical (unmodified) Gram-Schmidt Orthogonalization with no iterative refinement
+    happy breakdown tolerance 1e-30
+  maximum iterations=10000, initial guess is zero
+  tolerances:  relative=1e-24, absolute=1e-50, divergence=10000.
+  left preconditioning
+  using PRECONDITIONED norm type for convergence test
+PC Object: 12 MPI processes
+  type: bjacobi
+    number of blocks = 12
+    Local solve is same for all blocks, in the following KSP and PC objects:
+  KSP Object: (sub_) 1 MPI processes
+    type: preonly
+    maximum iterations=10000, initial guess is zero
+    tolerances:  relative=1e-05, absolute=1e-50, divergence=10000.
+    left preconditioning
+    using NONE norm type for convergence test
+  PC Object: (sub_) 1 MPI processes
+    type: ilu
+      out-of-place factorization
+      0 levels of fill
+      tolerance for zero pivot 2.22045e-14
+      matrix ordering: natural
+      factor fill ratio given 1., needed 1.
+        Factored matrix follows:
+          Mat Object: 1 MPI processes
+            type: seqbaij
+            rows=27068, cols=27068, bs=2
+            package used to perform factorization: petsc
+            total: nonzeros=481600, allocated nonzeros=481600
+            total number of mallocs used during MatSetValues calls=0
+                block size is 2
+    linear system matrix = precond matrix:
+    Mat Object: 1 MPI processes
+      type: seqbaij
+      rows=27068, cols=27068, bs=2
+      total: nonzeros=481600, allocated nonzeros=481600
+      total number of mallocs used during MatSetValues calls=0
+          block size is 2
+  linear system matrix = precond matrix:
+  Mat Object: 12 MPI processes
+    type: mpibaij
+    rows=323208, cols=323208, bs=2
+    total: nonzeros=5798464, allocated nonzeros=5798464
+    total number of mallocs used during MatSetValues calls=0
+
+System for L2 projection for exact stress starting 
+
+Current time is 16:01:44 
+IGA: dim=2 dof=4 order=2 geometry=2 rational=0 property=0
+Axis 0: basis=BSPLINE[3,2] rule=LEGENDRE[4] periodic=0 nnp=404 nel=401
+Axis 1: basis=BSPLINE[3,2] rule=LEGENDRE[4] periodic=0 nnp=404 nel=401
+Partition - MPI: processors=[3,4,1] total=12
+Partition - nnp: sum=163216 min=13400 max=14008 max/min=1.04537
+Partition - nel: sum=160801 min=13300 max=13534 max/min=1.01759
+  0 KSP Residual norm 4.220456241285e+01 
+  1 KSP Residual norm 9.102657375865e+00 
+  2 KSP Residual norm 2.326538552500e+00 
+  3 KSP Residual norm 3.032637007073e-02 
+  4 KSP Residual norm 1.258465123980e-02 
+  5 KSP Residual norm 1.097047801664e-02 
+  6 KSP Residual norm 5.943134224204e-05 
+  7 KSP Residual norm 1.620564549467e-05 
+  8 KSP Residual norm 9.948340997455e-07 
+  9 KSP Residual norm 8.501697488165e-07 
+ 10 KSP Residual norm 3.297659687787e-07 
+ 11 KSP Residual norm 1.582323659809e-07 
+ 12 KSP Residual norm 1.921331859522e-10 
+ 13 KSP Residual norm 1.126857230675e-10 
+ 14 KSP Residual norm 6.712985613952e-11 
+ 15 KSP Residual norm 1.687052859234e-12 
+ 16 KSP Residual norm 2.027456445489e-15 
+Linear solve converged due to CONVERGED_RTOL iterations 16
+KSP Object: 12 MPI processes
+  type: cg
+  maximum iterations=10000, initial guess is zero
+  tolerances:  relative=1e-16, absolute=1e-50, divergence=10000.
+  left preconditioning
+  using PRECONDITIONED norm type for convergence test
+PC Object: 12 MPI processes
+  type: bjacobi
+    number of blocks = 12
+    Local solve is same for all blocks, in the following KSP and PC objects:
+  KSP Object: (sub_) 1 MPI processes
+    type: preonly
+    maximum iterations=10000, initial guess is zero
+    tolerances:  relative=1e-05, absolute=1e-50, divergence=10000.
+    left preconditioning
+    using NONE norm type for convergence test
+  PC Object: (sub_) 1 MPI processes
+    type: ilu
+      out-of-place factorization
+      0 levels of fill
+      tolerance for zero pivot 2.22045e-14
+      matrix ordering: natural
+      factor fill ratio given 1., needed 1.
+        Factored matrix follows:
+          Mat Object: 1 MPI processes
+            type: seqbaij
+            rows=54136, cols=54136, bs=4
+            package used to perform factorization: petsc
+            total: nonzeros=10297120, allocated nonzeros=10297120
+            total number of mallocs used during MatSetValues calls=0
+                block size is 4
+    linear system matrix = precond matrix:
+    Mat Object: 1 MPI processes
+      type: seqbaij
+      rows=54136, cols=54136, bs=4
+      total: nonzeros=10297120, allocated nonzeros=10297120
+      total number of mallocs used during MatSetValues calls=0
+          block size is 4
+  linear system matrix = precond matrix:
+  Mat Object: 12 MPI processes
+    type: mpibaij
+    rows=652864, cols=652864, bs=4
+    total: nonzeros=126877696, allocated nonzeros=126877696
+    total number of mallocs used during MatSetValues calls=0
+
+System for L2 projection for grad(Z0) 
+
+Current time is 16:01:57 
+IGA: dim=2 dof=4 order=2 geometry=2 rational=0 property=0
+Axis 0: basis=BSPLINE[3,2] rule=LEGENDRE[4] periodic=0 nnp=404 nel=401
+Axis 1: basis=BSPLINE[3,2] rule=LEGENDRE[4] periodic=0 nnp=404 nel=401
+Partition - MPI: processors=[3,4,1] total=12
+Partition - nnp: sum=163216 min=13400 max=14008 max/min=1.04537
+Partition - nel: sum=160801 min=13300 max=13534 max/min=1.01759
+  0 KSP Residual norm 3.757873465850e+01 
+  1 KSP Residual norm 9.283994075665e+00 
+  2 KSP Residual norm 2.147792366952e+00 
+  3 KSP Residual norm 1.716080895764e-01 
+  4 KSP Residual norm 4.461875838118e-02 
+  5 KSP Residual norm 1.136474725265e-02 
+  6 KSP Residual norm 1.677059532488e-04 
+  7 KSP Residual norm 3.534424333593e-05 
+  8 KSP Residual norm 5.394019702737e-06 
+  9 KSP Residual norm 7.522391385390e-06 
+ 10 KSP Residual norm 2.159506778433e-06 
+ 11 KSP Residual norm 1.215714049248e-06 
+ 12 KSP Residual norm 1.075633777457e-09 
+ 13 KSP Residual norm 3.583333670443e-10 
+ 14 KSP Residual norm 9.416625500332e-11 
+ 15 KSP Residual norm 1.441365692993e-11 
+ 16 KSP Residual norm 4.773888493434e-15 
+ 17 KSP Residual norm 1.347862157927e-16 
+Linear solve converged due to CONVERGED_RTOL iterations 17
+KSP Object: 12 MPI processes
+  type: cg
+  maximum iterations=10000, initial guess is zero
+  tolerances:  relative=1e-16, absolute=1e-50, divergence=10000.
+  left preconditioning
+  using PRECONDITIONED norm type for convergence test
+PC Object: 12 MPI processes
+  type: bjacobi
+    number of blocks = 12
+    Local solve is same for all blocks, in the following KSP and PC objects:
+  KSP Object: (sub_) 1 MPI processes
+    type: preonly
+    maximum iterations=10000, initial guess is zero
+    tolerances:  relative=1e-05, absolute=1e-50, divergence=10000.
+    left preconditioning
+    using NONE norm type for convergence test
+  PC Object: (sub_) 1 MPI processes
+    type: ilu
+      out-of-place factorization
+      0 levels of fill
+      tolerance for zero pivot 2.22045e-14
+      matrix ordering: natural
+      factor fill ratio given 1., needed 1.
+        Factored matrix follows:
+          Mat Object: 1 MPI processes
+            type: seqbaij
+            rows=54136, cols=54136, bs=4
+            package used to perform factorization: petsc
+            total: nonzeros=10297120, allocated nonzeros=10297120
+            total number of mallocs used during MatSetValues calls=0
+                block size is 4
+    linear system matrix = precond matrix:
+    Mat Object: 1 MPI processes
+      type: seqbaij
+      rows=54136, cols=54136, bs=4
+      total: nonzeros=10297120, allocated nonzeros=10297120
+      total number of mallocs used during MatSetValues calls=0
+          block size is 4
+  linear system matrix = precond matrix:
+  Mat Object: 12 MPI processes
+    type: mpibaij
+    rows=652864, cols=652864, bs=4
+    total: nonzeros=126877696, allocated nonzeros=126877696
+    total number of mallocs used during MatSetValues calls=0
+Current time is 16:02:19 
 ************************************************************************************************************************
 ***             WIDEN YOUR WINDOW TO 120 CHARACTERS.  Use 'enscript -r -fCourier9' to print this document            ***
 ************************************************************************************************************************
@@ -135,18 +732,18 @@ Current time is 12:21:04
       ##########################################################
 
 
-./PruebaV2 on a arch-linux2-c-debug named DESKTOP-NCAM2GT with 12 processors, by eazegpi Mon Jun 15 12:21:04 2020
+./PruebaV5 on a arch-linux2-c-debug named DESKTOP-NCAM2GT with 12 processors, by eazegpi Tue Jun 30 16:02:19 2020
 Using Petsc Release Version 3.12.4, unknown 
 
                          Max       Max/Min     Avg       Total 
-Time (sec):           1.271e+01     1.000   1.271e+01
-Objects:              2.960e+02     1.000   2.960e+02
-Flop:                 1.446e+09     2.056   1.035e+09  1.242e+10
-Flop/sec:             1.137e+08     2.056   8.140e+07  9.768e+08
-Memory:               1.573e+07     1.035   1.542e+07  1.850e+08
-MPI Messages:         6.070e+02     1.780   4.574e+02  5.488e+03
-MPI Message Lengths:  4.016e+06     2.416   4.341e+03  2.382e+07
-MPI Reductions:       2.263e+03     1.000
+Time (sec):           2.565e+03     1.000   2.565e+03
+Objects:              1.263e+03     1.000   1.263e+03
+Flop:                 1.122e+12     1.161   1.024e+12  1.229e+13
+Flop/sec:             4.375e+08     1.161   3.994e+08  4.793e+09
+Memory:               3.059e+08     1.035   2.996e+08  3.595e+09
+MPI Messages:         3.218e+03     1.808   2.393e+03  2.872e+04
+MPI Message Lengths:  1.637e+08     2.578   3.333e+04  9.572e+08
+MPI Reductions:       1.060e+04     1.000
 
 Flop counting convention: 1 flop = 1 real number operation of type (multiply/divide/add/subtract)
                             e.g., VecAXPY() for real vectors of length N --> 2N flop
@@ -154,7 +751,7 @@ Flop counting convention: 1 flop = 1 real number operation of type (multiply/div
 
 Summary of Stages:   ----- Time ------  ----- Flop ------  --- Messages ---  -- Message Lengths --  -- Reductions --
                         Avg     %Total     Avg     %Total    Count   %Total     Avg         %Total    Count   %Total 
- 0:      Main Stage: 1.2712e+01 100.0%  1.2417e+10 100.0%  5.488e+03 100.0%  4.341e+03      100.0%  2.255e+03  99.6% 
+ 0:      Main Stage: 2.5649e+03 100.0%  1.2294e+13 100.0%  2.872e+04 100.0%  3.333e+04      100.0%  1.059e+04  99.9% 
 
 ------------------------------------------------------------------------------------------------------------------------
 See the 'Profiling' chapter of the users' manual for details on interpreting output.
@@ -192,44 +789,48 @@ Event                Count      Time (sec)     Flop                             
 
 --- Event Stage 0: Main Stage
 
-BuildTwoSided         21 1.0 6.0535e-02 1.1 0.00e+00 0.0 2.6e+02 4.0e+00 0.0e+00  0  0  5  0  0   0  0  5  0  0     0
-BuildTwoSidedF        14 1.0 5.9882e-02 1.1 0.00e+00 0.0 1.8e+02 6.1e+03 0.0e+00  0  0  3  5  0   0  0  3  5  0     0
-PCSetUp                3 1.0 2.7146e+00 1.0 1.05e+07 1.1 0.0e+00 0.0e+00 2.0e+01 21  1  0  0  1  21  1  0  0  1    45
-PCSetUpOnBlocks        1 1.0 2.5922e-02 1.3 8.61e+06 1.1 0.0e+00 0.0e+00 0.0e+00  0  1  0  0  0   0  1  0  0  0  3893
-PCApply               40 1.0 7.9192e-01 1.0 1.33e+09 2.3 3.0e+02 9.8e+03 1.9e+01  6 89  5 12  1   6 89  5 12  1 13982
-MatMult               38 1.0 9.7142e-02 1.3 3.63e+07 1.0 2.2e+03 1.1e+03 0.0e+00  1  3 40 10  0   1  3 40 10  0  4413
-MatSolve              40 1.0 7.8806e-01 1.0 1.33e+09 2.3 3.0e+02 9.8e+03 1.9e+01  6 89  5 12  1   6 89  5 12  1 14035
-MatLUFactorSym         1 1.0 7.5636e-01 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 4.0e+00  6  0  0  0  0   6  0  0  0  0     0
-MatLUFactorNum         2 1.0 1.9324e+00 1.0 1.05e+07 1.1 0.0e+00 0.0e+00 0.0e+00 15  1  0  0  0  15  1  0  0  0    63
-MatILUFactorSym        1 1.0 8.7242e-03 2.5 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
-MatAssemblyBegin       4 1.0 3.6200e-01 3.5 0.00e+00 0.0 6.9e+01 1.5e+04 1.6e+01  2  0  1  4  1   2  0  1  4  1     0
-MatAssemblyEnd         4 1.0 5.6554e-02 1.0 0.00e+00 0.0 1.7e+02 9.5e+01 6.8e+01  0  0  3  0  3   0  0  3  0  3     0
-MatGetRowIJ            1 1.0 6.9141e-06 1.2 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
-MatGetOrdering         1 1.0 7.4244e-04 1.2 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
-MatView                3 3.0 1.0564e-03 1.4 0.00e+00 0.0 0.0e+00 0.0e+00 2.0e+00  0  0  0  0  0   0  0  0  0  0     0
-VecView                2 1.0 1.4835e-02 1.0 0.00e+00 0.0 2.2e+01 8.2e+04 2.0e+00  0  0  0  8  0   0  0  0  8  0     0
-VecMDot               37 1.0 5.4569e-02 1.2 1.35e+07 1.0 0.0e+00 0.0e+00 7.4e+01  0  1  0  0  3   0  1  0  0  3  2910
-VecNorm               78 1.0 3.8782e-02 1.2 2.14e+06 1.0 0.0e+00 0.0e+00 8.0e+01  0  0  0  0  4   0  0  0  0  4   648
-VecScale              40 1.0 1.5948e-03 1.1 5.41e+05 1.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0  3991
-VecCopy                3 1.0 1.9693e-04 3.6 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
-VecSet                54 1.0 8.4543e-04 1.5 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
-VecAXPY                4 1.0 5.6624e-04 2.9 9.71e+04 1.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0  2018
-VecMAXPY              40 1.0 2.5704e-02 1.2 1.45e+07 1.0 0.0e+00 0.0e+00 0.0e+00  0  1  0  0  0   0  1  0  0  0  6642
-VecAssemblyBegin       6 1.0 5.3339e-02 1.4 0.00e+00 0.0 1.2e+02 5.0e+02 1.2e+01  0  0  2  0  1   0  0  2  0  1     0
-VecAssemblyEnd         6 1.0 1.1756e-0313.9 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
-VecLoad                4 1.0 5.0865e-02 1.0 0.00e+00 0.0 4.4e+01 7.5e+04 1.8e+01  0  0  1 14  1   0  0  1 14  1     0
-VecScatterBegin       53 1.0 3.2840e-02 1.6 0.00e+00 0.0 2.6e+03 3.2e+03 2.0e+00  0  0 47 34  0   0  0 47 34  0     0
-VecScatterEnd         53 1.0 2.2510e-02 2.7 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
-VecNormalize          40 1.0 3.9915e-02 1.2 1.62e+06 1.0 0.0e+00 0.0e+00 8.0e+01  0  0  0  0  4   0  0  0  0  4   478
-SFSetGraph            21 1.0 4.6134e-04 1.1 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
-SFSetUp               22 1.0 8.7313e-02 1.1 0.00e+00 0.0 7.7e+02 1.7e+03 0.0e+00  1  0 14  6  0   1  0 14  6  0     0
-SFBcastOpBegin        50 1.0 2.8939e-02 1.8 0.00e+00 0.0 2.5e+03 2.5e+03 2.0e+00  0  0 45 26  0   0  0 45 26  0     0
-SFBcastOpEnd          50 1.0 2.1308e-02 2.9 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
-SFReduceBegin          3 1.0 4.9038e-03 2.1 0.00e+00 0.0 7.2e+01 2.7e+04 0.0e+00  0  0  1  8  0   0  0  1  8  0     0
-SFReduceEnd            3 1.0 1.1916e-03 3.8 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
-KSPSetUp               3 1.0 4.7571e-02 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
-KSPSolve               2 1.0 4.2002e+00 1.0 1.41e+09 2.1 2.5e+03 2.2e+03 9.7e+02 33 96 46 23 43  33 96 46 23 43  2850
-KSPGMRESOrthog        37 1.0 3.4557e-01 1.0 2.70e+07 1.0 0.0e+00 0.0e+00 7.1e+02  3  3  0  0 31   3  3  0  0 31   919
+BuildTwoSided         89 1.0 2.7285e-01 1.1 0.00e+00 0.0 1.2e+03 4.0e+00 0.0e+00  0  0  4  0  0   0  0  4  0  0     0
+BuildTwoSidedF        82 1.0 1.1068e+00 1.5 0.00e+00 0.0 1.6e+03 3.1e+05 0.0e+00  0  0  6 52  0   0  0  6 52  0     0
+PCSetUp               17 1.0 7.1597e+02 1.0 4.50e+09 1.0 0.0e+00 0.0e+00 1.1e+02 28  0  0  0  1  28  0  0  0  1    74
+PCSetUpOnBlocks        8 1.0 5.4091e+00 1.0 4.10e+09 1.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0  8830
+PCApply              230 1.0 9.6557e+00 1.0 1.11e+12 1.2 1.6e+03 5.1e+04 9.4e+01  0 98  6  9  1   0 98  6  9  1 1252597
+MatMult              217 1.0 5.0266e+00 1.1 2.52e+09 1.0 1.3e+04 4.4e+03 0.0e+00  0  0 44  6  0   0  0 44  6  0  5871
+MatSolve             230 1.0 9.6005e+00 1.0 1.11e+12 1.2 1.6e+03 5.1e+04 9.4e+01  0 98  6  9  1   0 98  6  9  1 1259784
+MatLUFactorSym         5 1.0 4.1556e+01 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 2.0e+01  2  0  0  0  0   2  0  0  0  0     0
+MatLUFactorNum        11 1.0 6.7345e+02 1.0 4.50e+09 1.0 0.0e+00 0.0e+00 0.0e+00 26  0  0  0  0  26  0  0  0  0    78
+MatILUFactorSym        6 1.0 8.6433e-01 1.2 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+MatAssemblyBegin      24 1.0 1.8466e+0212.7 0.00e+00 0.0 5.8e+02 8.6e+05 8.8e+01  6  0  2 52  1   6  0  2 52  1     0
+MatAssemblyEnd        24 1.0 1.8485e+00 1.0 2.50e+04 0.0 1.1e+03 1.5e+03 4.0e+02  0  0  4  0  4   0  0  4  0  4     0
+MatGetRowIJ            7 1.0 2.7657e-05 1.2 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+MatGetOrdering         7 1.0 4.7616e-02 2.4 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+MatZeroEntries         1 1.0 3.9237e-02 1.1 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+MatView               24 3.0 8.9490e-03 1.2 0.00e+00 0.0 0.0e+00 0.0e+00 1.6e+01  0  0  0  0  0   0  0  0  0  0     0
+IGAFormSystem          1 1.0 8.4573e+00 1.0 1.81e+09 1.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0  2537
+VecView               13 1.0 3.6338e-01 1.0 0.00e+00 0.0 1.4e+02 3.4e+05 1.3e+01  0  0  0  5  0   0  0  0  5  0     0
+VecMDot              179 1.0 5.8222e-01 1.1 1.90e+08 1.0 0.0e+00 0.0e+00 3.6e+02  0  0  0  0  3   0  0  0  0  3  3841
+VecTDot               66 1.0 2.3693e-01 1.6 7.40e+06 1.0 0.0e+00 0.0e+00 1.3e+02  0  0  0  0  1   0  0  0  0  1   364
+VecNorm              451 1.0 5.1032e-01 1.3 3.80e+07 1.0 0.0e+00 0.0e+00 4.6e+02  0  0  0  0  4   0  0  0  0  4   874
+VecScale             193 1.0 2.5067e-02 1.2 7.57e+06 1.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0  3554
+VecCopy               20 1.0 7.0798e-03 2.4 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+VecSet               297 1.0 1.1492e-02 1.6 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+VecAXPY               88 1.0 3.5048e-02 1.3 8.97e+06 1.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0  2987
+VecAYPX               31 1.0 1.7909e-02 1.7 3.47e+06 1.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0  2260
+VecMAXPY             193 1.0 4.0387e-01 1.1 2.04e+08 1.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0  5949
+VecAssemblyBegin      38 1.0 5.9232e-01 1.9 0.00e+00 0.0 1.0e+03 1.7e+03 7.6e+01  0  0  4  0  1   0  0  4  0  1     0
+VecAssemblyEnd        38 1.0 5.8155e-03 7.1 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+VecLoad               15 1.0 3.9829e-01 1.0 0.00e+00 0.0 1.6e+02 3.2e+05 6.6e+01  0  0  1  5  1   0  0  1  5  1     0
+VecScatterBegin      297 1.0 2.3847e-01 1.8 0.00e+00 0.0 1.5e+04 1.3e+04 9.0e+00  0  0 51 19  0   0  0 51 19  0     0
+VecScatterEnd        297 1.0 1.4412e-01 1.6 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+VecNormalize         195 1.0 3.6069e-01 1.3 2.30e+07 1.0 0.0e+00 0.0e+00 3.9e+02  0  0  0  0  4   0  0  0  0  4   750
+SFSetGraph            89 1.0 8.1697e-03 1.2 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+SFSetUp               94 1.0 5.4433e-01 1.1 0.00e+00 0.0 3.6e+03 8.0e+03 0.0e+00  0  0 13  3  0   0  0 13  3  0     0
+SFBcastOpBegin       285 1.0 2.0350e-01 1.9 0.00e+00 0.0 1.4e+04 1.1e+04 9.0e+00  0  0 50 16  0   0  0 50 16  0     0
+SFBcastOpEnd         285 1.0 1.3312e-01 1.6 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+SFReduceBegin         12 1.0 3.0972e-02 1.5 0.00e+00 0.0 2.9e+02 1.1e+05 0.0e+00  0  0  1  3  0   0  0  1  3  0     0
+SFReduceEnd           12 1.0 8.4231e-03 1.9 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+KSPSetUp              17 1.0 2.4187e-01 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+KSPSolve              13 1.0 7.3486e+02 1.0 1.11e+12 1.2 1.4e+04 9.8e+03 5.1e+03 29 99 50 15 49  29 99 50 15 49 16578
+KSPGMRESOrthog       179 1.0 2.7406e+00 1.1 3.80e+08 1.0 0.0e+00 0.0e+00 3.5e+03  0  0  0  0 33   0  0  0  0 33  1632
 ------------------------------------------------------------------------------------------------------------------------
 
 Memory usage is given in bytes:
@@ -239,23 +840,23 @@ Reports information only for process 0.
 
 --- Event Stage 0: Main Stage
 
-                 IGA     3              0            0     0.
-      Preconditioner     3              3         2912     0.
-    Distributed Mesh     1              1         4904     0.
-              Matrix     8              8      9449432     0.
-           Index Set    94             91       641060     0.
-   IS L to G Mapping     8              5        74080     0.
-              Viewer     9              8         6720     0.
-         Vec Scatter    22             10         7920     0.
-              Vector   114            106      6237344     0.
-   Star Forest Graph    24             12        11648     0.
-   Application Order     6              3        83640     0.
-       Krylov Solver     3              3        38680     0.
-     Discrete System     1              1          944     0.
+                 IGA    12              1         1224     0.
+      Preconditioner    17             16        15472     0.
+    Distributed Mesh     6              6        29424     0.
+              Matrix    45             41  18446744074558885888     0.
+           Index Set   395            382     12615168     0.
+   IS L to G Mapping    35             24      1366720     0.
+              Viewer    38             37        31080     0.
+         Vec Scatter    94             47        37224     0.
+              Vector   468            419    100880280     0.
+   Star Forest Graph   106             59        57064     0.
+   Application Order    24             13      1417408     0.
+       Krylov Solver    17             16       160464     0.
+     Discrete System     6              6         5664     0.
 ========================================================================================================================
-Average time to get PetscTime(): 1.28746e-06
-Average time for MPI_Barrier(): 0.00085516
-Average time for zero size MPI_Send(): 4.73857e-05
+Average time to get PetscTime(): 1.0252e-06
+Average time for MPI_Barrier(): 0.000875902
+Average time for zero size MPI_Send(): 4.4922e-05
 #PETSc Option Table entries:
 -iga_view
 -ksp_converged_reason

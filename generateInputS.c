@@ -89,8 +89,8 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	FILE *source, *dest;
 	char buffer[8192];
 	size_t bytes;
-	source = fopen("/home/eazegpi/CodigosPetIga/generateInputS.c","r");
-	dest   = fopen("/home/eazegpi/Results/generateInputS.c","w");
+	source = fopen("./generateInputS.c","r");
+	dest   = fopen("../Results/generateInputS.c","w");
 
 	while (0 < (bytes = fread(buffer, 1, sizeof(buffer), source)))
     	fwrite(buffer, 1, bytes, dest);
@@ -125,8 +125,8 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	nf=(b-2)/2;			//For even values of b 
 	//nc=(b+1)/2;		//Half the length of the body, for a disclination on the center
 	nc=b+1;				//Full length of the body, for something like a through twin
-	numF=9;			//Number of rows to assign, rows of elements will be one less
-	dist=0;
+	numF=9;				//Number of rows to assign, rows of elements will be one less
+	dist=9;				//Distance from center to eigenwall
 	
 	ierr = PetscCalloc1(524288,&pointsS);CHKERRQ(ierr);
 	ierr = PetscCalloc1(524288,&valoresS);CHKERRQ(ierr);
@@ -142,7 +142,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	g[2]=0.0;
 	g[3]=1.0;//-tan(5.0/180.0*ConstPi)/(2.0*t);
 	g[4]=0.0;
-	g[5]=0.0;//tan(5.0/180.0*ConstPi)/(2.0*t);
+	g[5]=-0.0;//tan(5.0/180.0*ConstPi)/(2.0*t);
 	g[6]=0.0;
 	g[7]=0.0;
 
@@ -166,7 +166,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 			}
 		}
 	}
-	/* Uncomment for 2 eigenwalls
+	//Uncomment for 2 eigenwalls, until line 185
 	for (int i=nf; i<nf+numF; i++)
 	{
 		cord=(nx+1)*i*8;
@@ -183,7 +183,6 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 			}
 		}
 	}
-	*/
 
 	ierr = VecSetValues(s0,8*nc*numF*4,pointsS,valoresS,ADD_VALUES);	
 	ierr = VecAssemblyBegin(s0);CHKERRQ(ierr);

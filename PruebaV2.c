@@ -51,7 +51,6 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal *N0,(*N1)[2];
 		IGAPointGetShapeFuns(p,0,(const PetscReal**)&N0);									//Value of the shape functions
 		IGAPointGetShapeFuns(p,1,(const PetscReal**)&N1);									//Derivatives of the shape functions
-		//After this command Na_xx=N2[a][0][0], Na_yy=N2[a][1][1], Na_xy=N2[a][0][1], Na_yx[a][1][0] (these last two are equal) (remember a is the index of the shape function)
 		PetscInt a,b,i,j,k,l,u,w,nen=p->nen, dof=p->dof;
 
 		PetscReal x[2];																		//Vector of reals, size equal to problem's dimension
@@ -81,8 +80,10 @@ PetscReal delta(PetscInt i, PetscInt j)
 		PetscReal f[3]={0.0, 0.0, 0.0};			//Distributed load in body
 		PetscReal g[3]={0.0, 0.0, 0.0};			//Boundary load (applied wherever is defined in the p->atboundary block)
 
-		f[0]=fullAlfa[0][2];
-		f[1]=fullAlfa[1][2];
+		//f[0]=fullAlfa[0][2];
+		//f[1]=fullAlfa[1][2];
+
+		g[0]=1.0;
 		/////////////////////////////////////
 
 
@@ -130,46 +131,22 @@ PetscReal delta(PetscInt i, PetscInt j)
 					{
 						if(side==0)										//Left
 						{
-							for (j=0; j<3; j++)
-							{
-								for(k=0; k<3;k++)
-								{
-									Feq[a][i]+=0.0;
-								}
-							}
+							Feq[a][i]+=g[i]*v[i];
 						}
 						if(side==1)										//Right
 						{
-							for (j=0; j<3; j++)
-							{
-								for(k=0; k<3;k++)
-								{
-									Feq[a][i]+=0.0;
-								}
-							}
+							Feq[a][i]+=0.0;
 						}
 					}
 					if(dir==1)											//y axis
 					{
 						if(side==0)										//Bottom
 						{
-							for (j=0; j<3; j++)
-							{
-								for(k=0; k<3;k++)
-								{
-									Feq[a][i]+=0.0;
-								}
-							}
+							Feq[a][i]+=0.0;
 						}
 						if(side==1)										//Top
 						{
-							for (j=0; j<3; j++)
-							{
-								for(k=0; k<3;k++)
-								{
-									Feq[a][i]+=g[j]*v[j];
-								}
-							}
+							Feq[a][i]+=0.0;
 						}
 					}
 				}
@@ -456,15 +433,6 @@ int main(int argc, char *argv[]) {
 		ierr = IGASetRuleSize(igaAl,dir,4);CHKERRQ(ierr);
 	}
 	ierr = IGASetUp(igaAl);CHKERRQ(ierr);
-	//PetscInt dir,side;
-	for (dir=0; dir<2; dir++) 
-	{
-		for (side=0; side<2; side++) 
-		{
-			//ierr = IGASetBoundaryValue(iga,dir,side,dof,0.0);CHKERRQ(ierr);    				// Dirichlet boundary conditions
-			ierr = IGASetBoundaryForm(igaAl,dir,side,PETSC_TRUE);CHKERRQ(ierr);  				// Neumann boundary conditions
-		}
-	}
 	
 	Vec al0;
 	ierr = IGACreateVec(igaAl,&al0);CHKERRQ(ierr);  
@@ -487,7 +455,7 @@ int main(int argc, char *argv[]) {
 	ierr = IGACreate(PETSC_COMM_WORLD,&igaZ0);CHKERRQ(ierr);
 	ierr = IGASetDim(igaZ0,2);CHKERRQ(ierr);													//Spatial dimension of the problem
 	ierr = IGASetDof(igaZ0,2);CHKERRQ(ierr);													//Number of degrees of freedom, per node
-	ierr = IGASetOrder(igaZ0,3);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
+	ierr = IGASetOrder(igaZ0,1);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
 	ierr = IGASetFromOptions(igaZ0);CHKERRQ(ierr);												//Note: The order (or degree) of the shape functions is given by the mesh!
 	ierr = IGARead(igaZ0,"./geometry.dat");CHKERRQ(ierr);
 	
@@ -547,7 +515,7 @@ int main(int argc, char *argv[]) {
  	KSP kspZ0;
 	ierr = IGACreateKSP(igaZ0,&kspZ0);CHKERRQ(ierr);
 
-	// Get local vectors Chi0 and arrays
+	// Get local vectors alpha and arrays
 	ierr = IGAGetLocalVecArray(igaAl,al0,&localAl0Z0,&arrayAl0Z0);CHKERRQ(ierr);
 
 	// Element loop
@@ -571,20 +539,16 @@ int main(int argc, char *argv[]) {
 
 			while (IGAElementNextPoint(elemZ0,pointZ0))
 			{
-				if(pointZ0->atboundary==1 && pointAlp->atboundary==1)
+				if(pointZ0->atboundary==1)
 				{
+					IGAElementNextPoint(elemAlp,pointAlp);
 					ierr = IGAPointGetWorkMat(pointZ0,&KpointZ0);CHKERRQ(ierr);
 					ierr = IGAPointGetWorkVec(pointZ0,&FpointZ0);CHKERRQ(ierr);
 					ierr = Z0sys(pointZ0,pointAlp,KpointZ0,FpointZ0,Al0Z0,NULL);CHKERRQ(ierr);
 					ierr = IGAPointAddMat(pointZ0,KpointZ0,KlocZ0);CHKERRQ(ierr);
 					ierr = IGAPointAddVec(pointZ0,FpointZ0,FlocZ0);CHKERRQ(ierr);
 				}
-
-				if(pointAlp->atboundary==1)
-				{
-					ierr = PetscPrintf(PETSC_COMM_WORLD,"Hola \n");CHKERRQ(ierr);
-				}
-
+				
 				if(pointZ0->atboundary==0 && pointAlp->atboundary==0)
 				{
 					IGAElementNextPoint(elemAlp,pointAlp);

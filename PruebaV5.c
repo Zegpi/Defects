@@ -477,7 +477,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		{
 			PetscReal Sborde[3][3]={0};
 
-			//PetscReal Omega=tan(45.0/180.0*ConstPi);
+			//PetscReal Omega=tan(5.0/180.0*ConstPi);
 			//PetscReal rho=sqrt(x[0]*x[0]+x[1]*x[1]);
 			//const PetscReal burgers[2]={1.0,0.0};
 
@@ -1425,7 +1425,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 	}
 //
 
-//System for L2 projection of V^{alpha} (Integrates Va multiplied with xi(alpha), where xi(alpha)=1 if any component of alpha is different than 0, and 0 in other cases)
+//System for L2 projection of V^{alpha} smooth (Integrates Va multiplied with xi(alpha), where xi(alpha)=1 if any component of alpha is different than 0, and 0 in other cases)
 	#undef  __FUNCT__
 	#define __FUNCT__ "IntValpha"
 	//IntValpha(pointVa,pointAlp,FpointVaInt,PointInt1,PointInt2,Va0Values,Al1Va,NULL);CHKERRQ(ierr);		//When other fields like Pi or S (etc.) come into this, declare a IGAPoint pPi or pS and a new PescReal *UPi or *US for each
@@ -1550,7 +1550,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal mu=1.0;
 
 		//const PetscReal burgers[2]={1.0,0.0};
-		PetscReal Omega=tan(45.0/180.0*ConstPi);
+		PetscReal Omega=tan(5.0/180.0*ConstPi);
 		PetscReal rho=sqrt(x[0]*x[0]+x[1]*x[1]);
 
 		//This is for a single disclination
@@ -1668,7 +1668,7 @@ int main(int argc, char *argv[]) {
 
 //App context creation and some data
 	//Mesh parameters (to fix specific points in z0 system)
-	PetscInt b=201;				//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
+	PetscInt b=401;				//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
 	PetscReal Lx=20.0;
 	PetscReal Ly=20.0;
 	PetscInt  nx=b;

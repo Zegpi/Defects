@@ -30,7 +30,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 
 //Generate Mesh and copy cpp to result folder to save for reproduction (check that parameters are the same on file to run)
 
-	PetscInt b=201;					//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
+	PetscInt b=401;					//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
 	PetscReal Lx=20.0;
 	PetscReal Ly=20.0;
 	PetscInt  nx=b;
@@ -102,7 +102,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 
 //General parameters
 	PetscInt N,M, numEls;
-	N=0;	M=0;	numEls=2;
+	N=0;	M=0;	numEls=1;
 //
 
 //Creation of Initialization of Pi
@@ -141,7 +141,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	PetscReal normdr2=dr*dr;
 	PetscReal gamma=0.0/normdr2*dr/(c*t);
 	//PetscReal tanTh=-0.0/normdr2*dr/(c*t);
-	PetscReal tanTh=-tan(45.0/180.0*ConstPi)/(c*t);
+	PetscReal tanTh=0.0*-tan(5.0/180.0*ConstPi)/(c*t);
 
 	PetscInt counter=0;
 
@@ -288,7 +288,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	center=(nx+1)*ny/2-1;
 	
 	size_elem=1;		//1 is a 1x1 element, 2 is a 3x3 element, 3 is a 5x5 element, and so on
-	dist_centro=0;
+	dist_centro=5;
 
 	counter=0;
 	for (int i=0;i<2*size_elem;i++)
