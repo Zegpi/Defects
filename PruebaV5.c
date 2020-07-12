@@ -1711,8 +1711,8 @@ int main(int argc, char *argv[]) {
 		FILE *source, *dest;
 		char buffer[8192];
 		size_t bytes;
-		source = fopen("/home/eazegpi/CodigosPetIga/PruebaV5.c","r");
-		dest   = fopen("/home/eazegpi/Results/PruebaV5.c","w");
+		source = fopen("./PruebaV5.c","r");
+		dest   = fopen("../Results/PruebaV5.c","w");
 
 		while (0 < (bytes = fread(buffer, 1, sizeof(buffer), source)))
 			fwrite(buffer, 1, bytes, dest);

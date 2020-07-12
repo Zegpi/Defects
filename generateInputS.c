@@ -30,7 +30,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 
 //Generate Mesh and copy cpp to result folder to save for reproduction (check that parameters are the same on file to run)
 
-	PetscInt b=400;					//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
+	PetscInt b=100;					//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
 	PetscReal Lx=20.0;
 	PetscReal Ly=20.0;
 	PetscInt  nx=b;
@@ -125,8 +125,8 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	nf=(b-2)/2;			//For even values of b 
 	//nc=(b+1)/2;		//Half the length of the body, for a disclination on the center
 	nc=b+1;				//Full length of the body, for something like a through twin
-	numF=9;				//Number of rows to assign, rows of elements will be one less
-	dist=9;				//Distance from center to eigenwall
+	numF=5;				//Number of rows to assign, rows of elements will be one less
+	dist=0;				//Distance from center to eigenwall (Distance center to center is 2*dist [elements])
 	
 	ierr = PetscCalloc1(524288,&pointsS);CHKERRQ(ierr);
 	ierr = PetscCalloc1(524288,&valoresS);CHKERRQ(ierr);
@@ -137,14 +137,17 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	c=Lx/nx;
 	t=Ly/ny;
 
+	//fullS[0][0][0]=S[0]; fullS[0][0][1]=S[1]; fullS[0][1][0]=S[2]; fullS[0][1][1]=S[3];		//Expand S to full 3rd order form, only non-zero elements
+	//fullS[1][0][0]=S[4]; fullS[1][0][1]=S[5]; fullS[1][1][0]=S[6]; fullS[1][1][1]=S[7];
+
 	g[0]=0.0;
-	g[1]=0.0;
+	g[1]=cos(45.0/180.0*ConstPi)-cos(90.0/180.0*ConstPi);											//S_112
 	g[2]=0.0;
-	g[3]=1.0;//-tan(5.0/180.0*ConstPi)/(2.0*t);
+	g[3]=-sin(45.0/180.0*ConstPi)+sin(90.0/180.0*ConstPi);//-tan(5.0/180.0*ConstPi)/(2.0*t);		//S_122
 	g[4]=0.0;
-	g[5]=-0.0;//tan(5.0/180.0*ConstPi)/(2.0*t);
+	g[5]=sin(45.0/180.0*ConstPi)-sin(90.0/180.0*ConstPi);//tan(5.0/180.0*ConstPi)/(2.0*t);			//S_212
 	g[6]=0.0;
-	g[7]=0.0;
+	g[7]=cos(45.0/180.0*ConstPi)-cos(90.0/180.0*ConstPi);											//S_222
 
 
 	//nf=nf-(numF-2)/2;		//For odd values of b
@@ -166,7 +169,8 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 			}
 		}
 	}
-	//Uncomment for 2 eigenwalls, until line 185
+	//Uncomment for 2 eigenwalls, until line 186
+	/*
 	for (int i=nf; i<nf+numF; i++)
 	{
 		cord=(nx+1)*i*8;
@@ -183,6 +187,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 			}
 		}
 	}
+	*/
 
 	ierr = VecSetValues(s0,8*nc*numF*4,pointsS,valoresS,ADD_VALUES);	
 	ierr = VecAssemblyBegin(s0);CHKERRQ(ierr);

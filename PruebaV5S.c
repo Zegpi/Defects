@@ -847,8 +847,8 @@ PetscReal delta(PetscInt i, PetscInt j)
 
 			//No stress in boundary
 			Sborde[0][0]=0.0;
-			Sborde[0][1]=0.0;
-			Sborde[1][0]=0.0;
+			Sborde[0][1]=0.0/1000.0;
+			Sborde[1][0]=0.0/1000.0;
 			Sborde[1][1]=0.0;
 			Sborde[0][2]=0.0; Sborde[1][2]=0.0; Sborde[2][0]=0.0; Sborde[2][1]=0.0; Sborde[2][2]=0.0;
 
@@ -2274,7 +2274,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 							{
 								for(m=0;m<3;m++)
 								{
-									FVS[a][i]+=eps*(fulld_S[j][k][l][l]+fulld3_z[j][k][l][l]+fulld2_Chi[j][k][l][l])*fullS[j][k][m]*v[m];
+									FVS[a][i]+=eps*(-fulld_S[j][k][l][l]-fulld3_z[j][k][l][l]-fulld2_Chi[j][k][l][l])*fullS[j][k][m]*v[m];
 								}
 							}
 						}
@@ -2290,7 +2290,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 								{
 									for(n=0;n<3;n++)
 									{
-										FVS[a][i]+=-C[j][k][l][m]*(-fulld_z[l][m]-fullChi[l][m])*fullS[j][k][n]*v[n];
+										FVS[a][i]+=C[j][k][l][m]*(-fulld_z[l][m]-fullChi[l][m])*fullS[j][k][n]*v[n];
 									}
 								}
 							}
