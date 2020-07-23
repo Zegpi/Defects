@@ -101,7 +101,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 
 //General parameters
 	PetscInt N,M, numEls; 	
-	N=0;	M=0;	numEls=4;
+	N=0;	M=0;	numEls=1;
 //
 
 //Creation of Initialization of S
@@ -125,7 +125,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	nf=(b-2)/2;			//For even values of b 
 	//nc=(b+1)/2;		//Half the length of the body, for a disclination on the center
 	nc=b+1;				//Full length of the body, for something like a through twin
-	numF=5;				//Number of rows to assign, rows of elements will be one less
+	numF=9;				//Number of node rows to assign, rows of elements will be one less
 	dist=0;				//Distance from center to eigenwall (Distance center to center is 2*dist [elements])
 	
 	ierr = PetscCalloc1(524288,&pointsS);CHKERRQ(ierr);
@@ -140,14 +140,16 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	//fullS[0][0][0]=S[0]; fullS[0][0][1]=S[1]; fullS[0][1][0]=S[2]; fullS[0][1][1]=S[3];		//Expand S to full 3rd order form, only non-zero elements
 	//fullS[1][0][0]=S[4]; fullS[1][0][1]=S[5]; fullS[1][1][0]=S[6]; fullS[1][1][1]=S[7];
 
+	PetscReal alpha=0.5;																	//Alpha linearly interpolates between a pure twin (alpha=0.0) and a pure rotation grain boundary (alpha=1.0)
+
 	g[0]=0.0;
-	g[1]=0.0;//cos(45.0/180.0*ConstPi)-cos(90.0/180.0*ConstPi);											//S_112
+	g[1]=alpha*(cos(45.0/180.0*ConstPi)-cos(90.0/180.0*ConstPi))+(1.0-alpha)*1.0;				//S_112
 	g[2]=0.0;
-	g[3]=1.0;//-sin(45.0/180.0*ConstPi)+sin(90.0/180.0*ConstPi);//-tan(5.0/180.0*ConstPi)/(2.0*t);		//S_122
+	g[3]=alpha*(-sin(45.0/180.0*ConstPi)+sin(90.0/180.0*ConstPi));								//S_122
 	g[4]=0.0;
-	g[5]=-1.0;//sin(45.0/180.0*ConstPi)-sin(90.0/180.0*ConstPi);//tan(5.0/180.0*ConstPi)/(2.0*t);			//S_212
+	g[5]=alpha*(sin(45.0/180.0*ConstPi)-sin(90.0/180.0*ConstPi));								//S_212
 	g[6]=0.0;
-	g[7]=0.0;//cos(45.0/180.0*ConstPi)-cos(90.0/180.0*ConstPi);											//S_222
+	g[7]=alpha*(cos(45.0/180.0*ConstPi)-cos(90.0/180.0*ConstPi));								//S_222
 
 
 	//nf=nf-(numF-2)/2;		//For odd values of b

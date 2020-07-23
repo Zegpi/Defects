@@ -480,6 +480,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 			//PetscReal Omega=tan(5.0/180.0*ConstPi);
 			//PetscReal rho=sqrt(x[0]*x[0]+x[1]*x[1]);
 			//const PetscReal burgers[2]={1.0,0.0};
+			PetscReal burgers=1.0;
 
 			//Stress for single disclination
 			//Sborde[0][0]=mu*Omega/(2.0*ConstPi*(1.0-nu))*(log(rho)+(x[1]*x[1])/(rho*rho)+nu/(1.0-2.0*nu));
@@ -489,11 +490,11 @@ PetscReal delta(PetscInt i, PetscInt j)
 			//Sborde[0][2]=0.0; Sborde[1][2]=0.0; Sborde[2][0]=0.0; Sborde[2][1]=0.0; Sborde[2][2]=0.0;
 
 			//Stress for single dislocation
-			//Sborde[0][0]=-mu*burgers/(ConstPi*(1.0-nu))/2.0*x[1]*(x[1]*x[1]+3*x[0]*x[0])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
-			//Sborde[0][1]=-mu*burgers/(ConstPi*(1.0-nu))/2.0*x[0]*(x[1]*x[1]-x[0]*x[0])  /((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
-			//Sborde[1][0]=-mu*burgers/(ConstPi*(1.0-nu))/2.0*x[0]*(x[1]*x[1]-x[0]*x[0])  /((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
-			//Sborde[1][1]=-mu*burgers/(ConstPi*(1.0-nu))/2.0*x[1]*(x[1]*x[1]-x[0]*x[0])  /((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
-			//Sborde[0][2]=0.0; Sborde[1][2]=0.0; Sborde[2][0]=0.0; Sborde[2][1]=0.0; Sborde[2][2]=0.0;
+			Sborde[0][0]=-mu*burgers/(ConstPi*(1.0-nu))/2.0*x[1]*(x[1]*x[1]+3*x[0]*x[0])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
+			Sborde[0][1]=-mu*burgers/(ConstPi*(1.0-nu))/2.0*x[0]*(x[1]*x[1]-x[0]*x[0])  /((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
+			Sborde[1][0]=-mu*burgers/(ConstPi*(1.0-nu))/2.0*x[0]*(x[1]*x[1]-x[0]*x[0])  /((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
+			Sborde[1][1]=-mu*burgers/(ConstPi*(1.0-nu))/2.0*x[1]*(x[1]*x[1]-x[0]*x[0])  /((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
+			Sborde[0][2]=0.0; Sborde[1][2]=0.0; Sborde[2][0]=0.0; Sborde[2][1]=0.0; Sborde[2][2]=0.0;
 
 			//When b in y axis
 			//Sborde[0][0]=-mu*burgers/(ConstPi*(1.0-nu))/2.0*-x[0]*(x[0]*x[0]+3.0*x[1]*x[1])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
@@ -514,11 +515,11 @@ PetscReal delta(PetscInt i, PetscInt j)
 			//Sborde[0][2]=0.0; Sborde[1][2]=0.0; Sborde[2][0]=0.0; Sborde[2][1]=0.0; Sborde[2][2]=0.0;
 
 			//No stress in boundary
-			Sborde[0][0]=0.0;
-			Sborde[0][1]=0.0;
-			Sborde[1][0]=0.0;
-			Sborde[1][1]=0.0;
-			Sborde[0][2]=0.0; Sborde[1][2]=0.0; Sborde[2][0]=0.0; Sborde[2][1]=0.0; Sborde[2][2]=0.0;
+			//Sborde[0][0]=0.0;
+			//Sborde[0][1]=0.0;
+			//Sborde[1][0]=0.0;
+			//Sborde[1][1]=0.0;
+			//Sborde[0][2]=0.0; Sborde[1][2]=0.0; Sborde[2][0]=0.0; Sborde[2][1]=0.0; Sborde[2][2]=0.0;
 
 			PetscInt dir  = p->boundary_id / 2;
 			PetscInt side = p->boundary_id % 2;
@@ -685,7 +686,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 									{
 										for (w=0; w<3; w++)
 										{
-											Keq[a][i][b][j]+=C[k][l][u][w]*0.5*(dz[u][w]+dz[w][u])*0.5*(dv[k][l]+dv[l][k]);
+											Keq[a][i][b][j]+=C[k][l][u][w]*0.5*(-dz[u][w]-dz[w][u])*0.5*(dv[k][l]+dv[l][k]);
 										}
 									}
 								}
@@ -697,8 +698,8 @@ PetscReal delta(PetscInt i, PetscInt j)
 								{
 									for (m=0; m<3; m++)
 									{
-										Keq[a][i][b][j]+=0.5*eps*(d2z[r][s][m]+d2z[s][r][m])*0.5*(d2v[r][s][m]+d2v[s][r][m])
-														-0.5*eps*(d2z[r][s][m]-d2z[s][r][m])*d2v[s][r][m];
+										Keq[a][i][b][j]+=0.5*eps*(-d2z[r][s][m]-d2z[s][r][m])*0.5*(d2v[r][s][m]+d2v[s][r][m])
+														-0.5*eps*(-d2z[r][s][m]+d2z[s][r][m])*d2v[s][r][m];
 									}
 								}
 							}
@@ -919,11 +920,11 @@ PetscReal delta(PetscInt i, PetscInt j)
 					{
 						for(l=0;l<3;l++)
 						{
-							Fstress[a][i]+=C[m][n][k][l]*(fulld_z[k][l]-fullChi[k][l])*v[m][n];
+							Fstress[a][i]+=C[m][n][k][l]*(-fulld_z[k][l]-fullChi[k][l])*v[m][n];
 						}
 
-						Fstress[a][i]+= -0.25*eps*(fulld3_z[m][n][k][k]-fulld2_Chi[m][n][k][k]+fulld3_z[m][k][n][k]-fulld2_Chi[m][k][n][k]
-							                      +fulld3_z[n][m][k][k]-fulld2_Chi[n][m][k][k]+fulld3_z[n][k][m][k]-fulld2_Chi[n][k][m][k])*v[m][n];
+						Fstress[a][i]+= +0.25*eps*(-fulld3_z[m][n][k][k]-fulld2_Chi[m][n][k][k]-fulld3_z[m][k][n][k]-fulld2_Chi[m][k][n][k]
+							                       -fulld3_z[n][m][k][k]-fulld2_Chi[n][m][k][k]-fulld3_z[n][k][m][k]-fulld2_Chi[n][k][m][k])*v[m][n];
 
 					}
 				}
@@ -1031,7 +1032,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 					{
 						for(l=0;l<3;l++)
 						{
-							Fstress[a][i]+=0.5*(C[m][n][k][l]*(fulld_z[k][l]-fullChi[k][l])+C[n][m][k][l]*(fulld_z[k][l]-fullChi[k][l]))*v[m][n];
+							Fstress[a][i]+=0.5*( C[m][n][k][l]*(-fulld_z[k][l]-fullChi[k][l]) + C[n][m][k][l]*(-fulld_z[k][l]-fullChi[k][l]) )*v[m][n];
 						}
 					}
 				}
@@ -1127,7 +1128,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 					{
 						for(l=0;l<3;l++)
 						{
-							FCS[a][i]+=-0.5*eps*e[m][k][l]*(fulld2_z[k][l][n]-fulld_Chi[k][l][n]+fulld2_z[k][n][l]-fulld_Chi[k][n][l])*v[m][n];
+							FCS[a][i]+=-0.5*eps*e[m][k][l]*(-fulld2_z[k][l][n]-fulld_Chi[k][l][n]-fulld2_z[k][n][l]-fulld_Chi[k][n][l])*v[m][n];
 						}
 					}
 				}
@@ -1250,9 +1251,9 @@ PetscReal delta(PetscInt i, PetscInt j)
 							{
 								for (n=0;n<3;n++)
 								{
-									FED[a][i]+=0.5*((fulld_z[k][l]-fullChi[k][l])*C[k][l][m][n]*(fulld_z[m][n]-fullChi[m][n]))*N0[a];
+									FED[a][i]+=0.5*((-fulld_z[k][l]-fullChi[k][l])*C[k][l][m][n]*(-fulld_z[m][n]-fullChi[m][n]))*N0[a];
 								}
-								FED[a][i]+=0.5*eps*(fulld2_z[k][l][m]-fulld_Chi[k][l][m])*(fulld2_z[k][l][m]-fulld_Chi[k][l][m])*N0[a];
+								FED[a][i]+=0.5*eps*(-fulld2_z[k][l][m]-fulld_Chi[k][l][m])*(-fulld2_z[k][l][m]-fulld_Chi[k][l][m])*N0[a];
 							}
 						}
 					}
@@ -1550,20 +1551,21 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal mu=1.0;
 
 		//const PetscReal burgers[2]={1.0,0.0};
-		PetscReal Omega=tan(5.0/180.0*ConstPi);
-		PetscReal rho=sqrt(x[0]*x[0]+x[1]*x[1]);
+		//PetscReal Omega=tan(5.0/180.0*ConstPi);
+		//PetscReal rho=sqrt(x[0]*x[0]+x[1]*x[1]);
+		PetscReal burgers=1.0;
 
 		//This is for a single disclination
-		g[0]=mu*Omega/(2.0*ConstPi*(1.0-nu))*(log(rho)+(x[1]*x[1])/(rho*rho)+nu/(1.0-2.0*nu));
-		g[1]=-mu*Omega/(2.0*ConstPi*(1.0-nu))*x[0]*x[1]/(rho*rho);
-		g[2]=-mu*Omega/(2.0*ConstPi*(1.0-nu))*x[0]*x[1]/(rho*rho);
-		g[3]=mu*Omega/(2.0*ConstPi*(1.0-nu))*(log(rho)+(x[0]*x[0])/(rho*rho)+nu/(1.0-2.0*nu));
+		//g[0]=mu*Omega/(2.0*ConstPi*(1.0-nu))*(log(rho)+(x[1]*x[1])/(rho*rho)+nu/(1.0-2.0*nu));
+		//g[1]=-mu*Omega/(2.0*ConstPi*(1.0-nu))*x[0]*x[1]/(rho*rho);
+		//g[2]=-mu*Omega/(2.0*ConstPi*(1.0-nu))*x[0]*x[1]/(rho*rho);
+		//g[3]=mu*Omega/(2.0*ConstPi*(1.0-nu))*(log(rho)+(x[0]*x[0])/(rho*rho)+nu/(1.0-2.0*nu));
 
 		//This for dislocation with burgers vector in x axis
-		//g[0]=-mu*burgers/(ConstPi*(1.0-nu))/2.0*x[1]*(x[1]*x[1]+3*x[0]*x[0])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
-		//g[1]=-mu*burgers/(ConstPi*(1.0-nu))/2.0*x[0]*(x[1]*x[1]-x[0]*x[0])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
-		//g[2]=-mu*burgers/(ConstPi*(1.0-nu))/2.0*x[0]*(x[1]*x[1]-x[0]*x[0])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
-		//g[3]=-mu*burgers/(ConstPi*(1.0-nu))/2.0*x[1]*(x[1]*x[1]-x[0]*x[0])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
+		g[0]=-mu*burgers/(ConstPi*(1.0-nu))/2.0*x[1]*(x[1]*x[1]+3*x[0]*x[0])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
+		g[1]=-mu*burgers/(ConstPi*(1.0-nu))/2.0*x[0]*(x[1]*x[1]-x[0]*x[0])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
+		g[2]=-mu*burgers/(ConstPi*(1.0-nu))/2.0*x[0]*(x[1]*x[1]-x[0]*x[0])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
+		g[3]=-mu*burgers/(ConstPi*(1.0-nu))/2.0*x[1]*(x[1]*x[1]-x[0]*x[0])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
 
 		//This for when burgers vector points in y axis
 		//g[0]=-mu*burgers/(ConstPi*(1.0-nu))/2.0*-x[0]*(x[0]*x[0]+3.0*x[1]*x[1])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
@@ -1668,7 +1670,7 @@ int main(int argc, char *argv[]) {
 
 //App context creation and some data
 	//Mesh parameters (to fix specific points in z0 system)
-	PetscInt b=401;				//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
+	PetscInt b=301;				//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
 	PetscReal Lx=20.0;
 	PetscReal Ly=20.0;
 	PetscInt  nx=b;
@@ -2246,9 +2248,9 @@ int main(int argc, char *argv[]) {
 	IGAElement		elemZ0;							//element
 	PetscReal		*KlocZ0,*FlocZ0;				//AA y BB
 	PetscReal		*KpointZ0,*FpointZ0;			//KKK y FFF
-	const PetscReal	*arrayChi0Z0;		//arrayU
-	Vec				localChi0Z0;			//localU
-	PetscReal		*Chi0Z0;					//U
+	const PetscReal	*arrayChi0Z0;					//arrayU
+	Vec				localChi0Z0;					//localU
+	PetscReal		*Chi0Z0;						//U
 
   	IGAFormSystem	wtfZ0;
  	void			*wtf2Z0;
@@ -2879,17 +2881,17 @@ int main(int argc, char *argv[]) {
 	ierr = VecAssemblyEnd  (FCStress);CHKERRQ(ierr);
 
 	ierr = KSPSetOperators(kspCS,KCStress,KCStress);CHKERRQ(ierr);
-	PC pcCS;
-	ierr = KSPGetPC(kspCS,&pcCS); CHKERRQ(ierr);
-	ierr = PCSetType(pcCS,PCLU); CHKERRQ(ierr);
-	ierr = PCFactorSetMatSolverType(pcCS,MATSOLVERMUMPS); CHKERRQ(ierr);
-	//ierr = KSPSetFromOptions(kspStress);CHKERRQ(ierr);
-	//ierr = KSPSetTolerances(kspStress,1e-28,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	//PC pcCS;
+	//ierr = KSPGetPC(kspCS,&pcCS); CHKERRQ(ierr);
+	//ierr = PCSetType(pcCS,PCLU); CHKERRQ(ierr);
+	//ierr = PCFactorSetMatSolverType(pcCS,MATSOLVERMUMPS); CHKERRQ(ierr);
+	ierr = KSPSetFromOptions(kspCS);CHKERRQ(ierr);
+	ierr = KSPSetTolerances(kspCS,1e-24,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
 	ierr = KSPSolve(kspCS,FCStress,lambda0);CHKERRQ(ierr);
 
-	ierr = KSPDestroy(&kspStress);CHKERRQ(ierr);
-	ierr = MatDestroy(&KStress);CHKERRQ(ierr);
-	ierr = VecDestroy(&FStress);CHKERRQ(ierr);
+	ierr = KSPDestroy(&kspCS);CHKERRQ(ierr);
+	ierr = MatDestroy(&KCStress);CHKERRQ(ierr);
+	ierr = VecDestroy(&FCStress);CHKERRQ(ierr);
 
 	char nameCStress[]="/lambda-2d-0.dat";
 	char pathCStress[512];
@@ -3486,7 +3488,7 @@ int main(int argc, char *argv[]) {
 	for (dir=0; dir<2; dir++)
 	{
 		ierr = IGASetRuleType(igaExact,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
-		ierr = IGASetRuleSize(igaExact,dir,4);CHKERRQ(ierr);
+		ierr = IGASetRuleSize(igaExact,dir,6);CHKERRQ(ierr);
 	}
 	ierr = IGASetUp(igaExact);CHKERRQ(ierr);
 	
@@ -3495,7 +3497,7 @@ int main(int argc, char *argv[]) {
 		for (side=0; side<2; side++) 
 		{
 			//ierr = IGASetBoundaryValue(iga,dir,side,dof,0.0);CHKERRQ(ierr);    				// Dirichlet boundary conditions
-			ierr = IGASetBoundaryForm(igaExact,dir,side,PETSC_TRUE);CHKERRQ(ierr);  				// Neumann boundary conditions
+			//ierr = IGASetBoundaryForm(igaExact,dir,side,PETSC_TRUE);CHKERRQ(ierr);  				// Neumann boundary conditions
 		}
 	}
 
@@ -3515,7 +3517,7 @@ int main(int argc, char *argv[]) {
 	ierr = KSPSetType(kspl2e,KSPCG);CHKERRQ(ierr);											//Using KSPCG (conjugated gradient) because the matrix is symmetric
 	//ierr = KSPSetOptionsPrefix(kspl2S,"l2pS_");CHKERRQ(ierr);
 	ierr = KSPSetFromOptions(kspl2e);CHKERRQ(ierr);
-	ierr = KSPSetTolerances(kspl2e,1.0e-16,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	ierr = KSPSetTolerances(kspl2e,1.0e-30,1.0e-45,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
 	ierr = KSPSolve(kspl2e,Fl2e,e0);CHKERRQ(ierr);										//This is a simple system, so it can be solved with just this command
 
 	ierr = KSPDestroy(&kspl2e);CHKERRQ(ierr);

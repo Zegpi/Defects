@@ -847,8 +847,8 @@ PetscReal delta(PetscInt i, PetscInt j)
 
 			//No stress in boundary
 			Sborde[0][0]=0.0;
-			Sborde[0][1]=0.0/1000.0;
-			Sborde[1][0]=0.0/1000.0;
+			Sborde[0][1]=mu/1000.0;
+			Sborde[1][0]=mu/1000.0;
 			Sborde[1][1]=0.0;
 			Sborde[0][2]=0.0; Sborde[1][2]=0.0; Sborde[2][0]=0.0; Sborde[2][1]=0.0; Sborde[2][2]=0.0;
 
@@ -5198,7 +5198,7 @@ int main(int argc, char *argv[]) {
 	ierr = IGACreate(PETSC_COMM_WORLD,&igaVs);CHKERRQ(ierr);
 	ierr = IGASetDim(igaVs,2);CHKERRQ(ierr);													//Spatial dimension of the problem
 	ierr = IGASetDof(igaVs,2);CHKERRQ(ierr);													//Number of degrees of freedom, per node
-	ierr = IGASetOrder(igaVs,2);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
+	ierr = IGASetOrder(igaVs,1);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
 	ierr = IGASetFromOptions(igaVs);CHKERRQ(ierr);												//Note: The order (or degree) of the shape functions is given by the mesh!
 	ierr = IGARead(igaVs,"./geometry.dat");CHKERRQ(ierr);
 	

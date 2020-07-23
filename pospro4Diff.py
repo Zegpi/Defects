@@ -82,7 +82,7 @@ if num1==num2:
 		for i in range(sol1.shape[0]):
 			for j in range(sol1.shape[1]):
 
-				matA[0][0]=sol2[i][j][0]-sol1[i][j][0]							#Sigma-Sigma_exact
+				matA[0][0]=sol2[i][j][0]-sol1[i][j][0]							#Sigma_exact-Sigma
 				matA[0][1]=sol2[i][j][1]-sol1[i][j][1]
 				matA[1][0]=sol2[i][j][2]-sol1[i][j][2]
 				matA[1][1]=sol2[i][j][3]-sol1[i][j][3]
