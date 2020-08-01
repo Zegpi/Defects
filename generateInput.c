@@ -30,7 +30,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 
 //Generate Mesh and copy cpp to result folder to save for reproduction (check that parameters are the same on file to run)
 
-	PetscInt b=301;					//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
+	PetscInt b=401;					//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
 	PetscReal Lx=20.0;
 	PetscReal Ly=20.0;
 	PetscInt  nx=b;
@@ -225,7 +225,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	ierr = IGACreateVec(igaAl,&alp0);CHKERRQ(ierr);
 	ierr = IGACreateVec(igaAl,&alp1);CHKERRQ(ierr);
 
-	PetscReal e1=(1.0+0.0*a)/(c*t);
+	PetscReal e1=(0.0+0.0*a)/(c*t);
 	PetscReal e2=0.0*(a-0.100211)/(c*t);
 	//PetscReal e2=(2.0)/(c*t);
 	//PetscReal lx=2.0*N*Lx/nx;
@@ -299,9 +299,9 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	{
 		for (int j=0;j<2*size_elem;j++)
 		{
-			//pointsAl1[counter  ]=2*(center-dist_centro-1-(size_elem-1)*(nx+1+1+1))+2*i*(nx+1)+2*j;	valoresAl1[counter  ]=1.0/(4.0*c*t*size_elem*size_elem);
-			//pointsAl2[counter+1]=2*(center+dist_centro+1-(size_elem-1)*(nx+1+1-1))+2*i*(nx+1)+2*j;	valoresAl2[counter+1]=1.0/(4.0*c*t*size_elem*size_elem);
-			//counter=counter+1;
+			pointsAl1[counter  ]=2*(center-dist_centro-1-(size_elem-1)*(nx+1+1+1))+2*i*(nx+1)+2*j;	valoresAl1[counter  ]=1.0/(4.0*c*t*size_elem*size_elem);
+			pointsAl2[counter  ]=2*(center+dist_centro+1-(size_elem-1)*(nx+1+1-1))+2*i*(nx+1)+2*j;	valoresAl2[counter  ]=1.0/(4.0*c*t*size_elem*size_elem);
+			counter=counter+1;
 		}
 	}
 

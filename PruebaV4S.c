@@ -905,7 +905,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 //System for \dot{z} (debug)
 	#undef  __FUNCT__
 	#define __FUNCT__ "ZdotSystem"
-	PetscErrorCode ZdotSystem(IGAPoint p, IGAPoint pAl, IGAPoint pVa, IGAPoint pS, PetscReal *K, PetscReal *F, PetscReal *UAl, PetscReal *UVa, PetscReal *US, void *ctx)
+	PetscErrorCode ZdotSystem(IGAPoint p,IGAPoint pAl,IGAPoint pVa,IGAPoint pS,PetscReal *K,PetscReal *F,PetscReal *UAl,PetscReal *UVa,PetscReal *US, void *ctx)
 	{
 		const PetscReal *N0,(*N1)[2];
 		IGAPointGetShapeFuns(p,0,(const PetscReal**)&N0);
@@ -921,48 +921,29 @@ PetscReal delta(PetscInt i, PetscInt j)
 			{{0.0,1.0,0.0},{-1.0,0.0,0.0},{0.0,0.0,0.0}}
 		};
 
-		PetscReal alfa[2];																		//Create array to receive Alfa
-		PetscReal dAlfa[2][2];																	
+		PetscReal alfa[2];																		//Create array to receive Alfa																
 		IGAPointFormValue(pAl,UAl,&alfa[0]);													//This fills the values
-		IGAPointFormGrad (pAl,UAl,&dAlfa[0][0]);
 
 		PetscReal fullAlfa[3][3]={0};
 		fullAlfa[0][2]=alfa[0]; fullAlfa[1][2]=alfa[1];
-
-		PetscReal full_dAlfa[3][3][3]={0};
-		full_dAlfa[0][2][0]=dAlfa[0][0];	full_dAlfa[0][2][1]=dAlfa[0][1];
-		full_dAlfa[1][2][0]=dAlfa[1][0];	full_dAlfa[1][2][1]=dAlfa[1][1];
 	
-		PetscReal Va[2],dVa[2][2];															//Seems that if I create this one with size 3, next line gives problems
+		PetscReal Va[2];																	//Seems that if I create this one with size 3, next line gives problems
 		IGAPointFormValue(pVa,UVa,&Va[0]);													//This fills the values
-		IGAPointFormGrad (pVa,UVa,&dVa[0][0]);												//This fills the values
 
-		PetscReal fullVa[3]={0};
-		PetscReal full_dVa[3][3]={0};
-		
+		PetscReal fullVa[3]={0};	
 		fullVa[0]=Va[0]; fullVa[1]=Va[1];
-		full_dVa[0][0]=dVa[0][0]; full_dVa[0][1]=dVa[0][1];
-		full_dVa[1][0]=dVa[1][0]; full_dVa[1][1]=dVa[1][1];
 
 		//PetscReal Vs[2],dVs[2][2];															//Seems that if I create this one with size 3, next line gives problems
 		//IGAPointFormValue(pVs,UVs,&Vs[0]);													//This fills the values
-		//IGAPointFormGrad (pVs,UVs,&dVs[0][0]);												//This fills the values of the gradient
 
 		PetscReal fullVs[3]={0};
-		PetscReal full_dVs[3][3]={0};
 		//Restore this later
 		//fullVs[0]=Vs[0]; fullVs[1]=Vs[1];
-		//full_dVs[0][0]=dVs[0][0]; full_dVs[0][1]=dVs[0][1];
-		//full_dVs[1][0]=dVs[1][0]; full_dVs[1][1]=dVs[1][1];
 		//This is for testing
-		fullVs[0]=0.0; fullVs[1]=-0.5;
-		full_dVs[0][0]=0.0; full_dVs[0][1]=0.0;
-		full_dVs[1][0]=0.0; full_dVs[1][1]=0.0;
+		fullVs[0]=0.0; fullVs[1]=-1.0;
 
 		PetscReal S[8];																		//Create array to receive S
-		PetscReal dS[8][2];																	//Create array to receive S
 		IGAPointFormValue(pS,US,&S[0]);														//This fills the values of S (remember that S has 8 non zero components in 2D)
-		IGAPointFormGrad (pS,US,&dS[0][0]);
 
 		PetscReal fullS[3][3][3]={0};
 		fullS[0][0][0]=S[0]; fullS[0][0][1]=S[1];											//Expand S to full 3rd order form, only non-zero elements
@@ -970,23 +951,25 @@ PetscReal delta(PetscInt i, PetscInt j)
 		fullS[1][0][0]=S[4]; fullS[1][0][1]=S[5];
 		fullS[1][1][0]=S[6]; fullS[1][1][1]=S[7];
 
-		PetscReal fulld_S[3][3][3][3]={0};													//Expand grad(S) to full tensor order form, only non-zero elements
-		fulld_S[0][0][0][0]=dS[0][0]; fulld_S[0][0][0][1]=dS[0][1]; 
-		fulld_S[0][0][1][0]=dS[1][0]; fulld_S[0][0][1][1]=dS[1][1]; 
-		fulld_S[0][1][0][0]=dS[2][0]; fulld_S[0][1][0][1]=dS[2][1]; 
-		fulld_S[0][1][1][0]=dS[3][0]; fulld_S[0][1][1][1]=dS[3][1];
-		fulld_S[1][0][0][0]=dS[4][0]; fulld_S[1][0][0][1]=dS[4][1]; 
-		fulld_S[1][0][1][0]=dS[5][0]; fulld_S[1][0][1][1]=dS[5][1]; 
-		fulld_S[1][1][0][0]=dS[6][0]; fulld_S[1][1][0][1]=dS[6][1]; 
-		fulld_S[1][1][1][0]=dS[7][0]; fulld_S[1][1][1][1]=dS[7][1];
+		for(i=0;i<3;i++)
+		{
+			for(j=0;j<3;j++)
+			{
+				for(k=0;k<3;k++)
+				{
+					for(l=0;l<3;l++)
+					{
+						fullAlfa[i][j]=fullAlfa[i][j]-fullS[i][k][l]*e[j][k][l];
+					}
+				}
+			}
+		}
 
-
-		PetscReal v[3]={0};
 		PetscReal dv[3][3]={0};
 		PetscReal dz[3][3]={0};
 
 		PetscReal (*Keq)[dof][nen][dof] = (typeof(Keq)) K;
-		PetscReal (*Feq)[dof] = (PetscReal (*)[dof])F;
+		PetscReal (*Feq)[dof] = (PetscReal (*)[dof]) F;
 
 		if (p->atboundary)
 		{
@@ -997,61 +980,39 @@ PetscReal delta(PetscInt i, PetscInt j)
 			for (a=0; a<nen; a++) 
 			{
 				PetscReal Na_x = N1[a][0];			PetscReal Na_y = N1[a][1];
-				//PetscReal Na_xx =N2[a][0][0];		PetscReal Na_yy =N2[a][1][1];
-				//PetscReal Na_xy =N2[a][0][1];		PetscReal Na_yx =N2[a][1][0];
 
 				for (b=0; b<nen; b++) 
 				{
 					PetscReal Nb_x = N1[b][0];		PetscReal Nb_y = N1[b][1];
-					//PetscReal Nb_xx =N2[b][0][0];	PetscReal Nb_yy =N2[b][1][1];
-					//PetscReal Nb_xy =N2[b][0][1];	PetscReal Nb_yx =N2[b][1][0];
 
-					for (i=0; i<dof; i++)
+					for (i=0;i<dof;i++)
 					{
 						if (i==0)
 						{
 							dv[0][0]=Na_x; dv[0][1]=Na_y; dv[0][2]=0.0;
 							dv[1][0]=0.0;  dv[1][1]=0.0;  dv[1][2]=0.0;
 							dv[2][0]=0.0;  dv[2][1]=0.0;  dv[2][2]=0.0;
-
-							//d2v[0][0][0]=Na_xx; d2v[0][0][1]=Na_xy; d2v[0][0][2]=0.0; d2v[0][1][0]=Na_yx; d2v[0][1][1]=Na_yy; d2v[0][1][2]=0.0; d2v[0][2][0]=0.0; d2v[0][2][1]=0.0; d2v[0][2][2]=0.0;
-							//d2v[1][0][0]=0.00;  d2v[1][0][1]=0.00;  d2v[1][0][2]=0.0; d2v[1][1][0]=0.0;   d2v[1][1][1]=0.0;   d2v[1][1][2]=0.0; d2v[1][2][0]=0.0; d2v[1][2][1]=0.0; d2v[1][2][2]=0.0;
-							//d2v[2][0][0]=0.00;  d2v[2][0][1]=0.00;  d2v[2][0][2]=0.0; d2v[2][1][0]=0.0;   d2v[2][1][1]=0.0;   d2v[2][1][2]=0.0; d2v[2][2][0]=0.0; d2v[2][2][1]=0.0; d2v[2][2][2]=0.0;
-							
 						}
 						else if(i==1)
 						{
 							dv[0][0]=0.0;  dv[0][1]=0.0;  dv[0][2]=0.0;
 							dv[1][0]=Na_x; dv[1][1]=Na_y; dv[1][2]=0.0;
 							dv[2][0]=0.0;  dv[2][1]=0.0;  dv[2][2]=0.0;
-
-							//d2v[0][0][0]=0.00;  d2v[0][0][1]=0.00;  d2v[0][0][2]=0.0; d2v[0][1][0]=0.0;   d2v[0][1][1]=0.0;   d2v[0][1][2]=0.0; d2v[0][2][0]=0.0; d2v[0][2][1]=0.0; d2v[0][2][2]=0.0;
-							//d2v[1][0][0]=Na_xx; d2v[1][0][1]=Na_xy; d2v[1][0][2]=0.0; d2v[1][1][0]=Na_yx; d2v[1][1][1]=Na_yy; d2v[1][1][2]=0.0; d2v[1][2][0]=0.0; d2v[1][2][1]=0.0; d2v[1][2][2]=0.0;
-							//d2v[2][0][0]=0.00;  d2v[2][0][1]=0.00;  d2v[2][0][2]=0.0; d2v[2][1][0]=0.0;   d2v[2][1][1]=0.0;   d2v[2][1][2]=0.0; d2v[2][2][0]=0.0; d2v[2][2][1]=0.0; d2v[2][2][2]=0.0;
-							
 						}
 
-						for (j=0; j<dof; j++)
+						for (j=0;j<dof;j++)
 						{
 							if (j==0)
 							{
 								dz[0][0]=Nb_x; dz[0][1]=Nb_y; dz[0][2]=0.0;
 								dz[1][0]=0.0;  dz[1][1]=0.0;  dz[1][2]=0.0;
 								dz[2][0]=0.0;  dz[2][1]=0.0;  dz[2][2]=0.0;
-
-								//d2z[0][0][0]=Nb_xx; d2z[0][0][1]=Nb_xy; d2z[0][0][2]=0.0; d2z[0][1][0]=Nb_yx; d2z[0][1][1]=Nb_yy; d2z[0][1][2]=0.0; d2z[0][2][0]=0.0; d2z[0][2][1]=0.0; d2z[0][2][2]=0.0;
-								//d2z[1][0][0]=0.00;  d2z[1][0][1]=0.00;  d2z[1][0][2]=0.0; d2z[1][1][0]=0.0;   d2z[1][1][1]=0.0;   d2z[1][1][2]=0.0; d2z[1][2][0]=0.0; d2z[1][2][1]=0.0; d2z[1][2][2]=0.0;
-								//d2z[2][0][0]=0.00;  d2z[2][0][1]=0.00;  d2z[2][0][2]=0.0; d2z[2][1][0]=0.0;   d2z[2][1][1]=0.0;   d2z[2][1][2]=0.0; d2z[2][2][0]=0.0; d2z[2][2][1]=0.0; d2z[2][2][2]=0.0;
 							}
 							else if(j==1)
 							{
 								dz[0][0]=0.0;  dz[0][1]=0.0;  dz[0][2]=0.0;
 								dz[1][0]=Nb_x; dz[1][1]=Nb_y; dz[1][2]=0.0;
 								dz[2][0]=0.0;  dz[2][1]=0.0;  dz[2][2]=0.0;
-
-								//d2z[0][0][0]=0.00;  d2z[0][0][1]=0.00;  d2z[0][0][2]=0.0; d2z[0][1][0]=0.0;   d2z[0][1][1]=0.0;   d2z[0][1][2]=0.0; d2z[0][2][0]=0.0; d2z[0][2][1]=0.0; d2z[0][2][2]=0.0;
-								//d2z[1][0][0]=Nb_xx; d2z[1][0][1]=Nb_xy; d2z[1][0][2]=0.0; d2z[1][1][0]=Nb_yx; d2z[1][1][1]=Nb_yy; d2z[1][1][2]=0.0; d2z[1][2][0]=0.0; d2z[1][2][1]=0.0; d2z[1][2][2]=0.0;
-								//d2z[2][0][0]=0.00;  d2z[2][0][1]=0.00;  d2z[2][0][2]=0.0; d2z[2][1][0]=0.0;   d2z[2][1][1]=0.0;   d2z[2][1][2]=0.0; d2z[2][2][0]=0.0; d2z[2][2][1]=0.0; d2z[2][2][2]=0.0;
 							}
 
 							Keq[a][i][b][j]=0.0;
@@ -1069,36 +1030,25 @@ PetscReal delta(PetscInt i, PetscInt j)
 
 			for(a=0;a<nen;a++)
 			{
-				PetscReal Na=N0[a];
-				//PetscReal Na_x=N1[a][0];		PetscReal Na_y=N1[a][1];
-				//PetscReal Na_xx =N2[a][0][0];	PetscReal Na_yy =N2[a][1][1];
-				//PetscReal Na_xy =N2[a][0][1];	PetscReal Na_yx =N2[a][1][0];
+				PetscReal Na_x=N1[a][0];		PetscReal Na_y=N1[a][1];
 
-				for (i=0; i<dof; i++)
+				for (i=0;i<dof;i++)
 				{
 					if (i==0)
 					{
-						v[0]=Na; 	   v[1]=0.0; 	  v[2]=0.0;
-						//dv[0][0]=Na_x; dv[0][1]=Na_y; dv[0][2]=0.0;
-						//dv[1][0]=0.0;  dv[1][1]=0.0;  dv[1][2]=0.0;
-						//dv[2][0]=0.0;  dv[2][1]=0.0;  dv[2][2]=0.0;
-						//d2v[0][0][0]=Na_xx; d2v[0][0][1]=Na_xy; d2v[0][0][2]=0.0; d2v[0][1][0]=Na_yx; d2v[0][1][1]=Na_yy; d2v[0][1][2]=0.0; d2v[0][2][0]=0.0; d2v[0][2][1]=0.0; d2v[0][2][2]=0.0;
-						//d2v[1][0][0]=0.00;  d2v[1][0][1]=0.00;  d2v[1][0][2]=0.0; d2v[1][1][0]=0.0;   d2v[1][1][1]=0.0;   d2v[1][1][2]=0.0; d2v[1][2][0]=0.0; d2v[1][2][1]=0.0; d2v[1][2][2]=0.0;
-						//d2v[2][0][0]=0.00;  d2v[2][0][1]=0.00;  d2v[2][0][2]=0.0; d2v[2][1][0]=0.0;   d2v[2][1][1]=0.0;   d2v[2][1][2]=0.0; d2v[2][2][0]=0.0; d2v[2][2][1]=0.0; d2v[2][2][2]=0.0;
+						dv[0][0]=Na_x; dv[0][1]=Na_y; dv[0][2]=0.0;
+						dv[1][0]=0.0;  dv[1][1]=0.0;  dv[1][2]=0.0;
+						dv[2][0]=0.0;  dv[2][1]=0.0;  dv[2][2]=0.0;
 					}
 					else if (i==1)
 					{
-						v[0]=0.0; 	   v[1]=Na; 	  v[2]=0.0;
-						//dv[0][0]=0.0;  dv[0][1]=0.0;  dv[0][2]=0.0;
-						//dv[1][0]=Na_x; dv[1][1]=Na_y; dv[1][2]=0.0;
-						//dv[2][0]=0.0;  dv[2][1]=0.0;  dv[2][2]=0.0;
-						//d2v[0][0][0]=0.00;  d2v[0][0][1]=0.00;  d2v[0][0][2]=0.0; d2v[0][1][0]=0.0;   d2v[0][1][1]=0.0;   d2v[0][1][2]=0.0; d2v[0][2][0]=0.0; d2v[0][2][1]=0.0; d2v[0][2][2]=0.0;
-						//d2v[1][0][0]=Na_xx; d2v[1][0][1]=Na_xy; d2v[1][0][2]=0.0; d2v[1][1][0]=Na_yx; d2v[1][1][1]=Na_yy; d2v[1][1][2]=0.0; d2v[1][2][0]=0.0; d2v[1][2][1]=0.0; d2v[1][2][2]=0.0;
-						//d2v[2][0][0]=0.00;  d2v[2][0][1]=0.00;  d2v[2][0][2]=0.0; d2v[2][1][0]=0.0;   d2v[2][1][1]=0.0;   d2v[2][1][2]=0.0; d2v[2][2][0]=0.0; d2v[2][2][1]=0.0; d2v[2][2][2]=0.0;
+						dv[0][0]=0.0;  dv[0][1]=0.0;  dv[0][2]=0.0;
+						dv[1][0]=Na_x; dv[1][1]=Na_y; dv[1][2]=0.0;
+						dv[2][0]=0.0;  dv[2][1]=0.0;  dv[2][2]=0.0;
 					}
 
 					Feq[a][i] = 0.0;
-					//div(alpha X V^a)
+					//(alpha X V^a)*grad(v)
 					for (k=0; k<3; k++)
 					{
 						for (l=0; l<3; l++)
@@ -1107,23 +1057,22 @@ PetscReal delta(PetscInt i, PetscInt j)
 							{
 								for (w=0; w<3; w++)
 								{
-									Feq[a][i]+=e[l][u][w]*(full_dAlfa[k][u][l]*fullVa[w]+fullAlfa[k][u]*full_dVa[w][l])*v[k];
+									Feq[a][i]+=(e[l][u][w]*fullAlfa[k][u]*fullVa[w])*dv[k][l];
 								}
 							}
 						}	
 					}
-					//div(S*V^s)
-					for (k=0; k<3; k++)
+					//(S*V^s)*grad(v)
+					for (k=0;k<3;k++)
 					{
-						for (l=0; l<3; l++)
+						for (l=0;l<3;l++)
 						{
-							for (u=0; u<3; u++)
+							for (u=0;u<3;u++)
 							{
-								Feq[a][i]+=(fulld_S[k][l][u][l]*fullVs[u]+fullS[k][l][u]*full_dVs[u][l])*v[k];
+								Feq[a][i]+=(fullS[k][l][u]*fullVs[u])*dv[k][l];
 							}
 						}	
 					}
-
 				}
 			}
 		}
@@ -1779,6 +1728,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		fullS[1][0][0]=S[4]; fullS[1][0][1]=S[5];
 		fullS[1][1][0]=S[6]; fullS[1][1][1]=S[7];
 
+		//This transforms \alfa into \tilde{\alpha}=\alpha-S:X
 		for (j=0;j<3;j++)
 		{
 			for (k=0;k<3;k++)
@@ -1829,7 +1779,6 @@ PetscReal delta(PetscInt i, PetscInt j)
 					}
 					
 					FCS[a][i]=0.0;
-
 					for (j=0;j<3;j++)
 					{
 						for (k=0;k<3;k++)
@@ -2031,14 +1980,25 @@ PetscReal delta(PetscInt i, PetscInt j)
 		full_dVs[0][0]=0.0; full_dVs[0][1]=0.0;
 		full_dVs[1][0]=0.0; full_dVs[1][1]=0.0;
 
-		PetscReal S[8];																		//Create array to receive S
+		PetscReal S[8], dS[8][2];															//Create array to receive S and grad(S)
 		IGAPointFormValue(pS,US,&S[0]);														//This fills the values of S (remember that S has 8 non zero components in 2D)
+		IGAPointFormGrad (pS,US,&dS[0][0]);													//This fills the values
 
 		PetscReal fullS[3][3][3]={0};
 		fullS[0][0][0]=S[0]; fullS[0][0][1]=S[1];											//Expand S to full 3rd order form, only non-zero elements
 		fullS[0][1][0]=S[2]; fullS[0][1][1]=S[3];
 		fullS[1][0][0]=S[4]; fullS[1][0][1]=S[5];
 		fullS[1][1][0]=S[6]; fullS[1][1][1]=S[7];
+
+		PetscReal fulld_S[3][3][3][3]={0};													//Expand grad(S) to full tensor order form, only non-zero elements
+		fulld_S[0][0][0][0]=dS[0][0]; fulld_S[0][0][0][1]=dS[0][1]; 
+		fulld_S[0][0][1][0]=dS[1][0]; fulld_S[0][0][1][1]=dS[1][1]; 
+		fulld_S[0][1][0][0]=dS[2][0]; fulld_S[0][1][0][1]=dS[2][1]; 
+		fulld_S[0][1][1][0]=dS[3][0]; fulld_S[0][1][1][1]=dS[3][1];
+		fulld_S[1][0][0][0]=dS[4][0]; fulld_S[1][0][0][1]=dS[4][1]; 
+		fulld_S[1][0][1][0]=dS[5][0]; fulld_S[1][0][1][1]=dS[5][1]; 
+		fulld_S[1][1][0][0]=dS[6][0]; fulld_S[1][1][0][1]=dS[6][1]; 
+		fulld_S[1][1][1][0]=dS[7][0]; fulld_S[1][1][1][1]=dS[7][1];
 
 		PetscReal St[3][3][3]={0};
 		PetscReal dSt[3][3][3][3]={0};
@@ -2269,7 +2229,8 @@ PetscReal delta(PetscInt i, PetscInt j)
 								{
 									for (u=0; u<3; u++)
 									{
-										KSdot[a][i][b][j]+=St[k][l][u]*v[k][l][u];
+										//KSdot[a][i][b][j]+=St[k][l][u]*v[k][l][u];		//This is for backwards Euler
+										KSdot[a][i][b][j]+=St[k][l][u]*v[k][l][u];			//This is for trapezoidal rule (these are equal, consider deleting one?)
 									}
 								}
 							}
@@ -2281,7 +2242,9 @@ PetscReal delta(PetscInt i, PetscInt j)
 									{
 										for (w=0; w<3; w++)
 										{
-											KSdot[a][i][b][j]+=dt*St[k][l][w]*fullVs[w]*dv[k][l][u][u];
+											//KSdot[a][i][b][j]+=dt*St[k][l][w]*fullVs[w]*dv[k][l][u][u];		//This is for backwards Euler
+											KSdot[a][i][b][j]+=0.5*dt*(St[k][l][w]*fullVs[w])*dv[k][l][u][u];		//This is for trapezoidal rule
+
 										}
 									}
 								}
@@ -2293,7 +2256,8 @@ PetscReal delta(PetscInt i, PetscInt j)
 								{
 									for (u=0; u<3; u++)
 									{
-										KSdot[a][i][b][j]+=St[k][l][u]*v[k][l][u];
+										//KSdot[a][i][b][j]+=St[k][l][u]*v[k][l][u];		//This is for backwards Euler
+										KSdot[a][i][b][j]+=St[k][l][u]*v[k][l][u];			//This is for trapezoidal rule
 									}
 								}
 							}
@@ -2305,9 +2269,13 @@ PetscReal delta(PetscInt i, PetscInt j)
 									{
 										for (w=0; w<3; w++)
 										{
-											KSdot[a][i][b][j]+=-dt*St[k][l][u]*(dv[k][l][w][u]*fullVs[w]+v[k][l][w]*full_dVs[w][u])
-															   -dt*(dSt[k][l][w][u]*fullVs[w]+St[k][l][w]*full_dVs[w][u])*v[k][l][u]
-															   +dt*dt*(dSt[k][l][w][u]*fullVs[w]+St[k][l][w]*full_dVs[w][u])*(dv[k][l][w][u]*fullVs[w]+v[k][l][w]*full_dVs[w][u]);
+											//KSdot[a][i][b][j]+=-dt*St[k][l][u]*(dv[k][l][w][u]*fullVs[w]+v[k][l][w]*full_dVs[w][u])
+											//				   -dt*(dSt[k][l][w][u]*fullVs[w]+St[k][l][w]*full_dVs[w][u])*v[k][l][u]
+											//				   +dt*dt*(dSt[k][l][w][u]*fullVs[w]+St[k][l][w]*full_dVs[w][u])*(dv[k][l][w][u]*fullVs[w]+v[k][l][w]*full_dVs[w][u]);			//This is for backwards Euler
+
+											KSdot[a][i][b][j]+=-0.5*dt*St[k][l][u]*(dv[k][l][w][u]*fullVs[w]+v[k][l][w]*full_dVs[w][u])
+											                   -0.5*dt*(dSt[k][l][w][u]*fullVs[w]+St[k][l][w]*full_dVs[w][u])*v[k][l][u]
+											                   +0.25*dt*dt*(dSt[k][l][w][u]*fullVs[w]+St[k][l][w]*full_dVs[w][u])*(dv[k][l][w][u]*fullVs[w]+v[k][l][w]*full_dVs[w][u]);			//This is for trpezoidal rule
 										}
 									}
 								}
@@ -2323,7 +2291,24 @@ PetscReal delta(PetscInt i, PetscInt j)
 						{
 							for (u=0; u<3; u++)
 							{
-								FSdot[a][i]+=fullS[k][l][u]*v[k][l][u];		//Term with (Pi x VPi) should be included here in the future
+								//This is backwards Euler
+								//FSdot[a][i]+=fullS[k][l][u]*v[k][l][u];		//Term with (Pi x VPi) should be included here in the future
+								//This is trapezoidal rule
+								FSdot[a][i]+=fullS[k][l][u]*v[k][l][u];		//Term with (Pi x VPi) should be included here in the future (these are equal, consider deleting)
+							}
+						}	
+					}
+					for (k=0; k<3; k++)
+					{
+						for (l=0; l<3; l++)
+						{
+							for (u=0; u<3; u++)
+							{
+								for (w=0;w<3;w++)
+								{
+									//This is for trapezoidal rule, there is no equivalent term in backwards Euler
+									FSdot[a][i]+=0.5*dt*(fulld_S[k][l][w][u]*fullVs[w]+fullS[k][l][w]*full_dVs[w][u])*v[k][l][u];		//Term with (Pi x VPi) should be included here in the future (these are equal, consider deleting)
+								}
 							}
 						}	
 					}
@@ -2334,7 +2319,10 @@ PetscReal delta(PetscInt i, PetscInt j)
 						{
 							for (u=0; u<3; u++)
 							{
-								FSdot[a][i]+=fullS[k][l][u]*v[k][l][u];		//Term with (Pi x VPi) should be included here too in the future
+								//This is for backwards Euler
+								//FSdot[a][i]+=fullS[k][l][u]*v[k][l][u];		//Term with (Pi x VPi) should be included here too in the future
+								//This is for trapezoidal rule
+								FSdot[a][i]+=fullS[k][l][u]*v[k][l][u];		//Term with (Pi x VPi) should be included here too in the future (these terms are equal, consider deleting)
 							}
 						}	
 					}
@@ -2346,7 +2334,12 @@ PetscReal delta(PetscInt i, PetscInt j)
 							{
 								for (w=0; w<3; w++)
 								{
-									FSdot[a][i]+=-dt*fullS[k][l][u]*(dv[k][l][w][u]*fullVs[w]+v[k][l][w]*full_dVs[w][u]);		//Term with dt^2*(Pi x VPi) should be included here in the future
+									//This term is for backwards Euler
+									//FSdot[a][i]+=-dt*fullS[k][l][u]*(dv[k][l][w][u]*fullVs[w]+v[k][l][w]*full_dVs[w][u]);		//Term with dt^2*(Pi x VPi) should be included here in the future
+									//This term is for trapezoidal rule
+									FSdot[a][i]+=0.5*dt*(fulld_S[k][l][w][u]*fullVs[w]+fullS[k][l][w]*full_dVs[w][u])*v[k][l][u]
+									            -0.5*dt*fullS[k][l][u]*(dv[k][l][w][u]*fullVs[w]+v[k][l][w]*full_dVs[w][u])
+									            -0.25*dt*dt*(fulld_S[k][l][w][u]*fullVs[w]+fullS[k][l][w]*full_dVs[w][u])*(dv[k][l][w][u]*fullVs[w]+v[k][l][w]*full_dVs[w][u]);		//Term with dt^2*(Pi x VPi) should be included here in the future
 								}
 							}
 						}	
@@ -2566,11 +2559,8 @@ PetscReal delta(PetscInt i, PetscInt j)
 		IGAPointGetShapeFuns(p,0,(const PetscReal**)&N0);									//Value of the shape functions
 		PetscInt a,b,i,j,k,nen=p->nen, dof=p->dof;
 
-		PetscReal x[2];																		//Vector of reals, size equal to problem's dimension
-		IGAPointFormGeomMap(p,x);															//Fills x with the coordinates of p, Gauss's point
-
-		PetscReal d_Z0[2][2];																//Same for its gradient
-		IGAPointFormGrad (pZu,Zu,&d_Z0[0][0]);												//Same for the gradient
+		PetscReal d_Z0[2][2];																//Container for values of the gradient
+		IGAPointFormGrad (pZu,Zu,&d_Z0[0][0]);												//Fills the values of the gradient
 
 		//Expanding z (and derivatives) to 3 components, more convenient for sums in for loops
 		PetscReal fulld_z[3][3]={0};
@@ -2588,9 +2578,9 @@ PetscReal delta(PetscInt i, PetscInt j)
 		}
 		else
 		{
-			for (a=0; a<nen; a++) 
+			for (a=0; a<nen; a++)
 			{
-				for (b=0; b<nen; b++) 
+				for (b=0; b<nen; b++)
 				{
 					for (i=0; i<dof; i++)
 					{
@@ -2605,33 +2595,32 @@ PetscReal delta(PetscInt i, PetscInt j)
 				{
 					if (i==0)
 					{
-						v[0][0]=N0[a];	v[0][1]=0.0; 
+						v[0][0]=N0[a];	v[0][1]=0.0;
 						v[1][0]=0.0;	v[1][1]=0.0;
 
 					}
 					else if (i==1)
 					{
-						v[0][0]=0.0;	v[0][1]=N0[a]; 
+						v[0][0]=0.0;	v[0][1]=N0[a];
 						v[1][0]=0.0;	v[1][1]=0.0;
 					}
 					else if (i==2)
 					{
-						v[0][0]=0.0;	v[0][1]=0.0; 
+						v[0][0]=0.0;	v[0][1]=0.0;
 						v[1][0]=N0[a];	v[1][1]=0.0;
 					}
 					else if (i==3)
 					{
-						v[0][0]=0.0;	v[0][1]=0.0; 
+						v[0][0]=0.0;	v[0][1]=0.0;
 						v[1][0]=0.0;	v[1][1]=N0[a];
 					}
 					
 					FCS[a][i]=0.0;
-
 					for (j=0;j<3;j++)
 					{
 						for (k=0;k<3;k++)
 						{
-							FCS[a][i]+=fulld_z[j][k]*v[j][k];			
+							FCS[a][i]+=fulld_z[j][k]*v[j][k];
 						}
 					}
 				}
@@ -2713,6 +2702,307 @@ PetscReal delta(PetscInt i, PetscInt j)
 	}
 //
 
+//System for L2 projection of Up
+	#undef  __FUNCT__
+	#define __FUNCT__ "SysUp"
+				 //SysUp(pointUp,pointZ0,pointchiUp,KpointUp,FpointUp,Z0Up,ChiUp,NULL);CHKERRQ(ierr);
+	PetscErrorCode SysUp(IGAPoint p,IGAPoint pZu,IGAPoint pChi,PetscReal *K,PetscReal *F,PetscReal *UZ,PetscReal *UChi,void *ctx)		//When other fields like Pi or S (etc.) come into this, declare a IGAPoint pPi or pS and a new PetscReal *UPi or *US for each
+	{
+		//This functions generates the L2 projection matrix and the RHS
+		const PetscReal *N0;
+		IGAPointGetShapeFuns(p,0,(const PetscReal**)&N0);									//Value of the shape functions
+		PetscInt a,b,i,j,k,nen=p->nen, dof=p->dof;
+
+		PetscReal d_Z0[2][2];																//Container for values of the gradient
+		IGAPointFormGrad (pZu,UZ,&d_Z0[0][0]);												//Fills the values of the gradient
+
+		//Expanding z (and derivatives) to 3 components, more convenient for sums in for loops
+		PetscReal fulld_z[3][3]={0};
+		fulld_z[0][0]=d_Z0[0][0]; fulld_z[0][1]=d_Z0[0][1];
+		fulld_z[1][0]=d_Z0[1][0]; fulld_z[1][1]=d_Z0[1][1];
+
+		//The four non-zero components of Chi are stored as a vector, restore them to an array with the correct indexing for value and derivative
+		PetscReal Chi0[4];																	//Array to contain the vector chi(0)
+		IGAPointFormValue(pChi,UChi,&Chi0[0]);												//Assign chi to its container
+
+		PetscReal fullChi[3][3]={0};
+		fullChi[0][0]=Chi0[0]; 	fullChi[0][1]=Chi0[1];
+		fullChi[1][0]=Chi0[2]; 	fullChi[1][1]=Chi0[3];
+
+		PetscReal (*KCS)[dof][nen][dof] = (typeof(KCS)) K;
+		PetscReal (*FCS)[dof] = (PetscReal (*)[dof])F;
+
+		PetscReal v[3][3]={0};
+
+		if (p->atboundary)
+		{
+			return 0;
+		}
+		else
+		{
+			for (a=0; a<nen; a++)
+			{
+				for (b=0; b<nen; b++)
+				{
+					for (i=0; i<dof; i++)
+					{
+						KCS[a][i][b][i]=N0[a]*N0[b];
+					}
+				}
+			}
+
+			for(a=0 ;a<nen; a++)
+			{
+				for (i=0; i<dof; i++)
+				{
+					if (i==0)
+					{
+						v[0][0]=N0[a];	v[0][1]=0.0;
+						v[1][0]=0.0;	v[1][1]=0.0;
+
+					}
+					else if (i==1)
+					{
+						v[0][0]=0.0;	v[0][1]=N0[a];
+						v[1][0]=0.0;	v[1][1]=0.0;
+					}
+					else if (i==2)
+					{
+						v[0][0]=0.0;	v[0][1]=0.0;
+						v[1][0]=N0[a];	v[1][1]=0.0;
+					}
+					else if (i==3)
+					{
+						v[0][0]=0.0;	v[0][1]=0.0;
+						v[1][0]=0.0;	v[1][1]=N0[a];
+					}
+					
+					FCS[a][i]=0.0;
+					for (j=0;j<3;j++)
+					{
+						for (k=0;k<3;k++)
+						{
+							FCS[a][i]+=(fulld_z[j][k]+fullChi[j][k])*v[j][k];
+						}
+					}
+				}
+			}
+		}
+		return 0;
+	}
+
+	#undef  __FUNCT__
+	#define __FUNCT__ "SysUpF"
+	//PetscErrorCode Stress(IGAPoint p,IGAPoint pU, IGAPoint pHs,IGAPoint pChi,IGAPoint pZu,PetscReal *K,PetscReal *F,PetscReal *U,PetscReal *HS, PetscReal *Chi,PetscReal *Zu,void *ctx)		//When other fields like Pi or S (etc.) come into this, declare a IGAPoint pPi or pS and a new PescReal *UPi or *US for each
+	PetscErrorCode SysUpF(IGAPoint p,IGAPoint pZu,IGAPoint pChi,PetscReal *F,PetscReal *UZ,PetscReal *UChi,void *ctx)		//When other fields like Pi or S (etc.) come into this, declare a IGAPoint pPi or pS and a new PetscReal *UPi or *US for each
+	{
+		//This functions generates the L2 projection matrix and the RHS
+		const PetscReal *N0;
+		IGAPointGetShapeFuns(p,0,(const PetscReal**)&N0);									//Value of the shape functions
+		PetscInt a,i,j,k,nen=p->nen, dof=p->dof;
+
+		PetscReal d_Z0[2][2];																//Container for values of the gradient
+		IGAPointFormGrad (pZu,UZ,&d_Z0[0][0]);												//Fills the values of the gradient
+
+		//Expanding z (and derivatives) to 3 components, more convenient for sums in for loops
+		PetscReal fulld_z[3][3]={0};
+		fulld_z[0][0]=d_Z0[0][0]; fulld_z[0][1]=d_Z0[0][1];
+		fulld_z[1][0]=d_Z0[1][0]; fulld_z[1][1]=d_Z0[1][1];
+
+		//The four non-zero components of Chi are stored as a vector, restore them to an array with the correct indexing for value and derivative
+		PetscReal Chi0[4];																	//Array to contain the vector chi(0)
+		IGAPointFormValue(pChi,UChi,&Chi0[0]);												//Assign chi to its container
+
+		PetscReal fullChi[3][3]={0};
+		fullChi[0][0]=Chi0[0]; 	fullChi[0][1]=Chi0[1];
+		fullChi[1][0]=Chi0[2]; 	fullChi[1][1]=Chi0[3];
+
+		PetscReal (*FCS)[dof] = (PetscReal (*)[dof])F;
+
+		PetscReal v[3][3]={0};
+
+		if (p->atboundary)
+		{
+			return 0;
+		}
+		else
+		{
+			for(a=0 ;a<nen; a++)
+			{
+				for (i=0; i<dof; i++)
+				{
+					if (i==0)
+					{
+						v[0][0]=N0[a];	v[0][1]=0.0; 
+						v[1][0]=0.0;	v[1][1]=0.0;
+
+					}
+					else if (i==1)
+					{
+						v[0][0]=0.0;	v[0][1]=N0[a]; 
+						v[1][0]=0.0;	v[1][1]=0.0;
+					}
+					else if (i==2)
+					{
+						v[0][0]=0.0;	v[0][1]=0.0; 
+						v[1][0]=N0[a];	v[1][1]=0.0;
+					}
+					else if (i==3)
+					{
+						v[0][0]=0.0;	v[0][1]=0.0; 
+						v[1][0]=0.0;	v[1][1]=N0[a];
+					}
+					
+					FCS[a][i]=0.0;
+
+					for (j=0;j<3;j++)
+					{
+						for (k=0;k<3;k++)
+						{
+							FCS[a][i]+=(fulld_z[j][k]+fullChi[j][k])*v[j][k];			
+						}
+					}
+				}
+			}
+		}
+		return 0;
+	}
+//
+
+//System for general L2 projection
+	//Build up until it takes all fields, so they can be easily combined in this function.
+	#undef  __FUNCT__
+	#define __FUNCT__ "proj"
+	PetscErrorCode proj(IGAPoint p,IGAPoint pAl,IGAPoint pS, IGAPoint pVa,PetscReal *K,PetscReal *F,PetscReal *UAl,PetscReal *US,PetscReal *UVa,void *ctx)		//When other fields like Pi or S (etc.) come into this, declare a IGAPoint pPi or pS and a new PetscReal *UPi or *US for each
+	{
+		//This functions generates the L2 projection matrix and the RHS
+		const PetscReal *N0;
+		IGAPointGetShapeFuns(p,0,(const PetscReal**)&N0);									//Value of the shape functions
+		PetscInt a,b,i,j,k,l,m,nen=p->nen, dof=p->dof;
+
+		//Create and inflate alpha
+		PetscReal alfa[2];																//Container for values of alpha
+		IGAPointFormValue(pAl,UAl,&alfa[0]);											//Fills the values of the alphas
+		PetscReal fullAlfa[3][3]={0};
+		fullAlfa[0][2]=alfa[0]; fullAlfa[1][2]=alfa[1];										//Expand Alfa to full 2nd order form, only non-zero elements
+
+		//Create and inflate S
+		PetscReal S[8];																		//Create array to receive S
+		IGAPointFormValue(pS,US,&S[0]);														//This fills the values of S (remember that S has 8 non zero components in 2D)
+		PetscReal fullS[3][3][3]={0};
+		fullS[0][0][0]=S[0]; fullS[0][0][1]=S[1];											//Expand S to full 3rd order form, only non-zero elements
+		fullS[0][1][0]=S[2]; fullS[0][1][1]=S[3];
+		fullS[1][0][0]=S[4]; fullS[1][0][1]=S[5];
+		fullS[1][1][0]=S[6]; fullS[1][1][1]=S[7];
+
+		//Creation and inflation of Va
+		PetscReal Va[2];															//Seems that if I create this one with size 3, next line gives problems
+		IGAPointFormValue(pVa,UVa,&Va[0]);													//This fills the values
+		PetscReal fullVa[3]={0};	
+		fullVa[0]=Va[0]; fullVa[1]=Va[1];
+
+		PetscReal fullVs[3]={0};	
+		fullVs[0]=0.0; fullVs[1]=-1.0;
+
+		const PetscReal e[3][3][3]=
+		{
+			{{0.0,0.0,0.0},{0.0,0.0,1.0},{0.0,-1.0,0.0}},
+			{{0.0,0.0,-1.0},{0.0,0.0,0.0},{1.0,0.0,0.0}},
+			{{0.0,1.0,0.0},{-1.0,0.0,0.0},{0.0,0.0,0.0}}
+		};
+
+		for (j=0;j<3;j++)
+		{
+			for (k=0;k<3;k++)
+			{
+				for (l=0;l<3;l++)
+				{
+					for (m=0;m<3;m++)
+					{
+						fullAlfa[j][k]=fullAlfa[j][k]-fullS[j][l][m]*e[k][l][m];
+					}
+				}
+			}
+		}
+
+		PetscReal (*KCS)[dof][nen][dof] = (typeof(KCS)) K;
+		PetscReal (*FCS)[dof] = (PetscReal (*)[dof])F;
+
+		PetscReal v[3][3]={0};
+
+		if (p->atboundary)
+		{
+			return 0;
+		}
+		else
+		{
+			for (a=0; a<nen; a++)
+			{
+				for (b=0; b<nen; b++)
+				{
+					for (i=0; i<dof; i++)
+					{
+						KCS[a][i][b][i]=N0[a]*N0[b];
+					}
+				}
+			}
+
+			for(a=0 ;a<nen; a++)
+			{
+				for (i=0; i<dof; i++)
+				{
+					if (i==0)
+					{
+						v[0][0]=N0[a];	v[0][1]=0.0;
+						v[1][0]=0.0;	v[1][1]=0.0;
+					}
+					else if (i==1)
+					{
+						v[0][0]=0.0;	v[0][1]=N0[a];
+						v[1][0]=0.0;	v[1][1]=0.0;
+					}
+					else if (i==2)
+					{
+						v[0][0]=0.0;	v[0][1]=0.0;
+						v[1][0]=N0[a];	v[1][1]=0.0;
+					}
+					else if (i==3)
+					{
+						v[0][0]=0.0;	v[0][1]=0.0;
+						v[1][0]=0.0;	v[1][1]=N0[a];
+					}
+					
+					FCS[a][i]=0.0;
+					for (j=0;j<3;j++)
+					{
+						for (k=0;k<3;k++)
+						{
+							for (l=0;l<3;l++)
+							{
+								for (m=0;m<3;m++)
+								{
+									FCS[a][i]+=(e[k][l][m]*fullAlfa[j][l]*fullVa[m])*v[j][k];
+								}
+							}
+						}
+					}
+					for (j=0;j<3;j++)
+					{
+						for (k=0;k<3;k++)
+						{
+							for (l=0;l<3;l++)
+							{
+								FCS[a][i]+=(fullS[j][k][l]*fullVs[l])*v[j][k];
+							}
+						}
+					}
+				}
+			}
+		}
+		return 0;
+	}
+//
+
 #undef __FUNCT__
 #define __FUNCT__ "main"
 int main(int argc, char *argv[]) {
@@ -2730,13 +3020,14 @@ int main(int argc, char *argv[]) {
 
 //App context creation and some data
 	//Mesh parameters (to fix specific points in z0 system)
-	PetscInt b=200;				//Parameter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
-	PetscReal Lx=20.0;
-	PetscReal Ly=20.0;
+	PetscInt b=300;				//Parameter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
+	PetscReal Lx=10.0;
+	PetscReal Ly=10.0;
 	PetscInt  nx=b;
 	PetscInt  ny=b;
 	
-	PetscReal alpha=0.9*(1.0/16.0);
+	//alpha has to be at MOST 0.99 for things to work, the smaller it is, the better accuracy
+	PetscReal alpha=0.9*(1.0/8.0);
 	PetscReal dt=alpha*0.5*fmin(Lx/nx,Ly/ny);
 
 	AppCtx user;
@@ -2927,9 +3218,9 @@ int main(int argc, char *argv[]) {
 			//Quadrature loop
 			ierr = IGAElementBeginPoint(elemchiS,&pointchiS);CHKERRQ(ierr);
 			ierr = IGAElementBeginPoint(elemS,&pointS);CHKERRQ(ierr);
-			if(pointchiS->atboundary==0 && pointS->atboundary==0)
+			while (IGAElementNextPoint(elemchiS,pointchiS)) 
 			{
-				while (IGAElementNextPoint(elemchiS,pointchiS)) 
+				if(pointchiS->atboundary==0 && pointS->atboundary==0)
 				{
 					IGAElementNextPoint(elemS,pointS);
 					ierr = IGAPointGetWorkMat(pointchiS,&KpointchiS);CHKERRQ(ierr);
@@ -2938,13 +3229,13 @@ int main(int argc, char *argv[]) {
 					ierr = IGAPointAddMat(pointchiS,KpointchiS,KlocchiS);CHKERRQ(ierr);
 					ierr = IGAPointAddVec(pointchiS,FpointchiS,FlocchiS);CHKERRQ(ierr);
 				}
-				while (pointS->index != -1)
-				{
-					IGAElementNextPoint(elemS,pointS);
-				}
-				ierr = IGAElementEndPoint(elemchiS,&pointchiS);CHKERRQ(ierr);
-				ierr = IGAElementEndPoint(elemS,&pointS);CHKERRQ(ierr);
 			}
+			while (pointS->index != -1)
+			{
+				IGAElementNextPoint(elemS,pointS);
+			}
+			ierr = IGAElementEndPoint(elemchiS,&pointchiS);CHKERRQ(ierr);
+			ierr = IGAElementEndPoint(elemS,&pointS);CHKERRQ(ierr);
 		}
 		ierr = IGAElementFixSystem(elemchiS,KlocchiS,FlocchiS);CHKERRQ(ierr);
 		ierr = IGAElementAssembleMat(elemchiS,KlocchiS,KchiS);CHKERRQ(ierr);
@@ -3189,7 +3480,7 @@ int main(int argc, char *argv[]) {
 		for (side=0; side<2; side++) 
 		{
 			//ierr = IGASetBoundaryValue(iga,dir,side,dof,0.0);CHKERRQ(ierr);    				// Dirichlet boundary conditions
-			ierr = IGASetBoundaryForm(igaAl,dir,side,PETSC_TRUE);CHKERRQ(ierr);  				// Neumann boundary conditions
+			//ierr = IGASetBoundaryForm(igaAl,dir,side,PETSC_TRUE);CHKERRQ(ierr);  				// Neumann boundary conditions
 		}
 	}
 	
@@ -3234,21 +3525,24 @@ int main(int argc, char *argv[]) {
 			//Quadrature loop
 			ierr = IGAElementBeginPoint(elemAlp,&pointAlp);CHKERRQ(ierr);
 			ierr = IGAElementBeginPoint(elemSp,&pointSp);CHKERRQ(ierr);
-			if(pointAlp->atboundary==0 && pointSp->atboundary==0)
+			
+			while (IGAElementNextPoint(elemAlp,pointAlp)) 
 			{
-				while (IGAElementNextPoint(elemAlp,pointAlp)) 
+				if(pointAlp->atboundary==0 && pointSp->atboundary==0)
 				{
 					IGAElementNextPoint(elemSp,pointSp);
+
 					ierr = IGAPointGetWorkMat(pointAlp,&KpointAlp);CHKERRQ(ierr);
 					ierr = IGAPointGetWorkVec(pointAlp,&FpointAlp);CHKERRQ(ierr);
 					ierr = L2ProjectionAlSp(pointAlp,pointSp,KpointAlp,FpointAlp,S0Alp,&user);CHKERRQ(ierr);
 					ierr = IGAPointAddMat(pointAlp,KpointAlp,KlocAlp);CHKERRQ(ierr);
 					ierr = IGAPointAddVec(pointAlp,FpointAlp,FlocAlp);CHKERRQ(ierr);
 				}
-				IGAElementNextPoint(elemSp,pointSp);
-				ierr = IGAElementEndPoint(elemAlp,&pointAlp);CHKERRQ(ierr);
-				ierr = IGAElementEndPoint(elemSp,&pointSp);CHKERRQ(ierr);
 			}
+			IGAElementNextPoint(elemSp,pointSp);
+
+			ierr = IGAElementEndPoint(elemAlp,&pointAlp);CHKERRQ(ierr);
+			ierr = IGAElementEndPoint(elemSp,&pointSp);CHKERRQ(ierr);
 		}
 		//ierr = IGAElementFixSystem(elemAlp,KlocAlp,FlocAlp);CHKERRQ(ierr);					//This sets Dirichlet condition ¿?
 		ierr = IGAElementAssembleMat(elemAlp,KlocAlp,KAlp);CHKERRQ(ierr);
@@ -3369,9 +3663,9 @@ int main(int argc, char *argv[]) {
 			ierr = IGAElementBeginPoint(elemchiUp,&pointchiUp);CHKERRQ(ierr);
 			ierr = IGAElementBeginPoint(elemAlp,&pointAlp);CHKERRQ(ierr);
 
-			if(pointchiUp->atboundary==0 && pointAlp->atboundary==0)
+			while (IGAElementNextPoint(elemchiUp,pointchiUp)) 
 			{
-				while (IGAElementNextPoint(elemchiUp,pointchiUp)) 
+				if(pointchiUp->atboundary==0 && pointAlp->atboundary==0)
 				{
 					IGAElementNextPoint(elemAlp,pointAlp);
 					ierr = IGAPointGetWorkMat(pointchiUp,&KpointchiUp);CHKERRQ(ierr);
@@ -3380,11 +3674,11 @@ int main(int argc, char *argv[]) {
 					ierr = IGAPointAddMat(pointchiUp,KpointchiUp,KlocchiUp);CHKERRQ(ierr);
 					ierr = IGAPointAddVec(pointchiUp,FpointchiUp,FlocchiUp);CHKERRQ(ierr);
 				}
-				IGAElementNextPoint(elemAlp,pointAlp);
-
-				ierr = IGAElementEndPoint(elemchiUp,&pointchiUp);CHKERRQ(ierr);
-				ierr = IGAElementEndPoint(elemAlp,&pointAlp);CHKERRQ(ierr);
 			}
+			IGAElementNextPoint(elemAlp,pointAlp);
+
+			ierr = IGAElementEndPoint(elemchiUp,&pointchiUp);CHKERRQ(ierr);
+			ierr = IGAElementEndPoint(elemAlp,&pointAlp);CHKERRQ(ierr);
 		}
 		ierr = IGAElementFixSystem(elemchiUp,KlocchiUp,FlocchiUp);CHKERRQ(ierr);
 		ierr = IGAElementAssembleMat(elemchiUp,KlocchiUp,KchiUp);CHKERRQ(ierr);
@@ -3535,7 +3829,6 @@ int main(int argc, char *argv[]) {
 					ierr = IGAPointAddMat(pointZ0,KpointZ0,KlocZ0);CHKERRQ(ierr);
 					ierr = IGAPointAddVec(pointZ0,FpointZ0,FlocZ0);CHKERRQ(ierr);
 				}
-
 				if(pointZ0->atboundary==0 && pointchiUp->atboundary==0)
 				{
 					IGAElementNextPoint(elemchiUp,pointchiUp);
@@ -3548,12 +3841,11 @@ int main(int argc, char *argv[]) {
 					ierr = IGAPointAddVec(pointZ0,FpointZ0,FlocZ0);CHKERRQ(ierr);
 				}
 			}
+			ierr = IGAElementEndPoint(elemZ0,&pointZ0);CHKERRQ(ierr);
 			while (pointchiUp->index != -1)
 			{
 				IGAElementNextPoint(elemchiUp,pointchiUp);
 			}
-
-			ierr = IGAElementEndPoint(elemZ0,&pointZ0);CHKERRQ(ierr);
 			ierr = IGAElementEndPoint(elemchiUp,&pointchiUp);CHKERRQ(ierr);
 		}
 
@@ -3763,10 +4055,8 @@ int main(int argc, char *argv[]) {
 			{
 				if(pointVs->atboundary==1)
 				{
-					//IGAElementNextPoint(elemZ0,pointZ0);
-					//IGAElementNextPoint(elemchiUp,pointchiUp);
-				}
 
+				}
 				if(pointVs->atboundary==0 && pointZ0->atboundary==0 && pointchiUp->atboundary==0 && pointS->atboundary==0)
 				{
 					IGAElementNextPoint(elemZ0,pointZ0);
@@ -3895,7 +4185,6 @@ int main(int argc, char *argv[]) {
 				{
 
 				}
-
 				if(pointVs->atboundary==0 && pointS->atboundary==0)
 				{
 					IGAElementNextPoint(elemS,pointS);
@@ -3987,7 +4276,6 @@ int main(int argc, char *argv[]) {
 				{
 
 				}
-
 				if(pointVs->atboundary==0 && pointS->atboundary==0)
 				{
 					IGAElementNextPoint(elemS,pointS);
@@ -4122,10 +4410,8 @@ int main(int argc, char *argv[]) {
 			{
 				if(pointVa->atboundary==1)
 				{
-					//IGAElementNextPoint(elemZ0,pointZ0);
-					//IGAElementNextPoint(elemchiUp,pointchiUp);
-				}
 
+				}
 				if(pointVa->atboundary==0 && pointZ0->atboundary==0 && pointchiUp->atboundary==0 && pointAlp->atboundary==0 && pointS->atboundary==0)
 				{
 					IGAElementNextPoint(elemZ0,pointZ0);
@@ -4318,7 +4604,6 @@ int main(int argc, char *argv[]) {
 				{
 					//Code boundary condition, will be required for general case
 				}
-
 				if(pointSdot->atboundary==0 && pointVs->atboundary==0 && pointS->atboundary==0)
 				{
 					IGAElementNextPoint(elemVs,pointVs);
@@ -4378,9 +4663,6 @@ int main(int argc, char *argv[]) {
 	//ierr = KSPDestroy(&kspSdot);CHKERRQ(ierr);
 	//ierr = MatDestroy(&KSdot);CHKERRQ(ierr);
 	//ierr = VecDestroy(&FSdot);CHKERRQ(ierr);
-
-	//VecChop(Vec v, PetscReal tol) Sets anything with an absolute value less than the tolerance to 0
-	ierr = VecChop(Sdot,1e-8);CHKERRQ(ierr);
 
 	//Kill everything in S[0],S[2],S[4].S[6], just because I haven't been able to stop it from coming out from the solution
 		//PetscInt n;
@@ -4479,9 +4761,9 @@ int main(int argc, char *argv[]) {
 			ierr = IGAElementBeginPoint(elemGradz,&pointGradz);CHKERRQ(ierr);
 			ierr = IGAElementBeginPoint(elemZ0,&pointZ0);CHKERRQ(ierr);
 
-			if(pointGradz->atboundary==0 && pointZ0->atboundary==0)
+			while (IGAElementNextPoint(elemGradz,pointGradz)) 
 			{
-				while (IGAElementNextPoint(elemGradz,pointGradz)) 
+				if(pointGradz->atboundary==0 && pointZ0->atboundary==0)
 				{
 					IGAElementNextPoint(elemZ0,pointZ0);
 					ierr = IGAPointGetWorkMat(pointGradz,&KpointGradz);CHKERRQ(ierr);
@@ -4490,11 +4772,15 @@ int main(int argc, char *argv[]) {
 					ierr = IGAPointAddMat(pointGradz,KpointGradz,KlocGradz);CHKERRQ(ierr);
 					ierr = IGAPointAddVec(pointGradz,FpointGradz,FlocGradz);CHKERRQ(ierr);
 				}
-				IGAElementNextPoint(elemZ0,pointZ0);
-
-				ierr = IGAElementEndPoint(elemGradz,&pointGradz);CHKERRQ(ierr);
-				ierr = IGAElementEndPoint(elemZ0,&pointZ0);CHKERRQ(ierr);
 			}
+			IGAElementNextPoint(elemZ0,pointZ0);
+
+			ierr = IGAElementEndPoint(elemGradz,&pointGradz);CHKERRQ(ierr);
+			while (pointZ0->index != -1)
+			{
+				IGAElementNextPoint(elemZ0,pointZ0);
+			}
+			ierr = IGAElementEndPoint(elemZ0,&pointZ0);CHKERRQ(ierr);
 		}
 		ierr = IGAElementAssembleMat(elemGradz,KlocGradz,KGradz0);CHKERRQ(ierr);
 		ierr = IGAElementAssembleVec(elemGradz,FlocGradz,FGradz0);CHKERRQ(ierr);
@@ -4517,7 +4803,7 @@ int main(int argc, char *argv[]) {
 
 	ierr = KSPSetOperators(kspGradz,KGradz0,KGradz0);CHKERRQ(ierr);
 	ierr = KSPSetFromOptions(kspGradz);CHKERRQ(ierr);
-	ierr = KSPSetTolerances(kspGradz,1.0e-8,1.0e-20,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	ierr = KSPSetTolerances(kspGradz,1.0e-16,1.0e-30,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
 	ierr = KSPSolve(kspGradz,FGradz0,gradZ0);CHKERRQ(ierr);
 
 	char nameGradz0[512];
@@ -4525,6 +4811,272 @@ int main(int argc, char *argv[]) {
 	char pathGradz0[512];
 	sprintf(pathGradz0,"%s%s",direct,nameGradz0);
 	ierr = IGAWriteVec(igaGradz,gradZ0,pathGradz0);CHKERRQ(ierr);
+//
+
+//System for L2 projection of Up
+	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for U^p starting \n\n");
+	T=time(NULL);
+	tm=*localtime(&T);
+	PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.tm_min,tm.tm_sec);
+	IGA igaUp;
+	ierr = IGACreate(PETSC_COMM_WORLD,&igaUp);CHKERRQ(ierr);
+	ierr = IGASetDim(igaUp,2);CHKERRQ(ierr);														//Spatial dimension of the problem
+	ierr = IGASetDof(igaUp,4);CHKERRQ(ierr);														//Number of degrees of freedom, per node
+	ierr = IGASetOrder(igaUp,1);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
+	ierr = IGASetFromOptions(igaUp);CHKERRQ(ierr);												//Note: The order (or degree) of the shape functions is given by the mesh!
+	ierr = IGARead(igaUp,"./geometry.dat");CHKERRQ(ierr);
+	
+	for (dir=0; dir<2; dir++)
+	{
+		ierr = IGASetRuleType(igaUp,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
+		ierr = IGASetRuleSize(igaUp,dir,6);CHKERRQ(ierr);
+	}
+	ierr = IGASetUp(igaUp);CHKERRQ(ierr);
+	
+	Mat KUp0;
+	Vec Up0,FUp0;
+	ierr = IGACreateMat(igaUp,&KUp0);CHKERRQ(ierr);
+	ierr = IGACreateVec(igaUp,&Up0);CHKERRQ(ierr);
+	ierr = IGACreateVec(igaUp,&FUp0);CHKERRQ(ierr);
+
+	IGAPoint		pointUp;
+	IGAElement		elemUp;							//element
+	PetscReal		*KlocUp,*FlocUp;				//AA y BB
+	PetscReal		*KpointUp,*FpointUp;			//KKK y FFF
+	const PetscReal *arrayZ0Up,*arrayChiUp;			//arrayU
+	Vec				localZ0Up,localChiUp;		//localU
+	PetscReal		*Z0Up,*ChiUp;				//U
+
+  	IGAFormSystem  wtfUp;
+ 	void           *wtf2Up;
+
+ 	KSP kspUp;
+	ierr = IGACreateKSP(igaUp,&kspUp);CHKERRQ(ierr);
+
+	//Get local vectors z0 and arrays
+	ierr = IGAGetLocalVecArray(igaZ0,Z0,&localZ0Up,&arrayZ0Up);CHKERRQ(ierr);
+	ierr = IGAGetLocalVecArray(igachiUp,chiUp0,&localChiUp,&arrayChiUp);CHKERRQ(ierr);
+
+	//Element loop
+	ierr = IGABeginElement(igaUp,&elemUp);CHKERRQ(ierr);
+	ierr = IGABeginElement(igaZ0,&elemZ0);CHKERRQ(ierr);
+	ierr = IGABeginElement(igachiUp,&elemchiUp);CHKERRQ(ierr);
+
+	while (IGANextElement(igaUp,elemUp))
+	{
+		IGANextElement(igaZ0,elemZ0);
+		IGANextElement(igachiUp,elemchiUp);
+
+		ierr = IGAElementGetWorkMat(elemUp,&KlocUp);CHKERRQ(ierr);
+		ierr = IGAElementGetWorkVec(elemUp,&FlocUp);CHKERRQ(ierr);
+		ierr = IGAElementGetValues(elemZ0,arrayZ0Up,&Z0Up);CHKERRQ(ierr);
+		ierr = IGAElementGetValues(elemUp,arrayChiUp,&ChiUp);CHKERRQ(ierr);
+
+		//FormSystem loop
+		while (IGAElementNextFormSystem(elemUp,&wtfUp,&wtf2Up)) 
+		{
+			//Quadrature loop
+			ierr = IGAElementBeginPoint(elemUp,&pointUp);CHKERRQ(ierr);
+			ierr = IGAElementBeginPoint(elemZ0,&pointZ0);CHKERRQ(ierr);
+			ierr = IGAElementBeginPoint(elemchiUp,&pointchiUp);CHKERRQ(ierr);
+
+			while (IGAElementNextPoint(elemUp,pointUp)) 
+			{
+				if(pointUp->atboundary==0 && pointZ0->atboundary==0 && pointchiUp==0)
+				{
+					IGAElementNextPoint(elemZ0,pointZ0);
+					IGAElementNextPoint(elemchiUp,pointchiUp);
+
+					ierr = IGAPointGetWorkMat(pointUp,&KpointUp);CHKERRQ(ierr);
+					ierr = IGAPointGetWorkVec(pointUp,&FpointUp);CHKERRQ(ierr);
+					ierr = SysUp(pointUp,pointZ0,pointchiUp,KpointUp,FpointUp,Z0Up,ChiUp,NULL);CHKERRQ(ierr);
+					ierr = IGAPointAddMat(pointUp,KpointUp,KlocUp);CHKERRQ(ierr);
+					ierr = IGAPointAddVec(pointUp,FpointUp,FlocUp);CHKERRQ(ierr);
+				}
+			}
+			IGAElementNextPoint(elemZ0,pointZ0);
+			IGAElementNextPoint(elemchiUp,pointchiUp);
+		
+			ierr = IGAElementEndPoint(elemUp,&pointUp);CHKERRQ(ierr);
+			while (pointZ0->index != -1)
+			{
+				IGAElementNextPoint(elemZ0,pointZ0);
+			}
+			ierr = IGAElementEndPoint(elemZ0,&pointZ0);CHKERRQ(ierr);
+			while (pointchiUp->index != -1)
+			{
+				IGAElementNextPoint(elemchiUp,pointchiUp);
+			}
+			ierr = IGAElementEndPoint(elemchiUp,&pointchiUp);CHKERRQ(ierr);
+		}
+		ierr = IGAElementAssembleMat(elemUp,KlocUp,KUp0);CHKERRQ(ierr);
+		ierr = IGAElementAssembleVec(elemUp,FlocUp,FUp0);CHKERRQ(ierr);
+
+	}
+	IGANextElement(igaZ0,elemZ0);
+	IGANextElement(igachiUp,elemchiUp);
+
+	ierr = IGAEndElement(igaUp,&elemUp);CHKERRQ(ierr);
+	ierr = IGAEndElement(igaZ0,&elemZ0);CHKERRQ(ierr);
+	ierr = IGAEndElement(igachiUp,&elemchiUp);CHKERRQ(ierr);
+
+	// Restore local vectors and arrays
+	ierr = IGARestoreLocalVecArray(igaZ0,Z0,&localZ0Up,&arrayZ0Up);CHKERRQ(ierr);
+	ierr = IGARestoreLocalVecArray(igachiUp,chiUp0,&localChiUp,&arrayChiUp);CHKERRQ(ierr);
+
+	//Form system matrix and vector
+	ierr = MatAssemblyBegin(KUp0,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
+	ierr = MatAssemblyEnd  (KUp0,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
+	
+	ierr = VecAssemblyBegin(FUp0);CHKERRQ(ierr);
+	ierr = VecAssemblyEnd  (FUp0);CHKERRQ(ierr);
+
+	ierr = KSPSetOperators(kspUp,KUp0,KUp0);CHKERRQ(ierr);
+	ierr = KSPSetFromOptions(kspUp);CHKERRQ(ierr);
+	ierr = KSPSetTolerances(kspUp,1.0e-16,1.0e-30,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	ierr = KSPSolve(kspUp,FUp0,Up0);CHKERRQ(ierr);
+
+	char nameUp0[512];
+	sprintf(nameUp0,"%s%d%s","/Up-2d-",i,".dat");
+	char pathUp0[512];
+	sprintf(pathUp0,"%s%s",direct,nameUp0);
+	ierr = IGAWriteVec(igaUp,Up0,pathUp0);CHKERRQ(ierr);
+//
+
+//System for general L2 projection (debug, but not really important, just for looking at fields)
+	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for general L2 projection starting \n\n");
+	PetscPrintf(PETSC_COMM_WORLD,"\nCurrently projecting alpha X V^a + SV^s \n\n");
+	T=time(NULL);
+	tm=*localtime(&T);
+	PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.tm_min,tm.tm_sec);
+	IGA igaProj;
+	ierr = IGACreate(PETSC_COMM_WORLD,&igaProj);CHKERRQ(ierr);
+	ierr = IGASetDim(igaProj,2);CHKERRQ(ierr);														//Spatial dimension of the problem
+	ierr = IGASetDof(igaProj,4);CHKERRQ(ierr);														//Number of degrees of freedom, per node
+	ierr = IGASetOrder(igaProj,1);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
+	ierr = IGASetFromOptions(igaProj);CHKERRQ(ierr);												//Note: The order (or degree) of the shape functions is given by the mesh!
+	ierr = IGARead(igaProj,"./geometry.dat");CHKERRQ(ierr);
+	
+	for (dir=0; dir<2; dir++)
+	{
+		ierr = IGASetRuleType(igaProj,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
+		ierr = IGASetRuleSize(igaProj,dir,6);CHKERRQ(ierr);
+	}
+	ierr = IGASetUp(igaProj);CHKERRQ(ierr);
+	
+	Mat KProj;
+	Vec proj0,FProj;
+	ierr = IGACreateMat(igaProj,&KProj);CHKERRQ(ierr);
+	ierr = IGACreateVec(igaProj,&proj0);CHKERRQ(ierr);
+	ierr = IGACreateVec(igaProj,&FProj);CHKERRQ(ierr);
+
+	IGAPoint		pointProj;
+	IGAElement		elemProj;											//element
+	PetscReal		*KlocProj,*FlocProj;								//AA y BB
+	PetscReal		*KpointProj,*FpointProj;							//KKK y FFF
+	const PetscReal *arrayAlProj,*arraySProj,*arrayVaProj;				//arrayU
+	Vec				localAlProj,localSProj,localVaProj;					//localU
+	PetscReal		*AlProj,*SProj,*VaProj;								//U
+
+  	IGAFormSystem  wtfProj;
+ 	void           *wtf2Proj;
+
+ 	KSP kspProj;
+	ierr = IGACreateKSP(igaProj,&kspProj);CHKERRQ(ierr);
+
+	//Get local vectors and arrays
+	ierr = IGAGetLocalVecArray(igaAl,alp0,&localAlProj,&arrayAlProj);CHKERRQ(ierr);
+	ierr = IGAGetLocalVecArray(igaS,s0,&localSProj,&arraySProj);CHKERRQ(ierr);
+	ierr = IGAGetLocalVecArray(igaVa,Va0,&localVaProj,&arrayVaProj);CHKERRQ(ierr);
+
+	//Element loop
+	ierr = IGABeginElement(igaProj,&elemProj);CHKERRQ(ierr);
+	ierr = IGABeginElement(igaAl,&elemAlp);CHKERRQ(ierr);
+	ierr = IGABeginElement(igaS,&elemS);CHKERRQ(ierr);
+	ierr = IGABeginElement(igaVa,&elemVa);CHKERRQ(ierr);
+
+	while (IGANextElement(igaProj,elemProj))
+	{
+		IGANextElement(igaAl,elemAlp);
+		IGANextElement(igaS,elemS);
+		IGANextElement(igaVa,elemVa);
+
+
+		ierr = IGAElementGetWorkMat(elemProj,&KlocProj);CHKERRQ(ierr);
+		ierr = IGAElementGetWorkVec(elemProj,&FlocProj);CHKERRQ(ierr);
+		ierr = IGAElementGetValues(elemAlp,arrayAlProj,&AlProj);CHKERRQ(ierr);
+		ierr = IGAElementGetValues(elemS,arraySProj,&SProj);CHKERRQ(ierr);
+		ierr = IGAElementGetValues(elemVa,arrayVaProj,&VaProj);CHKERRQ(ierr);
+
+		//FormSystem loop
+		while (IGAElementNextFormSystem(elemProj,&wtfProj,&wtf2Proj)) 
+		{
+			//Quadrature loop
+			ierr = IGAElementBeginPoint(elemProj,&pointProj);CHKERRQ(ierr);
+			ierr = IGAElementBeginPoint(elemAlp,&pointAlp);CHKERRQ(ierr);
+			ierr = IGAElementBeginPoint(elemS,&pointS);CHKERRQ(ierr);
+			ierr = IGAElementBeginPoint(elemVa,&pointVa);CHKERRQ(ierr);
+
+			while (IGAElementNextPoint(elemProj,pointProj)) 
+			{
+				if(pointProj->atboundary==0 && pointAlp->atboundary==0 && pointS->atboundary==0 && pointVa->atboundary==0)
+				{
+					IGAElementNextPoint(elemAlp,pointAlp);
+					IGAElementNextPoint(elemS,pointS);
+					IGAElementNextPoint(elemVa,pointVa);
+
+					ierr = IGAPointGetWorkMat(pointProj,&KpointProj);CHKERRQ(ierr);
+					ierr = IGAPointGetWorkVec(pointProj,&FpointProj);CHKERRQ(ierr);
+					//proj(IGAPoint p,IGAPoint pAl,IGAPoint pS, IGAPoint pVa,PetscReal *K,PetscReal *F,PetscReal *UAl,PetscReal *US,PetscReal *UVa,void *ctx)
+					ierr = proj(pointProj,pointAlp,pointS,pointVa,KpointProj,FpointProj,AlProj,SProj,VaProj,NULL);CHKERRQ(ierr);
+					ierr = IGAPointAddMat(pointProj,KpointProj,KlocProj);CHKERRQ(ierr);
+					ierr = IGAPointAddVec(pointProj,FpointProj,FlocProj);CHKERRQ(ierr);
+				}
+			}
+			IGAElementNextPoint(elemAlp,pointAlp);
+			IGAElementNextPoint(elemS,pointS);
+			IGAElementNextPoint(elemVa,pointVa);
+
+			ierr = IGAElementEndPoint(elemProj,&pointProj);CHKERRQ(ierr);
+			ierr = IGAElementEndPoint(elemAlp,&pointAlp);CHKERRQ(ierr);
+			ierr = IGAElementEndPoint(elemS,&pointS);CHKERRQ(ierr);
+			ierr = IGAElementEndPoint(elemVa,&pointVa);CHKERRQ(ierr);
+		}
+		ierr = IGAElementAssembleMat(elemProj,KlocProj,KProj);CHKERRQ(ierr);
+		ierr = IGAElementAssembleVec(elemProj,FlocProj,FProj);CHKERRQ(ierr);
+
+	}
+	IGANextElement(igaAl,elemAlp);
+	IGANextElement(igaS,elemS);
+	IGANextElement(igaVa,elemVa);
+
+	ierr = IGAEndElement(igaProj,&elemProj);CHKERRQ(ierr);
+	ierr = IGAEndElement(igaAl,&elemAlp);CHKERRQ(ierr);
+	ierr = IGAEndElement(igaS,&elemS);CHKERRQ(ierr);
+	ierr = IGAEndElement(igaVa,&elemVa);CHKERRQ(ierr);
+
+	// Restore local vectors s0 and arrays
+	ierr = IGARestoreLocalVecArray(igaAl,alp0,&localAlProj,&arrayAlProj);CHKERRQ(ierr);
+	ierr = IGARestoreLocalVecArray(igaS,s0,&localSProj,&arraySProj);CHKERRQ(ierr);
+	ierr = IGARestoreLocalVecArray(igaVa,Va0,&localVaProj,&arrayVaProj);CHKERRQ(ierr);
+
+	//Form system matrix and vector
+	ierr = MatAssemblyBegin(KProj,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
+	ierr = MatAssemblyEnd  (KProj,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
+	
+	ierr = VecAssemblyBegin(FProj);CHKERRQ(ierr);
+	ierr = VecAssemblyEnd  (FProj);CHKERRQ(ierr);
+
+	ierr = KSPSetOperators(kspProj,KProj,KProj);CHKERRQ(ierr);
+	ierr = KSPSetFromOptions(kspProj);CHKERRQ(ierr);
+	ierr = KSPSetTolerances(kspProj,1.0e-16,1.0e-30,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	ierr = KSPSolve(kspProj,FProj,proj0);CHKERRQ(ierr);
+
+	char nameProj[512];
+	sprintf(nameProj,"%s%d%s","/Proj-2d-",i,".dat");
+	char pathProj[512];
+	sprintf(pathProj,"%s%s",direct,nameProj);
+	ierr = IGAWriteVec(igaProj,proj0,pathProj);CHKERRQ(ierr);
 //
 
 //All the necessary fields for time t=0 are calculated. Now loop for time update
@@ -4543,7 +5095,7 @@ int main(int argc, char *argv[]) {
 		for (dir=0; dir<2; dir++)
 		{
 			ierr = IGASetRuleType(igaZdot,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
-			ierr = IGASetRuleSize(igaZdot,dir,6);CHKERRQ(ierr);
+			ierr = IGASetRuleSize(igaZdot,dir,8);CHKERRQ(ierr);
 		}
 		ierr = IGASetUp(igaZdot);CHKERRQ(ierr);
 
@@ -4578,6 +5130,7 @@ int main(int argc, char *argv[]) {
 		//PetscReal val, *vals;
 
 		KSP kspZdot;
+		PC pcZdot;
 		ierr = IGACreateKSP(igaZdot,&kspZdot);CHKERRQ(ierr);
 		char nameZdot[512];
 		char pathZdot[512];
@@ -4636,7 +5189,7 @@ int main(int argc, char *argv[]) {
 	//
 //
 
-for (i=1;i<200;i++)
+for (i=1;i<800;i++)
 {
 	ierr = PetscPrintf(PETSC_COMM_WORLD,"\n\n Start of iteration %d \n\n",i);CHKERRQ(ierr);
 //Creation of types and systems for the Initialization of S0
@@ -4653,7 +5206,7 @@ for (i=1;i<200;i++)
 //
 
 //Creation of types and systems for the Helmholtz decomposition of S, curl part for S based input
-	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for curl part of Helmholtz of S starting \n\n");
+	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for curl part of Helmholtz of S starting for iteration %d \n\n",i);
 	T=time(NULL);
 	tm=*localtime(&T);
 	PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.tm_min,tm.tm_sec);
@@ -4681,9 +5234,10 @@ for (i=1;i<200;i++)
 			//Quadrature loop
 			ierr = IGAElementBeginPoint(elemchiS,&pointchiS);CHKERRQ(ierr);
 			ierr = IGAElementBeginPoint(elemS,&pointS);CHKERRQ(ierr);
-			if(pointchiS->atboundary==0 && pointS->atboundary==0)
+			
+			while (IGAElementNextPoint(elemchiS,pointchiS)) 
 			{
-				while (IGAElementNextPoint(elemchiS,pointchiS)) 
+				if(pointchiS->atboundary==0 && pointS->atboundary==0)
 				{
 					IGAElementNextPoint(elemS,pointS);
 
@@ -4691,13 +5245,13 @@ for (i=1;i<200;i++)
 					ierr = curlChiSF(pointchiS,pointS,FpointchiS,S0chiS,NULL);CHKERRQ(ierr);
 					ierr = IGAPointAddVec(pointchiS,FpointchiS,FlocchiS);CHKERRQ(ierr);
 				}
-				while (pointS->index != -1)
-				{
-					IGAElementNextPoint(elemS,pointS);
-				}
-				ierr = IGAElementEndPoint(elemchiS,&pointchiS);CHKERRQ(ierr);
-				ierr = IGAElementEndPoint(elemS,&pointS);CHKERRQ(ierr);
 			}
+			while (pointS->index != -1)
+			{
+				IGAElementNextPoint(elemS,pointS);
+			}
+			ierr = IGAElementEndPoint(elemchiS,&pointchiS);CHKERRQ(ierr);
+			ierr = IGAElementEndPoint(elemS,&pointS);CHKERRQ(ierr);
 		}
 		ierr = IGAElementFixSystem(elemchiS,KlocchiS,FlocchiS);CHKERRQ(ierr);
 		ierr = IGAElementAssembleVec(elemchiS,FlocchiS,FchiS);CHKERRQ(ierr);
@@ -4721,7 +5275,7 @@ for (i=1;i<200;i++)
 //
 
 //Creation of types and systems for the L2 projection of Alfa0-Sp:X
-	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for L2 projection for Alfa+Sp:X starting \n\n");
+	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for L2 projection for Alfa-Sp:X starting for iteration %d \n\n",i);
 	T=time(NULL);
 	tm=*localtime(&T);
 	PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.tm_min,tm.tm_sec);
@@ -4750,9 +5304,9 @@ for (i=1;i<200;i++)
 			//Quadrature loop
 			ierr = IGAElementBeginPoint(elemAlp,&pointAlp);CHKERRQ(ierr);
 			ierr = IGAElementBeginPoint(elemSp,&pointSp);CHKERRQ(ierr);
-			if(pointAlp->atboundary==0 && pointSp->atboundary==0)
+			while (IGAElementNextPoint(elemAlp,pointAlp)) 
 			{
-				while (IGAElementNextPoint(elemAlp,pointAlp)) 
+				if(pointAlp->atboundary==0 && pointSp->atboundary==0)
 				{
 					IGAElementNextPoint(elemSp,pointSp);
 					ierr = IGAPointGetWorkMat(pointAlp,&KpointAlp);CHKERRQ(ierr);
@@ -4761,10 +5315,11 @@ for (i=1;i<200;i++)
 					ierr = IGAPointAddMat(pointAlp,KpointAlp,KlocAlp);CHKERRQ(ierr);
 					ierr = IGAPointAddVec(pointAlp,FpointAlp,FlocAlp);CHKERRQ(ierr);
 				}
-				IGAElementNextPoint(elemSp,pointSp);
-				ierr = IGAElementEndPoint(elemAlp,&pointAlp);CHKERRQ(ierr);
-				ierr = IGAElementEndPoint(elemSp,&pointSp);CHKERRQ(ierr);
 			}
+			IGAElementNextPoint(elemSp,pointSp);
+			
+			ierr = IGAElementEndPoint(elemAlp,&pointAlp);CHKERRQ(ierr);
+			ierr = IGAElementEndPoint(elemSp,&pointSp);CHKERRQ(ierr);
 		}
 		//ierr = IGAElementFixSystem(elemAlp,KlocAlp,FlocAlp);CHKERRQ(ierr);					//This sets Dirichlet condition ¿?
 		ierr = IGAElementAssembleMat(elemAlp,KlocAlp,KAlp);CHKERRQ(ierr);
@@ -4801,7 +5356,7 @@ for (i=1;i<200;i++)
 //
 
 //Creation of types and systems for the Helmholtz decomposition of Up (or Ue), curl part
-	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for curl part of Helmholtz of Up starting \n\n");
+	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for curl part of Helmholtz of Up starting for iteration %d \n\n",i);
 	T=time(NULL);
 	tm=*localtime(&T);
 	PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.tm_min,tm.tm_sec);
@@ -4830,9 +5385,9 @@ for (i=1;i<200;i++)
 			ierr = IGAElementBeginPoint(elemchiUp,&pointchiUp);CHKERRQ(ierr);
 			ierr = IGAElementBeginPoint(elemAlp,&pointAlp);CHKERRQ(ierr);
 
-			if(pointchiUp->atboundary==0 && pointAlp->atboundary==0)
+			while (IGAElementNextPoint(elemchiUp,pointchiUp)) 
 			{
-				while (IGAElementNextPoint(elemchiUp,pointchiUp)) 
+				if(pointchiUp->atboundary==0 && pointAlp->atboundary==0)
 				{
 					IGAElementNextPoint(elemAlp,pointAlp);
 
@@ -4840,11 +5395,11 @@ for (i=1;i<200;i++)
 					ierr = curlChiUF(pointchiUp,pointAlp,FpointchiUp,Al0chiUp,NULL);CHKERRQ(ierr);
 					ierr = IGAPointAddVec(pointchiUp,FpointchiUp,FlocchiUp);CHKERRQ(ierr);
 				}
-				IGAElementNextPoint(elemAlp,pointAlp);
-
-				ierr = IGAElementEndPoint(elemchiUp,&pointchiUp);CHKERRQ(ierr);
-				ierr = IGAElementEndPoint(elemAlp,&pointAlp);CHKERRQ(ierr);
 			}
+			IGAElementNextPoint(elemAlp,pointAlp);
+
+			ierr = IGAElementEndPoint(elemchiUp,&pointchiUp);CHKERRQ(ierr);
+			ierr = IGAElementEndPoint(elemAlp,&pointAlp);CHKERRQ(ierr);
 		}
 		ierr = IGAElementFixSystem(elemchiUp,KlocchiUp,FlocchiUp);CHKERRQ(ierr);
 		ierr = IGAElementAssembleVec(elemchiUp,FlocchiUp,FchiUp);CHKERRQ(ierr);
@@ -4868,7 +5423,7 @@ for (i=1;i<200;i++)
 //
 
 //System for evolution of z0 (debug)
-	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for dot{z} starting \n\n");
+	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for dot{z} starting for iteration %d \n\n",i);
 	T=time(NULL);
 	tm=*localtime(&T);
 	PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.tm_min,tm.tm_sec);
@@ -4914,15 +5469,8 @@ for (i=1;i<200;i++)
 			{
 				if(pointZdot->atboundary==1)
 				{
-					//IGAElementNextPoint(elemZ0,pointZ0);
-					//IGAElementNextPoint(elemchiUp,pointchiUp);
-				}
 
-				if(pointS->atboundary==1)
-				{
-					ierr=PetscPrintf(PETSC_COMM_SELF,"Hola, S en borde \n");CHKERRQ(ierr);
 				}
-
 				if(pointZdot->atboundary==0 && pointAlp->atboundary==0 && pointVa->atboundary==0 && pointS->atboundary==0)
 				{
 					IGAElementNextPoint(elemAlp,pointAlp);
@@ -4931,7 +5479,7 @@ for (i=1;i<200;i++)
 
 					ierr = IGAPointGetWorkMat(pointZdot,&KpointZdot);CHKERRQ(ierr);
 					ierr = IGAPointGetWorkVec(pointZdot,&FpointZdot);CHKERRQ(ierr);
-					//ZdotSystem(IGAPoint p, IGAPoint pAl, IGAPoint pVa, IGAPoint pS, PetscReal *K, PetscReal *F, PetscReal *UAl, PetscReal *UVa, PetscReal *US, void *ctx)
+					//     ZdotSystem(IGAPoint p,IGAPoint pAl,IGAPoint pVa,IGAPoint pS,PetscReal *K,PetscReal *F,PetscReal *UAl,PetscReal *UVa,PetscReal *US, void *ctx)
 					ierr = ZdotSystem(pointZdot,pointAlp,pointVa,pointS,KpointZdot,FpointZdot,AlZdot,VaZdot,SZdot,NULL);CHKERRQ(ierr);
 					ierr = IGAPointAddMat(pointZdot,KpointZdot,KlocZdot);CHKERRQ(ierr);
 					ierr = IGAPointAddVec(pointZdot,FpointZdot,FlocZdot);CHKERRQ(ierr);
@@ -4955,7 +5503,6 @@ for (i=1;i<200;i++)
 			ierr = IGAElementEndPoint(elemS,&pointS);CHKERRQ(ierr);
 			ierr = IGAElementEndPoint(elemZdot,&pointZdot);CHKERRQ(ierr);
 		}
-		//ierr = IGAElementFixSystem(elemStress,KlocStress,FlocStress);CHKERRQ(ierr);					//This sets Dirichlet condition ¿? (Yes, this applies the conditions from IGASetBoundaryValue)
 		ierr = IGAElementAssembleMat(elemZdot,KlocZdot,KZdot);CHKERRQ(ierr);
 		ierr = IGAElementAssembleVec(elemZdot,FlocZdot,FZdot);CHKERRQ(ierr);
 	}
@@ -4982,7 +5529,7 @@ for (i=1;i<200;i++)
 
 	ierr = PetscPrintf(PETSC_COMM_WORLD,"Hola 4 \n");CHKERRQ(ierr);
 
-	//Fix a single point to make solution unique
+	//Fix a single point to make solution unique, in this case, lower left corner.
 		ierr = MatGetSize(KZdot,&n,&m);CHKERRQ(ierr);
 		ierr = MatSetOption(KZdot, MAT_NEW_NONZERO_ALLOCATION_ERR, PETSC_FALSE);CHKERRQ(ierr);
 
@@ -4996,22 +5543,19 @@ for (i=1;i<200;i++)
 		}
 
 		rows=0;
-		vals[rows]=1.0e6;
-		ierr = MatSetValues(KZdot,1,&rows,m,cols,vals,INSERT_VALUES);CHKERRQ(ierr);
-		ierr = MatSetValues(KZdot,n,cols,1,&rows,vals,INSERT_VALUES);CHKERRQ(ierr);
+		vals[rows]=1.0e12;
+		ierr = MatSetValues(KZdot,1,&rows,m,cols,vals,INSERT_VALUES);CHKERRQ(ierr);		//To keep matrix symmetric this zeros a row and sets diagonal value to 1e12
+		ierr = MatSetValues(KZdot,n,cols,1,&rows,vals,INSERT_VALUES);CHKERRQ(ierr);		//then this zeros out the column and sets diagonal to 1e12
 		vals[rows]=0.0;
 
 		rows=1;
-		vals[rows]=1.0e6;
+		vals[rows]=1.0e12;
 		ierr = MatSetValues(KZdot,1,&rows,m,cols,vals,INSERT_VALUES);CHKERRQ(ierr);
 		ierr = MatSetValues(KZdot,n,cols,1,&rows,vals,INSERT_VALUES);CHKERRQ(ierr);
 		vals[rows]=0.0;
 
 		ierr = MatAssemblyBegin(KZdot,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
 		ierr = MatAssemblyEnd  (KZdot,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
-
-		//free(cols);
-		//free(vals);
 
 		//Here we set values to the vector directly (to impose Dirichlet condition in a single point)
 		ierr = VecAssemblyBegin(FZdot);CHKERRQ(ierr);
@@ -5024,15 +5568,13 @@ for (i=1;i<200;i++)
 		rows=1;
 		val=0.0;
 		ierr = VecSetValue(FZdot,rows,val,INSERT_VALUES);CHKERRQ(ierr);
-	//
 
+		ierr = VecAssemblyBegin(FZdot);CHKERRQ(ierr);
+		ierr = VecAssemblyEnd  (FZdot);CHKERRQ(ierr);
+	//
 	ierr = PetscPrintf(PETSC_COMM_WORLD,"Hola 5 \n");CHKERRQ(ierr);
 
-	ierr = VecAssemblyBegin(FZdot);CHKERRQ(ierr);
-	ierr = VecAssemblyEnd  (FZdot);CHKERRQ(ierr);
-
 	ierr = KSPSetOperators(kspZdot,KZdot,KZdot);CHKERRQ(ierr);
-	PC pcZdot;
 	ierr = KSPGetPC(kspZdot,&pcZdot); CHKERRQ(ierr);
 	ierr = PCSetType(pcZdot,PCLU); CHKERRQ(ierr);
 	ierr = PCFactorSetMatSolverType(pcZdot,MATSOLVERMUMPS); CHKERRQ(ierr);
@@ -5056,12 +5598,15 @@ for (i=1;i<200;i++)
 //
 
 //System for u (debug)
-	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for u starting \n\n");
+	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for u starting for iteration %d \n\n",i);
 	T=time(NULL);
 	tm=*localtime(&T);
 	PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.tm_min,tm.tm_sec);
 	
-	fijaPunto=1;																		//Fix a single point (fijaPunto=1) or a side (chosen in blocks below)
+	ierr = MatZeroEntries(KU);CHKERRQ(ierr);						//This makes all non-zero elements of KU 0.0, while keeping the sparse structure of the matrix
+	ierr = VecZeroEntries(FU);CHKERRQ(ierr);						//This sets all elements of the vector to 0
+
+	fijaPunto=0;																		//Fix a single point (fijaPunto=1) or a side (chosen in blocks below)
 	for (dir=0; dir<2; dir++) 
 	{
 		for (side=0; side<2; side++) 
@@ -5121,12 +5666,11 @@ for (i=1;i<200;i++)
 				{
 					ierr = IGAPointGetWorkMat(pointU,&KpointU);CHKERRQ(ierr);
 					ierr = IGAPointGetWorkVec(pointU,&FpointU);CHKERRQ(ierr);
-					//	   Usys(IGAPoint p, IGAPoint pAl, IGAPoint pChi, IGAPoint pZ, PetscReal *K, PetscReal *F, PetscReal *UAl, PetscReal *UChi, PetscReal *UZ, void *ctx)
+					//	   Usys(IGAPoint p, IGAPoint pChi, IGAPoint pZ, PetscReal *K, PetscReal *F, PetscReal *UChi, PetscReal *UZ, void *ctx)
 					ierr = Usys(pointU,pointchiUp,pointZ0,KpointU,FpointU,ChiU,Z0U,NULL);CHKERRQ(ierr);
 					ierr = IGAPointAddMat(pointU,KpointU,KlocU);CHKERRQ(ierr);
 					ierr = IGAPointAddVec(pointU,FpointU,FlocU);CHKERRQ(ierr);
 				}
-
 				if(pointU->atboundary==0 && pointchiUp->atboundary==0 && pointZ0->atboundary==0)
 				{
 					IGAElementNextPoint(elemchiUp,pointchiUp);
@@ -5134,7 +5678,7 @@ for (i=1;i<200;i++)
 
 					ierr = IGAPointGetWorkMat(pointU,&KpointU);CHKERRQ(ierr);
 					ierr = IGAPointGetWorkVec(pointU,&FpointU);CHKERRQ(ierr);
-					//	   Usys(IGAPoint p, IGAPoint pAl, IGAPoint pChi, IGAPoint pZ, PetscReal *K, PetscReal *F, PetscReal *UAl, PetscReal *UChi, PetscReal *UZ, void *ctx)
+					//	   Usys(IGAPoint p, IGAPoint pChi, IGAPoint pZ, PetscReal *K, PetscReal *F, PetscReal *UChi, PetscReal *UZ, void *ctx)
 					ierr = Usys(pointU,pointchiUp,pointZ0,KpointU,FpointU,ChiU,Z0U,NULL);CHKERRQ(ierr);
 					ierr = IGAPointAddMat(pointU,KpointU,KlocU);CHKERRQ(ierr);
 					ierr = IGAPointAddVec(pointU,FpointU,FlocU);CHKERRQ(ierr);
@@ -5156,7 +5700,7 @@ for (i=1;i<200;i++)
 
 		if(fijaPunto==0)
 		{
-			ierr = IGAElementFixSystem(elemZ0,KlocZ0,FlocZ0);CHKERRQ(ierr);					//This sets Dirichlet condition ¿? (Yes, this applies the conditions from IGASetBoundaryValue)
+			ierr = IGAElementFixSystem(elemU,KlocU,FlocU);CHKERRQ(ierr);					//This sets Dirichlet condition ¿? (Yes, this applies the conditions from IGASetBoundaryValue)
 		}
 		ierr = IGAElementAssembleMat(elemU,KlocU,KU);CHKERRQ(ierr);
 		ierr = IGAElementAssembleVec(elemU,FlocU,FU);CHKERRQ(ierr);
@@ -5254,7 +5798,7 @@ for (i=1;i<200;i++)
 
 //System for evolution of S  (debug)
 	//Now reuses K from the initial case, just recalculates RHS
-	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for S_dot starting \n\n");
+	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for S_dot starting for iteration %d \n\n",i);
 	T=time(NULL);
 	tm=*localtime(&T);
 	PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.tm_min,tm.tm_sec);
@@ -5294,7 +5838,6 @@ for (i=1;i<200;i++)
 				{
 					//Code boundary condition, will be required for general case
 				}
-
 				if(pointSdot->atboundary==0 && pointVs->atboundary==0 && pointS->atboundary==0)
 				{
 					IGAElementNextPoint(elemVs,pointVs);
@@ -5366,7 +5909,7 @@ for (i=1;i<200;i++)
 //
 
 //System for L2 projection of V^{S} (debug)
-	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for V-S starting \n\n");
+	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for V-S starting for iteration %d \n\n",i);
 	T=time(NULL);
 	tm=*localtime(&T);
 	PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.tm_min,tm.tm_sec);
@@ -5414,10 +5957,8 @@ for (i=1;i<200;i++)
 			{
 				if(pointVs->atboundary==1)
 				{
-					//IGAElementNextPoint(elemZ0,pointZ0);
-					//IGAElementNextPoint(elemchiUp,pointchiUp);
-				}
 
+				}
 				if(pointVs->atboundary==0 && pointZ0->atboundary==0 && pointchiUp->atboundary==0 && pointS->atboundary==0)
 				{
 					IGAElementNextPoint(elemZ0,pointZ0);
@@ -5497,7 +6038,7 @@ for (i=1;i<200;i++)
 //
 
 //System for L2 projection of smoothed V^{S} (debug)
-	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for Smooth Vs starting \n\n");
+	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for Smooth Vs starting for iteration %d \n\n",i);
 	T=time(NULL);
 	tm=*localtime(&T);
 	PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.tm_min,tm.tm_sec);
@@ -5540,7 +6081,6 @@ for (i=1;i<200;i++)
 				{
 
 				}
-
 				if(pointVs->atboundary==0 && pointS->atboundary==0)
 				{
 					IGAElementNextPoint(elemS,pointS);
@@ -5632,7 +6172,6 @@ for (i=1;i<200;i++)
 				{
 
 				}
-
 				if(pointVs->atboundary==0 && pointS->atboundary==0)
 				{
 					IGAElementNextPoint(elemS,pointS);
@@ -5677,7 +6216,7 @@ for (i=1;i<200;i++)
 //
 
 //System for L2 projection of V^{alpha} (debug)
-	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for V-alpha starting \n\n");
+	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for V-alpha starting for iteration %d \n\n",i);
 	T=time(NULL);
 	tm=*localtime(&T);
 	PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.tm_min,tm.tm_sec);
@@ -5730,10 +6269,8 @@ for (i=1;i<200;i++)
 			{
 				if(pointVa->atboundary==1)
 				{
-					//IGAElementNextPoint(elemZ0,pointZ0);
-					//IGAElementNextPoint(elemchiUp,pointchiUp);
-				}
 
+				}
 				if(pointVa->atboundary==0 && pointZ0->atboundary==0 && pointchiUp->atboundary==0 && pointAlp->atboundary==0 && pointS->atboundary==0 && pointU->atboundary==0)
 				{
 					IGAElementNextPoint(elemZ0,pointZ0);
@@ -5820,7 +6357,7 @@ for (i=1;i<200;i++)
 //
 
 //System for L2 projection of gradz (debug)
-	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for V-alpha starting \n\n");
+	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for grad(z) starting for iteration %d \n\n",i);
 	T=time(NULL);
 	tm=*localtime(&T);
 	PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.tm_min,tm.tm_sec);
@@ -5848,9 +6385,9 @@ for (i=1;i<200;i++)
 			ierr = IGAElementBeginPoint(elemGradz,&pointGradz);CHKERRQ(ierr);
 			ierr = IGAElementBeginPoint(elemZ0,&pointZ0);CHKERRQ(ierr);
 
-			if(pointGradz->atboundary==0 && pointZ0->atboundary==0)
+			while (IGAElementNextPoint(elemGradz,pointGradz))
 			{
-				while (IGAElementNextPoint(elemGradz,pointGradz)) 
+				if(pointGradz->atboundary==0 && pointZ0->atboundary==0)
 				{
 					IGAElementNextPoint(elemZ0,pointZ0);
 
@@ -5858,11 +6395,15 @@ for (i=1;i<200;i++)
 					ierr = gradzF(pointGradz,pointZ0,FpointGradz,Z0Gradz,NULL);CHKERRQ(ierr);
 					ierr = IGAPointAddVec(pointGradz,FpointGradz,FlocGradz);CHKERRQ(ierr);
 				}
-				IGAElementNextPoint(elemZ0,pointZ0);
-
-				ierr = IGAElementEndPoint(elemGradz,&pointGradz);CHKERRQ(ierr);
-				ierr = IGAElementEndPoint(elemZ0,&pointZ0);CHKERRQ(ierr);
 			}
+			IGAElementNextPoint(elemZ0,pointZ0);
+
+			ierr = IGAElementEndPoint(elemGradz,&pointGradz);CHKERRQ(ierr);
+			while (pointZ0->index != -1)
+			{
+				IGAElementNextPoint(elemZ0,pointZ0);
+			}
+			ierr = IGAElementEndPoint(elemZ0,&pointZ0);CHKERRQ(ierr);
 		}
 		ierr = IGAElementAssembleVec(elemGradz,FlocGradz,FGradz0);CHKERRQ(ierr);
 
@@ -5885,6 +6426,109 @@ for (i=1;i<200;i++)
 	ierr = IGAWriteVec(igaGradz,gradZ0,pathGradz0);CHKERRQ(ierr);
 //
 
+//System for general L2 projection (debug, but not really important, just for looking at fields)
+	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for general L2 projection starting for iteration %d \n\n",i);
+	PetscPrintf(PETSC_COMM_WORLD,"Currently projecting alpha X V^a + SV^s \n");
+	T=time(NULL);
+	tm=*localtime(&T);
+	PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.tm_min,tm.tm_sec);
+	
+	ierr = MatZeroEntries(KProj);CHKERRQ(ierr);						//This makes all non-zero elements of KchiS 0.0, while keeping the sparse structure of the matrix
+	ierr = VecZeroEntries(FProj);CHKERRQ(ierr);	
+
+	//Get local vectors and arrays
+	ierr = IGAGetLocalVecArray(igaAl,alp0,&localAlProj,&arrayAlProj);CHKERRQ(ierr);
+	ierr = IGAGetLocalVecArray(igaS,s0,&localSProj,&arraySProj);CHKERRQ(ierr);
+	ierr = IGAGetLocalVecArray(igaVa,Va0,&localVaProj,&arrayVaProj);CHKERRQ(ierr);
+
+	//Element loop
+	ierr = IGABeginElement(igaProj,&elemProj);CHKERRQ(ierr);
+	ierr = IGABeginElement(igaAl,&elemAlp);CHKERRQ(ierr);
+	ierr = IGABeginElement(igaS,&elemS);CHKERRQ(ierr);
+	ierr = IGABeginElement(igaVa,&elemVa);CHKERRQ(ierr);
+
+	while (IGANextElement(igaProj,elemProj))
+	{
+		IGANextElement(igaAl,elemAlp);
+		IGANextElement(igaS,elemS);
+		IGANextElement(igaVa,elemVa);
+
+		ierr = IGAElementGetWorkMat(elemProj,&KlocProj);CHKERRQ(ierr);
+		ierr = IGAElementGetWorkVec(elemProj,&FlocProj);CHKERRQ(ierr);
+		ierr = IGAElementGetValues(elemAlp,arrayAlProj,&AlProj);CHKERRQ(ierr);
+		ierr = IGAElementGetValues(elemS,arraySProj,&SProj);CHKERRQ(ierr);
+		ierr = IGAElementGetValues(elemVa,arrayVaProj,&VaProj);CHKERRQ(ierr);
+
+		//FormSystem loop
+		while (IGAElementNextFormSystem(elemProj,&wtfProj,&wtf2Proj)) 
+		{
+			//Quadrature loop
+			ierr = IGAElementBeginPoint(elemProj,&pointProj);CHKERRQ(ierr);
+			ierr = IGAElementBeginPoint(elemAlp,&pointAlp);CHKERRQ(ierr);
+			ierr = IGAElementBeginPoint(elemS,&pointS);CHKERRQ(ierr);
+			ierr = IGAElementBeginPoint(elemVa,&pointVa);CHKERRQ(ierr);
+
+			while (IGAElementNextPoint(elemProj,pointProj)) 
+			{
+				if(pointProj->atboundary==0 && pointAlp->atboundary==0 && pointS->atboundary==0 && pointVa->atboundary==0)
+				{
+					IGAElementNextPoint(elemAlp,pointAlp);
+					IGAElementNextPoint(elemS,pointS);
+					IGAElementNextPoint(elemVa,pointVa);
+
+					ierr = IGAPointGetWorkMat(pointProj,&KpointProj);CHKERRQ(ierr);
+					ierr = IGAPointGetWorkVec(pointProj,&FpointProj);CHKERRQ(ierr);
+					//proj(IGAPoint p,IGAPoint pAl,IGAPoint pS, IGAPoint pVa,PetscReal *K,PetscReal *F,PetscReal *UAl,PetscReal *US,PetscReal *UVa,void *ctx)
+					ierr = proj(pointProj,pointAlp,pointS,pointVa,KpointProj,FpointProj,AlProj,SProj,VaProj,NULL);CHKERRQ(ierr);
+					ierr = IGAPointAddMat(pointProj,KpointProj,KlocProj);CHKERRQ(ierr);
+					ierr = IGAPointAddVec(pointProj,FpointProj,FlocProj);CHKERRQ(ierr);
+				}
+			}
+			IGAElementNextPoint(elemAlp,pointAlp);
+			IGAElementNextPoint(elemS,pointS);
+			IGAElementNextPoint(elemVa,pointVa);
+
+			ierr = IGAElementEndPoint(elemProj,&pointProj);CHKERRQ(ierr);
+			ierr = IGAElementEndPoint(elemAlp,&pointAlp);CHKERRQ(ierr);
+			ierr = IGAElementEndPoint(elemS,&pointS);CHKERRQ(ierr);
+			ierr = IGAElementEndPoint(elemVa,&pointVa);CHKERRQ(ierr);
+		}
+		ierr = IGAElementAssembleMat(elemProj,KlocProj,KProj);CHKERRQ(ierr);
+		ierr = IGAElementAssembleVec(elemProj,FlocProj,FProj);CHKERRQ(ierr);
+
+	}
+	IGANextElement(igaAl,elemAlp);
+	IGANextElement(igaS,elemS);
+	IGANextElement(igaVa,elemVa);
+
+	ierr = IGAEndElement(igaProj,&elemProj);CHKERRQ(ierr);
+	ierr = IGAEndElement(igaAl,&elemAlp);CHKERRQ(ierr);
+	ierr = IGAEndElement(igaS,&elemS);CHKERRQ(ierr);
+	ierr = IGAEndElement(igaVa,&elemVa);CHKERRQ(ierr);
+
+	// Restore local vectors s0 and arrays
+	ierr = IGARestoreLocalVecArray(igaAl,alp0,&localAlProj,&arrayAlProj);CHKERRQ(ierr);
+	ierr = IGARestoreLocalVecArray(igaS,s0,&localSProj,&arraySProj);CHKERRQ(ierr);
+	ierr = IGARestoreLocalVecArray(igaVa,Va0,&localVaProj,&arrayVaProj);CHKERRQ(ierr);
+
+	//Form system matrix and vector
+	ierr = MatAssemblyBegin(KProj,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
+	ierr = MatAssemblyEnd  (KProj,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
+	
+	ierr = VecAssemblyBegin(FProj);CHKERRQ(ierr);
+	ierr = VecAssemblyEnd  (FProj);CHKERRQ(ierr);
+
+	ierr = KSPSetOperators(kspProj,KProj,KProj);CHKERRQ(ierr);
+	//ierr = KSPSetFromOptions(kspProj);CHKERRQ(ierr);
+	//ierr = KSPSetTolerances(kspProj,1.0e-16,1.0e-30,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	ierr = KSPSolve(kspProj,FProj,proj0);CHKERRQ(ierr);
+
+	//char nameProj[512];
+	sprintf(nameProj,"%s%d%s","/Proj-2d-",i,".dat");
+	//char pathProj[512];
+	sprintf(pathProj,"%s%s",direct,nameProj);
+	ierr = IGAWriteVec(igaProj,proj0,pathProj);CHKERRQ(ierr);
+//
 }
 
 

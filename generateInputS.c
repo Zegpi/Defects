@@ -30,9 +30,9 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 
 //Generate Mesh and copy cpp to result folder to save for reproduction (check that parameters are the same on file to run)
 
-	PetscInt b=200;					//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
-	PetscReal Lx=20.0;
-	PetscReal Ly=20.0;
+	PetscInt b=300;					//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
+	PetscReal Lx=10.0;
+	PetscReal Ly=10.0;
 	PetscInt  nx=b;
 	PetscInt  ny=b;
 
@@ -125,8 +125,8 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	nf=(b-2)/2;			//For even values of b 
 	//nc=(b+1)/2;		//Half the length of the body, for a disclination on the center
 	nc=b+1;				//Full length of the body, for something like a through twin
-	numF=9;				//Number of node rows to assign, rows of elements will be one less
-	dist=0;				//Distance from center to eigenwall (Distance center to center is 2*dist [elements])
+	numF=13;			//Number of node rows to assign, rows of elements will be one less
+	dist=80;				//Distance from center to eigenwall (Distance center to center is 2*dist [elements])
 	
 	ierr = PetscCalloc1(524288,&pointsS);CHKERRQ(ierr);
 	ierr = PetscCalloc1(524288,&valoresS);CHKERRQ(ierr);
@@ -143,9 +143,9 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	PetscReal alpha=0.5;																	//Alpha linearly interpolates between a pure twin (alpha=0.0) and a pure rotation grain boundary (alpha=1.0)
 
 	g[0]=0.0;
-	g[1]=alpha*(cos(45.0/180.0*ConstPi)-cos(90.0/180.0*ConstPi))+(1.0-alpha)*1.0;				//S_112
+	g[1]=alpha*(cos(45.0/180.0*ConstPi)-cos(90.0/180.0*ConstPi));								//S_112
 	g[2]=0.0;
-	g[3]=alpha*(-sin(45.0/180.0*ConstPi)+sin(90.0/180.0*ConstPi));								//S_122
+	g[3]=alpha*(-sin(45.0/180.0*ConstPi)+sin(90.0/180.0*ConstPi))+(1.0-alpha)*1.0;				//S_122
 	g[4]=0.0;
 	g[5]=alpha*(sin(45.0/180.0*ConstPi)-sin(90.0/180.0*ConstPi));								//S_212
 	g[6]=0.0;
@@ -162,7 +162,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 		{
 			for (int k=0; k<8; k++)
 			{
-				pointsS[counter]=cord+8*(nx+1)*dist;
+				pointsS[counter]=cord-8*(nx+1)*dist;
 				//pointsS[counter+1]=cord-8*(nx+1)*dist;
 				valoresS[counter]=g[k];
 				//valoresS[counter+1]=g[k];
