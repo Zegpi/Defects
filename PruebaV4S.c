@@ -1279,21 +1279,18 @@ PetscReal delta(PetscInt i, PetscInt j)
 
 			for(a=0;a<nen;a++)
 			{
-				//PetscReal Na=N0[a];
 				PetscReal Na_x = N1[a][0];			PetscReal Na_y = N1[a][1];
 
 				for (i=0; i<dof; i++)
 				{
 					if (i==0)
 					{
-						//v[0]=Na; 	   v[1]=0.0; 	  v[2]=0.0;
 						dv[0][0]=Na_x; dv[0][1]=Na_y; dv[0][2]=0.0;
 						dv[1][0]=0.0;  dv[1][1]=0.0;  dv[1][2]=0.0;
 						dv[2][0]=0.0;  dv[2][1]=0.0;  dv[2][2]=0.0;
 					}
 					else if (i==1)
 					{
-						//v[0]=0.0; 	   v[1]=Na; 	  v[2]=0.0;
 						dv[0][0]=0.0;  dv[0][1]=0.0;  dv[0][2]=0.0;
 						dv[1][0]=Na_x; dv[1][1]=Na_y; dv[1][2]=0.0;
 						dv[2][0]=0.0;  dv[2][1]=0.0;  dv[2][2]=0.0;
@@ -1313,6 +1310,201 @@ PetscReal delta(PetscInt i, PetscInt j)
 							}
 						}	
 					}
+				}
+			}
+		}
+		return 0;
+	}
+
+	#undef  __FUNCT__
+	#define __FUNCT__ "U0Sys"
+	PetscErrorCode U0Sys(IGAPoint p, PetscReal *K, PetscReal *F, void *ctx)
+	{
+		const PetscReal *N0,(*N1)[2];
+		IGAPointGetShapeFuns(p,0,(const PetscReal**)&N0);
+		IGAPointGetShapeFuns(p,1,(const PetscReal**)&N1);
+
+		PetscInt a,b,i,j,u,w,k,l,nen=p->nen, dof=p->dof;
+
+		//Change for G=1
+		const PetscReal nu=0.33;
+		const PetscReal mu=1.0;
+		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
+
+		//Creation of elasticity tensor
+		PetscReal C[3][3][3][3]={0};
+		for (i=0; i<3; i++)
+		{
+			for (j=0; j<3; j++)
+			{
+				for (k=0; k<3; k++)
+				{
+					for (l=0; l<3; l++)
+					{
+						C[i][j][k][l]=lambda*delta(i,j)*delta(k,l)+mu*(delta(i,k)*delta(j,l)+delta(i,l)*delta(j,k));
+					}
+				}
+			}
+		}
+
+		PetscReal v[3]={0};
+		PetscReal dv[3][3]={0};
+		PetscReal du[3][3]={0};
+		PetscReal n[3]={0};
+
+		PetscReal (*Keq)[dof][nen][dof] = (typeof(Keq)) K;
+		PetscReal (*Feq)[dof] = (PetscReal (*)[dof])F;
+
+		if (p->atboundary)
+		{
+			PetscReal Sborde[3][3]={0};
+
+			//Stress in boundary
+			Sborde[0][0]=0.0;
+			Sborde[0][1]=1.0;
+			Sborde[1][0]=1.0;
+			Sborde[1][1]=0.0;
+			Sborde[0][2]=0.0; Sborde[1][2]=0.0; Sborde[2][0]=0.0; Sborde[2][1]=0.0; Sborde[2][2]=0.0;
+
+			PetscInt dir  = p->boundary_id / 2;
+			PetscInt side = p->boundary_id % 2;
+
+			for (a=0; a<nen; a++)
+			{
+				PetscReal Na   = N0[a];
+
+				for (i=0; i<dof; i++)
+				{
+					if(i==0)
+					{
+						v[0]=Na; v[1]=0.0; v[2]=0.0;
+					}
+					if(i==1)
+					{
+						v[0]=0.0; v[1]=Na; v[2]=0.0;
+					}
+
+					Feq[a][i] = 0.0;
+					if(dir==0)
+					{
+						if(side==0)
+						{
+							n[0]=-1.0; n[1]=0.0; n[2]=0.0;
+							for (j=0; j<3; j++)
+							{
+								for(k=0; k<3;k++)
+								{
+									Feq[a][i]+=Sborde[j][k]*n[k]*v[j];
+								}
+							}
+						}
+						if(side==1)
+						{
+							n[0]=1.0; n[1]=0.0; n[2]=0.0;
+							for (j=0; j<3; j++)
+							{
+								for(k=0; k<3;k++)
+								{
+									Feq[a][i]+=Sborde[j][k]*n[k]*v[j];
+								}
+							}
+						}
+					}
+					if(dir==1)
+					{
+						if(side==0)
+						{
+							n[0]=0.0; n[1]=-1.0; n[2]=0.0;
+							for (j=0; j<3; j++)
+							{
+								for(k=0; k<3;k++)
+								{
+									Feq[a][i]+=Sborde[j][k]*n[k]*v[j];
+								}
+							}
+						}
+						if(side==1)
+						{
+							n[0]=0.0; n[1]=1.0; n[2]=0.0;
+							for (j=0; j<3; j++)
+							{
+								for(k=0; k<3;k++)
+								{
+									Feq[a][i]+=Sborde[j][k]*n[k]*v[j];
+								}
+							}
+						}
+					}
+				}
+			}
+			return 0;
+		}
+		else
+		{
+			for (a=0; a<nen; a++) 
+			{
+				PetscReal Na_x = N1[a][0];			PetscReal Na_y = N1[a][1];
+
+				for (b=0; b<nen; b++) 
+				{
+					PetscReal Nb_x = N1[b][0];		PetscReal Nb_y = N1[b][1];
+
+					for (i=0; i<dof; i++)
+					{
+						if (i==0)
+						{
+							dv[0][0]=Na_x; dv[0][1]=Na_y; dv[0][2]=0.0;
+							dv[1][0]=0.0;  dv[1][1]=0.0;  dv[1][2]=0.0;
+							dv[2][0]=0.0;  dv[2][1]=0.0;  dv[2][2]=0.0;
+						}
+						else if(i==1)
+						{
+							dv[0][0]=0.0;  dv[0][1]=0.0;  dv[0][2]=0.0;
+							dv[1][0]=Na_x; dv[1][1]=Na_y; dv[1][2]=0.0;
+							dv[2][0]=0.0;  dv[2][1]=0.0;  dv[2][2]=0.0;
+						}
+
+						for (j=0; j<dof; j++)
+						{
+							if (j==0)
+							{
+								du[0][0]=Nb_x; du[0][1]=Nb_y; du[0][2]=0.0;
+								du[1][0]=0.0;  du[1][1]=0.0;  du[1][2]=0.0;
+								du[2][0]=0.0;  du[2][1]=0.0;  du[2][2]=0.0;
+							}
+							else if(j==1)
+							{
+								du[0][0]=0.0;  du[0][1]=0.0;  du[0][2]=0.0;
+								du[1][0]=Nb_x; du[1][1]=Nb_y; du[1][2]=0.0;
+								du[2][0]=0.0;  du[2][1]=0.0;  du[2][2]=0.0;
+							}
+
+							Keq[a][i][b][j]=0.0;
+							for (k=0; k<3; k++)
+							{
+								for (l=0; l<3; l++)
+								{
+									for (u=0; u<3; u++)
+									{
+										for(w=0; w<3; w++)
+										{
+											Keq[a][i][b][j]+=C[k][l][u][w]*du[u][w]*dv[k][l];
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+
+			for(a=0;a<nen;a++)
+			{
+				//PetscReal Na=N0[a];
+
+				for (i=0; i<dof; i++)
+				{
+					Feq[a][i] = 0.0;
 				}
 			}
 		}
@@ -3969,6 +4161,226 @@ int main(int argc, char *argv[]) {
 	ierr = IGAWriteVec(igaZ0,Z0,pathZ0);CHKERRQ(ierr);	
 //
 
+//System for initial state of u
+	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for U0 starting \n\n");
+	T=time(NULL);
+	tm=*localtime(&T);
+	PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.tm_min,tm.tm_sec);
+	IGA igaU;
+	ierr = IGACreate(PETSC_COMM_WORLD,&igaU);CHKERRQ(ierr);
+	ierr = IGASetDim(igaU,2);CHKERRQ(ierr);													//Spatial dimension of the problem
+	ierr = IGASetDof(igaU,2);CHKERRQ(ierr);													//Number of degrees of freedom, per node
+	ierr = IGASetOrder(igaU,1);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
+	ierr = IGASetFromOptions(igaU);CHKERRQ(ierr);												//Note: The order (or degree) of the shape functions is given by the mesh!
+	ierr = IGARead(igaU,"./geometry.dat");CHKERRQ(ierr);
+	
+	for (dir=0; dir<2; dir++)
+	{
+		ierr = IGASetRuleType(igaU,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
+		ierr = IGASetRuleSize(igaU,dir,6);CHKERRQ(ierr);
+	}
+	ierr = IGASetUp(igaU);CHKERRQ(ierr);
+
+	fijaPunto=0;																		//Fix a single point (1) or a side (chosen in blocks below)
+
+	ierr = IGASetUp(igaU);CHKERRQ(ierr);
+
+	for (dir=0; dir<2; dir++) 
+	{
+		for (side=0; side<2; side++) 
+		{
+			//ierr = IGASetBoundaryValue(iga,dir,side,dof,0.0);CHKERRQ(ierr);					// Dirichlet boundary conditions
+			ierr = IGASetBoundaryForm(igaU,dir,side,PETSC_TRUE);CHKERRQ(ierr);  				// Neumann boundary conditions
+		}
+	}
+
+	if (fijaPunto==0)
+	{
+		//If we are not fixing a single point, set Dirichlet conditions here
+		//ierr = IGASetBoundaryValue(iga,dir,side,dof,value);CHKERRQ(ierr);					// Dirichlet boundary conditions
+		//ierr = IGASetBoundaryValue(igaZ0,0,0,0,0.0);CHKERRQ(ierr);	//Left side, 1st dof = 0
+		//ierr = IGASetBoundaryValue(igaZ0,0,0,1,0.0);CHKERRQ(ierr);	//Left side, 2nd dof = 0
+
+		//ierr = IGASetBoundaryValue(igaZ0,0,1,0,0.0);CHKERRQ(ierr);	//Right side, 1st dof=0
+		//ierr = IGASetBoundaryValue(igaZ0,0,1,1,0.0);CHKERRQ(ierr);	//Right side, 2nd dof=0
+
+		ierr = IGASetBoundaryValue(igaU,1,0,0,0.0);CHKERRQ(ierr);	//Bottom side, 1st dof=0
+		ierr = IGASetBoundaryValue(igaU,1,0,1,0.0);CHKERRQ(ierr);	//Bottom side, 2nd dof=0
+		
+		//ierr = IGASetBoundaryValue(igaZ0,1,1,0,0.0);CHKERRQ(ierr);	//Top side, 1st dof=0
+		//ierr = IGASetBoundaryValue(igaZ0,1,1,1,0.0);CHKERRQ(ierr);	//Top side, 2nd dof=0
+	}
+
+	Mat KU;
+	Vec U,FU;
+
+	ierr = IGACreateMat(igaU,&KU);CHKERRQ(ierr);
+	ierr = IGACreateVec(igaU,&U);CHKERRQ(ierr);
+	ierr = IGACreateVec(igaU,&FU);CHKERRQ(ierr);
+
+	IGAPoint		pointU;								//point
+	IGAElement		elemU;								//element
+	PetscReal		*KlocU,*FlocU;						//AA y BB
+	PetscReal		*KpointU,*FpointU;					//KKK y FFF
+	const PetscReal	*arrayChiU, *arrayZ0U;				//arrayU
+	Vec				localChiU, localZ0U;				//localU
+	PetscReal		*ChiU, *Z0U;						//U
+
+	IGAFormSystem	wtfU0;
+	void			*wtf2U0;
+
+	KSP kspU;
+	ierr = IGACreateKSP(igaU,&kspU);CHKERRQ(ierr);
+	
+	// Element loop
+	ierr = IGABeginElement(igaU,&elemU);CHKERRQ(ierr);
+
+	while (IGANextElement(igaU,elemU)) 
+	{
+		ierr = IGAElementGetWorkMat(elemU,&KlocU);CHKERRQ(ierr);
+		ierr = IGAElementGetWorkVec(elemU,&FlocU);CHKERRQ(ierr);
+
+		// FormSystem loop
+		while (IGAElementNextFormSystem(elemU,&wtfU0,&wtf2U0)) 
+		{
+		// Quadrature loop
+			ierr = IGAElementBeginPoint(elemU,&pointU);CHKERRQ(ierr);
+
+			while (IGAElementNextPoint(elemU,pointU))
+			{
+				if(pointU->atboundary==1)
+				{
+					ierr = IGAPointGetWorkMat(pointU,&KpointU);CHKERRQ(ierr);
+					ierr = IGAPointGetWorkVec(pointU,&FpointU);CHKERRQ(ierr);
+					//	   U0Sys(IGAPoint p, PetscReal *K, PetscReal *F, void *ctx)
+					ierr = U0Sys(pointU,KpointU,FpointU,NULL);CHKERRQ(ierr);
+					ierr = IGAPointAddMat(pointU,KpointU,KlocU);CHKERRQ(ierr);
+					ierr = IGAPointAddVec(pointU,FpointU,FlocU);CHKERRQ(ierr);
+				}
+				if(pointU->atboundary==0)
+				{
+					ierr = IGAPointGetWorkMat(pointU,&KpointU);CHKERRQ(ierr);
+					ierr = IGAPointGetWorkVec(pointU,&FpointU);CHKERRQ(ierr);
+					//	   U0Sys(IGAPoint p, PetscReal *K, PetscReal *F, void *ctx)
+					ierr = U0Sys(pointU,KpointU,FpointU,NULL);CHKERRQ(ierr);
+					ierr = IGAPointAddMat(pointU,KpointU,KlocU);CHKERRQ(ierr);
+					ierr = IGAPointAddVec(pointU,FpointU,FlocU);CHKERRQ(ierr);
+				}
+			}
+			ierr = IGAElementEndPoint(elemU,&pointU);CHKERRQ(ierr);
+		}
+
+		if(fijaPunto==0)
+		{
+			ierr = IGAElementFixSystem(elemU,KlocU,FlocU);CHKERRQ(ierr);					//This sets Dirichlet condition ¿? (Yes, this applies the conditions from IGASetBoundaryValue)
+		}
+		ierr = IGAElementAssembleMat(elemU,KlocU,KU);CHKERRQ(ierr);
+		ierr = IGAElementAssembleVec(elemU,FlocU,FU);CHKERRQ(ierr);
+
+	}
+
+	ierr = IGAEndElement(igaU,&elemU);CHKERRQ(ierr);
+
+	ierr = MatAssemblyBegin(KU,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
+	ierr = MatAssemblyEnd  (KU,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
+
+	//PetscInt n,m;
+	//PetscInt rows, *cols;
+	//PetscReal val, *vals;
+
+	if (fijaPunto==1)
+	{
+		//Here we set values to the Matrix directly, to impose Dirichlet condition in a single point.
+		//Note: Lower Left corner is gdl's  0 and 1,
+		//		Lower Right corner is gdl's 2*(nx+2)-2 and 2*(nx+2)-1 
+		//		Upper Left corner is gdl's  2*(nx+2)*(ny+2)-2*(nx+1)-2 and 2*(nx+2)*(ny+2)-2*(nx+1)-1
+		//		Upper Right corner is gdl's 2*(nx+2)*(ny+2)-2 and 2*(nx+2)*(ny+2)-1
+		//All of these for when z is a 2nd order nurbs
+		
+		ierr = MatGetSize(KU,&n,&m);CHKERRQ(ierr);
+		ierr = MatSetOption(KU, MAT_NEW_NONZERO_ALLOCATION_ERR, PETSC_FALSE);CHKERRQ(ierr);
+
+		ierr = PetscMalloc1(m,&cols);CHKERRQ(ierr);
+		ierr = PetscMalloc1(m,&vals);CHKERRQ(ierr);
+
+		for(int i=0;i<m;i++)
+		{
+			cols[i]=i;
+			vals[i]=0.0;
+		}
+
+		rows=0;
+		vals[rows]=1.0e6;
+		ierr = MatSetValues(KU,1,&rows,m,cols,vals,INSERT_VALUES);CHKERRQ(ierr);
+		ierr = MatSetValues(KU,n,cols,1,&rows,vals,INSERT_VALUES);CHKERRQ(ierr);
+		vals[rows]=0.0;
+
+		rows=1;
+		vals[rows]=1.0e6;
+		ierr = MatSetValues(KU,1,&rows,m,cols,vals,INSERT_VALUES);CHKERRQ(ierr);
+		ierr = MatSetValues(KU,n,cols,1,&rows,vals,INSERT_VALUES);CHKERRQ(ierr);
+		vals[rows]=0.0;
+
+		rows=2*(nx+3)*(ny+3)-2; 										//This is for when z is a 3rd order nurb
+		//rows=2*(nx+2)*(ny+2)-2*(nx+1)-2; 										//This is for when z is a 2nd order nurb
+		//rows=2*(nx+1)*(ny+1)-1;														//This is the dof in x on the upper right corner for 1st order elements
+		vals[rows]=1.0e6;
+		ierr = MatSetValues(KU,1,&rows,m,cols,vals,INSERT_VALUES);CHKERRQ(ierr);
+		ierr = MatSetValues(KU,n,cols,1,&rows,vals,INSERT_VALUES);CHKERRQ(ierr);
+		vals[rows]=0.0;
+
+		ierr = MatAssemblyBegin(KU,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
+		ierr = MatAssemblyEnd  (KU,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
+
+		//Here we set values to the vector directly (to impose Dirichlet condition in a single point)
+		//Note: Lower Left corner is gdl's  0 and 1,
+		//		Lower Right corner is gdl's 2*(nx+2)-2 and 2*(nx+2)-1 
+		//		Upper Left corner is gdl's  2*(nx+2)*(ny+2)-2-2*(nx+1) and 2*(nx+2)*(ny+2)-1-2*(nx+1)
+		//		Upper Right corner is gdl's 2*(nx+2)*(ny+2)-2 and 2*(nx+2)*(ny+2)-1
+		//All of these for when z is a 2nd order nurbs
+		ierr = VecAssemblyBegin(FU);CHKERRQ(ierr);
+		ierr = VecAssemblyEnd  (FU);CHKERRQ(ierr);
+
+		rows=0;
+		val=0.0;
+		ierr = VecSetValue(FU,rows,val,INSERT_VALUES);CHKERRQ(ierr);
+
+		ierr = VecAssemblyBegin(FU);CHKERRQ(ierr);
+		ierr = VecAssemblyEnd  (FU);CHKERRQ(ierr);
+
+		rows=1;
+		val=0.0;
+		ierr = VecSetValue(FU,rows,val,INSERT_VALUES);CHKERRQ(ierr);
+
+		ierr = VecAssemblyBegin(FU);CHKERRQ(ierr);
+		ierr = VecAssemblyEnd  (FU);CHKERRQ(ierr);
+		
+		rows=2*(nx+3)*(ny+3)-2;
+		//rows=2*(nx+2)*(ny+2)-2*(nx+1)-2; 										//This is for when z is a 2nd order nurb
+		//rows=2*(nx+1)-1;
+		val=0.0;
+		ierr = VecSetValue(FU,rows,val,INSERT_VALUES);CHKERRQ(ierr);
+	}
+
+	ierr = VecAssemblyBegin(FU);CHKERRQ(ierr);
+	ierr = VecAssemblyEnd  (FU);CHKERRQ(ierr);
+
+	ierr = KSPSetOperators(kspU,KU,KU);CHKERRQ(ierr);
+	PC pcU;
+	ierr = KSPGetPC(kspU,&pcU); CHKERRQ(ierr);
+	ierr = PCSetType(pcU,PCLU); CHKERRQ(ierr);
+	ierr = PCFactorSetMatSolverType(pcU,MATSOLVERMUMPS); CHKERRQ(ierr);
+	//ierr = KSPSetFromOptions(kspU);CHKERRQ(ierr);
+	//ierr = KSPSetTolerances(kspU,1e-18,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	ierr = KSPSolve(kspU,FU,U);CHKERRQ(ierr);
+
+	char nameU[512];//="/U-2d-0.dat";
+	sprintf(nameU,"%s%d%s","/U-2d-",i,".dat");
+	char pathU[512];
+	sprintf(pathU,"%s%s",direct,nameU);
+	ierr = IGAWriteVec(igaU,U,pathU);CHKERRQ(ierr);
+//
+
 //System for L2 projection of V^{S}
 	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for V-S starting \n\n");
 	T=time(NULL);
@@ -5137,43 +5549,43 @@ int main(int argc, char *argv[]) {
 	//
 
 	//Things for u
-		IGA igaU;
-		ierr = IGACreate(PETSC_COMM_WORLD,&igaU);CHKERRQ(ierr);
-		ierr = IGASetDim(igaU,2);CHKERRQ(ierr);													//Spatial dimension of the problem
-		ierr = IGASetDof(igaU,2);CHKERRQ(ierr);													//Number of degrees of freedom, per node
-		ierr = IGASetOrder(igaU,1);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
-		ierr = IGASetFromOptions(igaU);CHKERRQ(ierr);												//Note: The order (or degree) of the shape functions is given by the mesh!
-		ierr = IGARead(igaU,"./geometry.dat");CHKERRQ(ierr);
+		//IGA igaU;
+		//ierr = IGACreate(PETSC_COMM_WORLD,&igaU);CHKERRQ(ierr);
+		//ierr = IGASetDim(igaU,2);CHKERRQ(ierr);													//Spatial dimension of the problem
+		//ierr = IGASetDof(igaU,2);CHKERRQ(ierr);													//Number of degrees of freedom, per node
+		//ierr = IGASetOrder(igaU,1);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
+		//ierr = IGASetFromOptions(igaU);CHKERRQ(ierr);												//Note: The order (or degree) of the shape functions is given by the mesh!
+		//ierr = IGARead(igaU,"./geometry.dat");CHKERRQ(ierr);
 		
-		for (dir=0; dir<2; dir++)
-		{
-			ierr = IGASetRuleType(igaU,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
-			ierr = IGASetRuleSize(igaU,dir,6);CHKERRQ(ierr);
-		}
-		ierr = IGASetUp(igaU);CHKERRQ(ierr);
+		//for (dir=0; dir<2; dir++)
+		//{
+		//	ierr = IGASetRuleType(igaU,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
+		//	ierr = IGASetRuleSize(igaU,dir,6);CHKERRQ(ierr);
+		//}
+		//ierr = IGASetUp(igaU);CHKERRQ(ierr);
 
-		Mat KU;
-		Vec U,FU;
-		ierr = IGACreateMat(igaU,&KU);CHKERRQ(ierr);
-		ierr = IGACreateVec(igaU,&U);CHKERRQ(ierr);
-		ierr = IGACreateVec(igaU,&FU);CHKERRQ(ierr);
+		//Mat KU;
+		//Vec U,FU;
+		//ierr = IGACreateMat(igaU,&KU);CHKERRQ(ierr);
+		//ierr = IGACreateVec(igaU,&U);CHKERRQ(ierr);
+		//ierr = IGACreateVec(igaU,&FU);CHKERRQ(ierr);
 
-		IGAPoint		pointU;									//point
-		IGAElement		elemU;									//element
-		PetscReal		*KlocU,*FlocU;							//AA y BB
-		PetscReal		*KpointU,*FpointU;						//KKK y FFF
-		const PetscReal	*arrayChiU, *arrayZ0U;		//arrayU
-		Vec				localChiU, localZ0U;			//localU
-		PetscReal		*ChiU, *Z0U;						//U
+		//IGAPoint		pointU;									//point
+		//IGAElement		elemU;									//element
+		//PetscReal		*KlocU,*FlocU;							//AA y BB
+		//PetscReal		*KpointU,*FpointU;						//KKK y FFF
+		//const PetscReal	*arrayChiU, *arrayZ0U;		//arrayU
+		//Vec				localChiU, localZ0U;			//localU
+		//PetscReal		*ChiU, *Z0U;						//U
 
-		IGAFormSystem	wtfU0;
-		void			*wtf2U0;
+		//IGAFormSystem	wtfU0;
+		//void			*wtf2U0;
 
-		KSP kspU;
-		ierr = IGACreateKSP(igaU,&kspU);CHKERRQ(ierr);
+		//KSP kspU;
+		//ierr = IGACreateKSP(igaU,&kspU);CHKERRQ(ierr);
 
-		char nameU[512];
-		char pathU[512];
+		//char nameU[512];
+		//char pathU[512];
 	//
 
 	//Things for Vs
@@ -5189,7 +5601,7 @@ int main(int argc, char *argv[]) {
 	//
 //
 
-for (i=1;i<800;i++)
+for (i=575;i<800;i++)
 {
 	ierr = PetscPrintf(PETSC_COMM_WORLD,"\n\n Start of iteration %d \n\n",i);CHKERRQ(ierr);
 //Creation of types and systems for the Initialization of S0
