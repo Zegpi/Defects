@@ -5546,6 +5546,8 @@ int main(int argc, char *argv[]) {
 		ierr = IGACreateKSP(igaZdot,&kspZdot);CHKERRQ(ierr);
 		char nameZdot[512];
 		char pathZdot[512];
+		char nameZ[512];
+		char pathZ[512];
 	//
 
 	//Things for u
@@ -5601,7 +5603,7 @@ int main(int argc, char *argv[]) {
 	//
 //
 
-for (i=575;i<800;i++)
+for (i=614;i<800;i++)
 {
 	ierr = PetscPrintf(PETSC_COMM_WORLD,"\n\n Start of iteration %d \n\n",i);CHKERRQ(ierr);
 //Creation of types and systems for the Initialization of S0
@@ -5854,8 +5856,6 @@ for (i=575;i<800;i++)
 	ierr = IGABeginElement(igaAl,&elemAlp);CHKERRQ(ierr);
 	ierr = IGABeginElement(igaS,&elemS);CHKERRQ(ierr);
 
-	ierr = PetscPrintf(PETSC_COMM_WORLD,"Hola 1 \n");CHKERRQ(ierr);
-
 	while (IGANextElement(igaZdot,elemZdot)) 
 	{
 		IGANextElement(igaVa,elemVa);
@@ -5922,14 +5922,10 @@ for (i=575;i<800;i++)
 	IGANextElement(igaAl,elemAlp);
 	IGANextElement(igaS,elemS);
 
-	ierr = PetscPrintf(PETSC_COMM_WORLD,"Hola 2 \n");CHKERRQ(ierr);
-
 	ierr = IGAEndElement(igaZdot,&elemZdot);CHKERRQ(ierr);
 	ierr = IGAEndElement(igaAl,&elemAlp);CHKERRQ(ierr);
 	ierr = IGAEndElement(igaVa,&elemVa);CHKERRQ(ierr);
 	ierr = IGAEndElement(igaS,&elemS);CHKERRQ(ierr);
-
-	ierr = PetscPrintf(PETSC_COMM_WORLD,"Hola 3 \n");CHKERRQ(ierr);
 
 	// Restore local vectors u, Z0, Chi0 and arrays
 	ierr = IGARestoreLocalVecArray(igaVa,Va0,&localVaZdot,&arrayVaZdot);CHKERRQ(ierr);
@@ -5938,8 +5934,6 @@ for (i=575;i<800;i++)
 	
 	ierr = MatAssemblyBegin(KZdot,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
 	ierr = MatAssemblyEnd  (KZdot,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
-
-	ierr = PetscPrintf(PETSC_COMM_WORLD,"Hola 4 \n");CHKERRQ(ierr);
 
 	//Fix a single point to make solution unique, in this case, lower left corner.
 		ierr = MatGetSize(KZdot,&n,&m);CHKERRQ(ierr);
@@ -5984,7 +5978,6 @@ for (i=575;i<800;i++)
 		ierr = VecAssemblyBegin(FZdot);CHKERRQ(ierr);
 		ierr = VecAssemblyEnd  (FZdot);CHKERRQ(ierr);
 	//
-	ierr = PetscPrintf(PETSC_COMM_WORLD,"Hola 5 \n");CHKERRQ(ierr);
 
 	ierr = KSPSetOperators(kspZdot,KZdot,KZdot);CHKERRQ(ierr);
 	ierr = KSPGetPC(kspZdot,&pcZdot); CHKERRQ(ierr);
@@ -5999,6 +5992,10 @@ for (i=575;i<800;i++)
 	ierr = PetscPrintf(PETSC_COMM_WORLD,"%s \n",pathZdot);CHKERRQ(ierr);
 
 	ierr = IGAWriteVec(igaZdot,Zdot,pathZdot);CHKERRQ(ierr);
+
+	sprintf(nameZ,"%s%d%s","/Z0-2d-",i-1,".dat");
+	sprintf(pathZ,"%s%s",direct,nameZ);
+	ierr = IGAReadVec(igaZ0,Z0,pathZ); CHKERRQ(ierr);
 
 	//Now z_(t+1)=z_(t)+dt*\dot{z}
 	//VecAXPY(Vec y,PetscScalar alpha,Vec x)
