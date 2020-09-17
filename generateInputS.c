@@ -30,9 +30,9 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 
 //Generate Mesh and copy cpp to result folder to save for reproduction (check that parameters are the same on file to run)
 
-	PetscInt b=300;					//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
-	PetscReal Lx=10.0;
-	PetscReal Ly=10.0;
+	PetscInt b=581;					//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
+	PetscReal Lx=80.0;
+	PetscReal Ly=80.0;
 	PetscInt  nx=b;
 	PetscInt  ny=b;
 
@@ -119,13 +119,13 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	ierr = IGACreateVec(igaS,&s0);CHKERRQ(ierr);
 
 	PetscInt nf,nc,numF,cord,counter, *pointsS, dist;
-	PetscReal *valoresS,c,t, g[8];
+	PetscReal *valoresS,c,t,l,g[8];
 
 	//nf=(b-1)/2; 		//For odd values of b 
 	nf=(b-2)/2;			//For even values of b 
-	//nc=(b+1)/2;		//Half the length of the body, for a disclination on the center
+	//nc=(b+1)/2;			//Half the length of the body, for a disclination on the center
 	nc=b+1;				//Full length of the body, for something like a through twin
-	numF=13;			//Number of node rows to assign, rows of elements will be one less
+	numF=8;			//Number of node rows to assign, rows of elements will be one less
 	dist=80;				//Distance from center to eigenwall (Distance center to center is 2*dist [elements])
 	
 	ierr = PetscCalloc1(524288,&pointsS);CHKERRQ(ierr);
@@ -136,21 +136,22 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 
 	c=Lx/nx;
 	t=Ly/ny;
+	l=t*(numF-1);
 
 	//fullS[0][0][0]=S[0]; fullS[0][0][1]=S[1]; fullS[0][1][0]=S[2]; fullS[0][1][1]=S[3];		//Expand S to full 3rd order form, only non-zero elements
 	//fullS[1][0][0]=S[4]; fullS[1][0][1]=S[5]; fullS[1][1][0]=S[6]; fullS[1][1][1]=S[7];
 
+	/*
 	PetscReal alpha=0.5;																	//Alpha linearly interpolates between a pure twin (alpha=0.0) and a pure rotation grain boundary (alpha=1.0)
-
+	
 	g[0]=0.0;
-	g[1]=alpha*(cos(45.0/180.0*ConstPi)-cos(90.0/180.0*ConstPi));								//S_112
+	g[1]=alpha*(cos(85.0/180.0*ConstPi)-cos(90.0/180.0*ConstPi));								//S_112
 	g[2]=0.0;
-	g[3]=alpha*(-sin(45.0/180.0*ConstPi)+sin(90.0/180.0*ConstPi))+(1.0-alpha)*1.0;				//S_122
+	g[3]=alpha*(-sin(85.0/180.0*ConstPi)+sin(90.0/180.0*ConstPi))+(1.0-alpha)*1.0;				//S_122
 	g[4]=0.0;
-	g[5]=alpha*(sin(45.0/180.0*ConstPi)-sin(90.0/180.0*ConstPi));								//S_212
+	g[5]=alpha*(sin(85.0/180.0*ConstPi)-sin(90.0/180.0*ConstPi));								//S_212
 	g[6]=0.0;
-	g[7]=alpha*(cos(45.0/180.0*ConstPi)-cos(90.0/180.0*ConstPi));								//S_222
-
+	g[7]=alpha*(cos(85.0/180.0*ConstPi)-cos(90.0/180.0*ConstPi));								//S_222
 
 	//nf=nf-(numF-2)/2;		//For odd values of b
 	nf=nf-(numF-3)/2;		//For even values of b
@@ -164,14 +165,16 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 			{
 				pointsS[counter]=cord-8*(nx+1)*dist;
 				//pointsS[counter+1]=cord-8*(nx+1)*dist;
-				valoresS[counter]=g[k];
-				//valoresS[counter+1]=g[k];
+				valoresS[counter]=g[k]/l;
+				//valoresS[counter+1]=g[k]/l;
 				cord=cord+1;
 				counter=counter+1;
 			}
 		}
 	}
-	//Uncomment for 2 eigenwalls, until line 186
+	*/
+
+	//Uncomment for 2 eigenwalls
 	/*
 	for (int i=nf; i<nf+numF; i++)
 	{
@@ -190,6 +193,69 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 		}
 	}
 	*/
+
+	//This is for coherency defect (see Amit's email on 11/08/2020, subject: "some thoughts")
+	nf=(b-2)/2;			//For even values of b 
+	//nc=(b+1)/2;		//Half the length of the body, for a disclination on the center
+	nc=b+1;				//Full length of the body, for something like a through twin
+	numF=8;				//Number of node rows to assign, rows of elements will be one less
+	dist=2;				//Distance from center to eigenwall (Distance center to center is 2*dist [elements])
+	counter=0;
+	l=t*(numF+1);
+
+	/*
+	g[0]=0.0;								//S_111 (these indices in 1 based numbering)
+	g[1]=0.0;								//S_112
+	g[2]=0.0;								//S_121
+	g[3]=1.0;								//S_122
+	g[4]=0.0;								//S_211
+	g[5]=0.0;								//S_212
+	g[6]=0.0;								//S_221
+	g[7]=0.0;								//S_222
+	*/
+
+	g[0]=0.0;
+	g[1]=0.0;																					//S_112
+	g[2]=0.0;
+	g[3]=tan(5.0/180.0*ConstPi);																//S_122
+	g[4]=0.0;
+	g[5]=-tan(5.0/180.0*ConstPi);																//S_212
+	g[6]=0.0;
+	g[7]=0.0;																					//S_222
+
+	PetscReal factor=1.11732661608249;
+
+	for (int i=nf; i<nf+numF; i++)
+	{
+		cord=(nx+1)*i*8;
+		for (int j=0; j<nc; j++)
+		{
+			for (int k=0; k<8; k++)
+			{ 
+				if(j>=294)
+				{
+					pointsS[counter]=cord-8*(nx+1)*dist;
+					valoresS[counter]=factor*g[k]/l;
+					cord=cord+1;
+					counter=counter+1;	
+				}
+				else if(j>=287)
+				{
+					pointsS[counter]=cord-8*(nx+1)*dist;
+					valoresS[counter]=factor*(g[k]/l)* (double)(j-287.0)/(7.0);
+					cord=cord+1;
+					counter=counter+1;
+				}
+				else
+				{
+					pointsS[counter]=cord-8*(nx+1)*dist;
+					valoresS[counter]=0.0;
+					cord=cord+1;
+					counter=counter+1;
+				}
+			}
+		}
+	}
 
 	ierr = VecSetValues(s0,8*nc*numF*4,pointsS,valoresS,ADD_VALUES);	
 	ierr = VecAssemblyBegin(s0);CHKERRQ(ierr);

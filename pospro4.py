@@ -47,7 +47,7 @@ for infile in glob.glob(fileName):
 	try:
 		sol = PetIGA().read_vec(infile,nrb)
 	except:
-		print('Mismatch in vector lengths, wrong mesh?, file='+sys.argv[1])
+		print('Mismatch in vector lengths, wrong mesh?, file='+infile)
 		sys.exit()
 
 	outfile = infile[:-4] + ".vtk"				#string[:-4] cuts the last 4 characters from the string, in this case ".dat"
@@ -55,7 +55,8 @@ for infile in glob.glob(fileName):
 	num = numpy.round(numpy.sqrt(sol.size/4.0),decimals=0)
 	
 	# write a function to sample the nrbs object
-	uniform = lambda U: linspace(U[0], U[-1], 4*num-3)	
+	uniform = lambda U: linspace(U[0], U[-1], 4*num-3)
+	#uniform = lambda U: linspace(U[0], U[-1], num)
 	
 	# write a binary VTK file
 	VTK().write(outfile,       # output filename

@@ -1,7 +1,7 @@
 TARGETS = \
 Poisson1D Poisson2D Poisson3D \
 poisson2dmod \
-Prueba PruebaV2 PruebaV3 PruebaV4 PruebaV4S PruebaV5 PruebaV5-1 PruebaV5I PruebaV5S PruebaTest PruebaDislCS Elas Eq Energy generateInput generateInputS\
+Prueba PruebaV2 PruebaV3 PruebaV4 PruebaV4S PruebaV5 PruebaV5-1 PruebaV5I PruebaV5S PruebaTest PruebaV5S_NoPerp PruebaV5S_YesPerp Eq Energy generateInput generateInputS\
 PruebaPetsc\
 Prueba1D \
 L2Projection AdaptiveL2Projection \
@@ -97,10 +97,6 @@ PruebaTest: PruebaTest.o chkopts
 	$(CLINKER) -o $@ $< $(PETIGA_LIB)
 	$(RM) -f $<
 
-PruebaDislCS: PruebaDislCS.o chkopts
-	$(CLINKER) -o $@ $< $(PETIGA_LIB)
-	$(RM) -f $<
-
 Prueba1D: Prueba1D.o chkopts
 	$(CLINKER) -o $@ $< $(PETIGA_LIB)
 	$(RM) -f $<
@@ -109,7 +105,11 @@ PruebaPetsc: PruebaPetsc.o chkopts
 	$(CLINKER) -o $@ $< $(PETIGA_LIB)
 	$(RM) -f $<
 
-Elas: Elas.o chkopts
+PruebaV5S_NoPerp: PruebaV5S_NoPerp.o chkopts
+	$(CLINKER) -o $@ $< $(PETIGA_LIB)
+	$(RM) -f $<
+
+PruebaV5S_YesPerp: PruebaV5S_YesPerp.o chkopts
 	$(CLINKER) -o $@ $< $(PETIGA_LIB)
 	$(RM) -f $<
 

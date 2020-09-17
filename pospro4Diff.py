@@ -119,7 +119,8 @@ if num1==num2:
 
 		num = numpy.round(numpy.sqrt(sol1.size/4.0),decimals=0)
 
-		uniform = lambda U: linspace(U[0], U[-1], 1*num)
+		#uniform = lambda U: linspace(U[0], U[-1], 1*num)
+		uniform = lambda U: linspace(U[0], U[-1], 4*num-3)
 
 		# write a binary VTK file
 		VTK().write(outfile,       			# output filename

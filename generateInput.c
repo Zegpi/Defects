@@ -30,9 +30,9 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 
 //Generate Mesh and copy cpp to result folder to save for reproduction (check that parameters are the same on file to run)
 
-	PetscInt b=401;					//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
-	PetscReal Lx=20.0;
-	PetscReal Ly=20.0;
+	PetscInt b=581;		//581 works, 621 doesn't	//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
+	PetscReal Lx=80.0;
+	PetscReal Ly=80.0;
 	PetscInt  nx=b;
 	PetscInt  ny=b;
 
@@ -102,7 +102,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 
 //General parameters
 	PetscInt N,M, numEls;
-	N=0;	M=0;	numEls=1;
+	N=0;	M=0;	numEls=4;
 //
 
 //Creation of Initialization of Pi
@@ -122,8 +122,8 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	PetscInt *points;
 	PetscReal *valores;
 
-	points=(PetscInt*)calloc(8192,sizeof(PetscInt));
-	valores=(PetscReal*)calloc(8192,sizeof(PetscReal));
+	points=(PetscInt*)calloc(16384,sizeof(PetscInt));
+	valores=(PetscReal*)calloc(16384,sizeof(PetscReal));
 
 	PetscReal c,t;	c=Lx/nx;	t=Ly/ny;
 	PetscInt center;
@@ -136,27 +136,24 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	PetscPrintf(PETSC_COMM_WORLD,"gamma= %f \n",gamma*c*t);
 	PetscReal tanTh=tan(45.0/180.0*ConstPi)/(c*t);
 	*/
-	PetscReal a=0.0;
+	PetscReal a=0.0;				//a=3.585284301;	//This value sets up a dislocation with equivalent Burgers vector to the typical dipole
 	PetscReal dr=4.0*t;
 	PetscReal normdr2=dr*dr;
 	PetscReal gamma=0.0/normdr2*dr/(c*t);
 	//PetscReal tanTh=-0.0/normdr2*dr/(c*t);
 	PetscReal tanTh=0.0*tan(5.0/180.0*ConstPi)/(c*t);
 
-	PetscInt counter=0;
+	//Borrar esto, es solo para lo que pidio el profesor Hirth
+	//tanTh=tanTh/(N/13.0);
 
+	PetscPrintf(PETSC_COMM_WORLD,"tanTh=%f \n",tanTh);
+
+	PetscInt counter=0;
 	if(b%2==0)
 	{
 		PetscInt realNumEls=pow(2,numEls-1);
 		center=(nx+1)*ny/2+nx/2;
-		if(M<2)
-		{
-			//M=2;
-		}
-		if(N<2)
-		{
-			//N=2;
-		}
+
 		for (int i=0; i<pow(2,numEls-1)+1; i++)
 		{
 			for (int j=0; j<pow(2,numEls-1)+1; j++)
@@ -184,11 +181,11 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 				points[counter+1]=4*center+N*4*(nx+1)+M*4-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4+2;			valores[counter+1]=(tanTh-gamma)/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
 				points[counter+2]=4*center+N*4*(nx+1)+M*4-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4+3;			valores[counter+2]=(-gamma)/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
 
-				points[counter+3]=4*center+N*4*(nx+1)-M*4-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4+1;			valores[counter+3]=-(-tanTh)/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
-				points[counter+4]=4*center+N*4*(nx+1)-M*4-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4+2;			valores[counter+4]=-(tanTh-gamma)/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
-				points[counter+5]=4*center+N*4*(nx+1)-M*4-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4+3;			valores[counter+5]=-(-gamma)/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
+				points[counter+3]=4*center-N*4*(nx+1)-M*4-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4+1;			valores[counter+3]=-(-tanTh)/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
+				points[counter+4]=4*center-N*4*(nx+1)-M*4-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4+2;			valores[counter+4]=-(tanTh-gamma)/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
+				points[counter+5]=4*center-N*4*(nx+1)-M*4-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4+3;			valores[counter+5]=-(-gamma)/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
 				
-				counter=counter+5;
+				counter=counter+6;
 			}
 		}
 	}
@@ -196,7 +193,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	ierr = VecAssemblyBegin(pi0);CHKERRQ(ierr);
 	ierr = VecAssemblyEnd  (pi0);CHKERRQ(ierr);
 
-	ierr = VecSetValues(pi0,8192,points,valores,INSERT_VALUES);
+	ierr = VecSetValues(pi0,16384,points,valores,INSERT_VALUES);
 
 	ierr = VecAssemblyBegin(pi0);CHKERRQ(ierr);
 	ierr = VecAssemblyEnd  (pi0);CHKERRQ(ierr);
@@ -225,18 +222,19 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	ierr = IGACreateVec(igaAl,&alp0);CHKERRQ(ierr);
 	ierr = IGACreateVec(igaAl,&alp1);CHKERRQ(ierr);
 
-	PetscReal e1=(0.0+0.0*a)/(c*t);
-	PetscReal e2=0.0*(a-0.100211)/(c*t);
-	//PetscReal e2=(2.0)/(c*t);
-	//PetscReal lx=2.0*N*Lx/nx;
+	//PetscReal e1=(0.0-a)/(c*t);
+	//PetscReal e2=0.0*(a-0.100211061)/(c*t);
+
+	PetscReal e1=(-0.717056874438438)/(c*t);
+	PetscReal e2=(0.697014661840465)/(c*t);
 
 	PetscInt *pointsAl1,*pointsAl2 ;
 	PetscReal *valoresAl1,*valoresAl2;
 
-	pointsAl1=(PetscInt*)calloc(8192,sizeof(PetscInt));
-	pointsAl2=(PetscInt*)calloc(8192,sizeof(PetscInt));
-	valoresAl1=(PetscReal*)calloc(8192,sizeof(PetscReal));
-	valoresAl2=(PetscReal*)calloc(8192,sizeof(PetscReal));
+	pointsAl1=(PetscInt*)calloc(16384,sizeof(PetscInt));
+	pointsAl2=(PetscInt*)calloc(16384,sizeof(PetscInt));
+	valoresAl1=(PetscReal*)calloc(16384,sizeof(PetscReal));
+	valoresAl2=(PetscReal*)calloc(16384,sizeof(PetscReal));
 
 	ierr = VecAssemblyBegin(alp0);CHKERRQ(ierr);
 	ierr = VecAssemblyEnd  (alp0);CHKERRQ(ierr);
@@ -244,26 +242,20 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	ierr = VecAssemblyBegin(alp1);CHKERRQ(ierr);
 	ierr = VecAssemblyEnd  (alp1);CHKERRQ(ierr);
 
-	N=0; M=0;
+	//N=0; M=0;
 
+	/*
 	counter=0;
 	if(b%2==0)		
 	{
 		PetscInt realNumEls=pow(2,numEls-1);
 		center=(nx+1)*ny/2+nx/2;
-		if(M<2)
-		{
-			//M=2;
-		}
-		if(N<2)
-		{
-			//N=2;
-		}
+
 		for (int i=0; i<pow(2,numEls-1)+1; i++)
 		{
 			for (int j=0; j<pow(2,numEls-1)+1; j++)
 			{
-				pointsAl1[counter]  =2*center+(N+1)*2*(nx+1)+(M+1)*2-(i)*2*(nx+1)-(j)*2;									valoresAl1[counter]  =e1/((realNumEls+1.0)*(realNumEls+1.0));
+				pointsAl1[counter]  =2*center+(N+1)*2*(nx+1)+(M+1)*2-(i)*2*(nx+1)-(j)*2;								valoresAl1[counter]  =e1/((realNumEls+1.0)*(realNumEls+1.0));
 				pointsAl1[counter+1]=2*center+(N+1)*2*(nx+1)+(M+1)*2-(i)*2*(nx+1)-(j)*2+1;								valoresAl1[counter+1]=e2/((realNumEls+1.0)*(realNumEls+1.0));
 
 				counter=counter+2;					//Modify accodringly to hoy many gdl you are setting
@@ -285,9 +277,25 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 			}
 		}
 	}
+	*/
+
+	//This is for Hirth's rectangular dislocation core
+	counter=0;
+	center=(nx+1)*ny/2-1;
+	for (int i=-5*numEls; i<7*numEls; i++)		//normal core goes form i=0 to i<2*numEls, if a core twice as tall is desired, use i=-numEls to i<3 numEls and so on
+										//modify the factor (1.0/x.0) so the integral remains 1 (if core is twice as tall, x=2 and so on)
+	{
+		for (int j=0; j<2*numEls; j++)			//If you wanted a wide core instead of tall, do same here.
+		{
+			pointsAl1[counter  ]=2*center+N*2*(nx+1)+M*2  -(numEls-i-1)*2*(nx+1)-(numEls-j-1)*2;			valoresAl1[counter  ]=(1.0/6.0)*e1/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
+			pointsAl1[counter+1]=2*center+N*2*(nx+1)+M*2+1-(numEls-i-1)*2*(nx+1)-(numEls-j-1)*2;			valoresAl1[counter+1]=(1.0/6.0)*e2/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
+
+			counter=counter+2;					//Modify accodringly to hoy many gdl you are setting
+		}
+	}
 
 	//Here I build two dislocation cores with 2*dist_centro+1 elements between them, or 2*(dist_centro+1) center-to-center
-	
+	/*
 	PetscInt dist_centro, size_elem;
 	center=(nx+1)*ny/2-1;
 	
@@ -304,9 +312,10 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 			counter=counter+1;
 		}
 	}
+	*/
 
-	ierr = VecSetValues(alp0,8192,pointsAl1,valoresAl1,ADD_VALUES);
-	ierr = VecSetValues(alp1,8192,pointsAl2,valoresAl2,ADD_VALUES);
+	ierr = VecSetValues(alp0,16384,pointsAl1,valoresAl1,ADD_VALUES);
+	ierr = VecSetValues(alp1,16384,pointsAl2,valoresAl2,ADD_VALUES);
 
 	ierr = VecAssemblyBegin(alp0);CHKERRQ(ierr);
 	ierr = VecAssemblyEnd  (alp0);CHKERRQ(ierr);
