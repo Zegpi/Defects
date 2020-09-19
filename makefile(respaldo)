@@ -1,7 +1,9 @@
 TARGETS = \
 Poisson1D Poisson2D Poisson3D \
 poisson2dmod \
-Prueba PruebaV2 PruebaV3 PruebaV4 PruebaV5 Elas Eq Energy generateInput generateInput2\
+Prueba PruebaV2 PruebaV3 PruebaV4 PruebaV4S PruebaV5 PruebaV5-1 PruebaV5I PruebaV5S PruebaTest PruebaV5S_NoPerp PruebaV5S_YesPerp Eq Energy generateInput generateInputS\
+PruebaPetsc\
+Prueba1D \
 L2Projection AdaptiveL2Projection \
 Laplace BoundaryIntegral \
 Poisson LoggChallenge \
@@ -71,11 +73,43 @@ PruebaV4: PruebaV4.o chkopts
 	$(CLINKER) -o $@ $< $(PETIGA_LIB)
 	$(RM) -f $<
 
+PruebaV4S: PruebaV4S.o
+	$(CLINKER) -o $@ $< $(PETIGA_LIB)
+	$(RM) -f $<
+
 PruebaV5: PruebaV5.o chkopts
 	$(CLINKER) -o $@ $< $(PETIGA_LIB)
 	$(RM) -f $<
 
-Elas: Elas.o chkopts
+PruebaV5I: PruebaV5I.o chkopts
+	$(CLINKER) -o $@ $< $(PETIGA_LIB)
+	$(RM) -f $<
+
+PruebaV5-1: PruebaV5-1.o chkopts
+	$(CLINKER) -o $@ $< $(PETIGA_LIB)
+	$(RM) -f $<
+
+PruebaV5S: PruebaV5S.o chkopts
+	$(CLINKER) -o $@ $< $(PETIGA_LIB)
+	$(RM) -f $<
+
+PruebaTest: PruebaTest.o chkopts
+	$(CLINKER) -o $@ $< $(PETIGA_LIB)
+	$(RM) -f $<
+
+Prueba1D: Prueba1D.o chkopts
+	$(CLINKER) -o $@ $< $(PETIGA_LIB)
+	$(RM) -f $<
+
+PruebaPetsc: PruebaPetsc.o chkopts
+	$(CLINKER) -o $@ $< $(PETIGA_LIB)
+	$(RM) -f $<
+
+PruebaV5S_NoPerp: PruebaV5S_NoPerp.o chkopts
+	$(CLINKER) -o $@ $< $(PETIGA_LIB)
+	$(RM) -f $<
+
+PruebaV5S_YesPerp: PruebaV5S_YesPerp.o chkopts
 	$(CLINKER) -o $@ $< $(PETIGA_LIB)
 	$(RM) -f $<
 
@@ -91,7 +125,7 @@ generateInput: generateInput.o chkopts
 	$(CLINKER) -o $@ $< $(PETIGA_LIB)
 	$(RM) -f $<
 
-generateInput2: generateInput2.o chkopts
+generateInputS: generateInputS.o chkopts
 	$(CLINKER) -o $@ $< $(PETIGA_LIB)
 	$(RM) -f $<
 
