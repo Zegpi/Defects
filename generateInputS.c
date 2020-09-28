@@ -31,6 +31,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 //Generate Mesh and copy cpp to result folder to save for reproduction (check that parameters are the same on file to run)
 
 	PetscInt b=581;					//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
+	//PetscInt b=301;
 	PetscReal Lx=80.0;
 	PetscReal Ly=80.0;
 	PetscInt  nx=b;
@@ -233,6 +234,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 			for (int k=0; k<8; k++)
 			{ 
 				if(j>=294)
+				//if(j>=154)
 				{
 					pointsS[counter]=cord-8*(nx+1)*dist;
 					valoresS[counter]=factor*g[k]/l;
@@ -240,9 +242,11 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 					counter=counter+1;	
 				}
 				else if(j>=287)
+				//else if(j>=147)
 				{
 					pointsS[counter]=cord-8*(nx+1)*dist;
 					valoresS[counter]=factor*(g[k]/l)* (double)(j-287.0)/(7.0);
+					//valoresS[counter]=factor*(g[k]/l)* (double)(j-147.0)/(7.0);
 					cord=cord+1;
 					counter=counter+1;
 				}

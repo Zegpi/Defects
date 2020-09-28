@@ -1,7 +1,9 @@
+These instructions work on Ubuntu, last checked at 2020-09-28
+
 
 Open a terminal 
 
-vi .bashrc
+nano .bashrc
 
 Copy inside:
 
@@ -19,7 +21,7 @@ export PETIGA_DIR="/absolutepath/PetIGA"
 source .bashrc
 
 
-//Packages
+//Packages to install/update at the beginning, if any software ask for another package, install using this same command
 sudo apt-get install g++
 sudo apt-get install valgrind
 sudo apt-get install gfortran
@@ -29,7 +31,6 @@ sudo apt-get install python-dev
 sudo apt-get install python3-dev
 sudo apt-get install python-numpy
 sudo apt-get install git
-sudo apt-get install mercurial
 
 
 // Install Petsc !!
@@ -101,13 +102,11 @@ make all
 make test
 
 
-// Update PetIGA  (For future updates)
+// Update PetIGA  (For future updates) (This has not been tested)
 
 cd PetIGA
 
-hg pull
-
-hg update
+git pull
 
 make all
 
@@ -128,8 +127,8 @@ make PETSC_DIR=/absolutepath/petsc PETSC_ARCH=optimO3 test
 
 make PETSC_DIR=/absolutepath/petsc PETSC_ARCH=optimO3 streams NPMAX=4
 
-----go back to home and do----
-source .bashrc		//with the correct lines for the optimO3 lines uncommented
+----go back to home and comment the paths for arch-linux2, and uncomment the paths for optimO3----
+source .bashrc		//with the correct lines for the optimO3 lines uncommented !!!!
 
 
 // Update Petsc  (For future updates)
@@ -158,9 +157,7 @@ Open a terminal in home
 
 cd igakit
 
-hg pull
-
-hg update
+git pull
 
 python setup.py install --user
 
@@ -182,9 +179,7 @@ make test
 
 cd PetIGA
 
-hg pull
-
-hg update
+git pull
 
 make all
 

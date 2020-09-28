@@ -115,7 +115,9 @@ if num1==num2:
 				#diff[i][j]=eig1/eig2
 				diff[i][j]=val1/val2
 
-		outfile = Lista1[x][:-4] + " - Diff.vtk"
+		outfile = Lista1[x][:-4] +"_" +fileNameInput2[:-1] +" - Diff.vtk"
+
+		print(outfile)
 
 		num = numpy.round(numpy.sqrt(sol1.size/4.0),decimals=0)
 

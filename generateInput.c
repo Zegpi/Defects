@@ -30,7 +30,8 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 
 //Generate Mesh and copy cpp to result folder to save for reproduction (check that parameters are the same on file to run)
 
-	PetscInt b=581;		//581 works, 621 doesn't	//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
+	//PetscInt b=581;		//581 works, 621 doesn't	//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
+	PetscInt b=301;
 	PetscReal Lx=80.0;
 	PetscReal Ly=80.0;
 	PetscInt  nx=b;
@@ -141,7 +142,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	PetscReal normdr2=dr*dr;
 	PetscReal gamma=0.0/normdr2*dr/(c*t);
 	//PetscReal tanTh=-0.0/normdr2*dr/(c*t);
-	PetscReal tanTh=0.0*tan(5.0/180.0*ConstPi)/(c*t);
+	PetscReal tanTh=tan(5.0/180.0*ConstPi)/(c*t);
 
 	//Borrar esto, es solo para lo que pidio el profesor Hirth
 	//tanTh=tanTh/(N/13.0);

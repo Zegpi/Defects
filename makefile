@@ -2,6 +2,7 @@ TARGETS = \
 Poisson1D Poisson2D Poisson3D \
 poisson2dmod \
 Prueba PruebaV2 PruebaV3 PruebaV4 PruebaV4S PruebaV5 PruebaV5-1 PruebaV5I PruebaV5S PruebaTest PruebaV5S_NoPerp PruebaV5S_YesPerp Eq Energy generateInput generateInputS\
+PruebaV5S_NoPerp_Model1 PruebaV5S_NoPerp_Model2 PruebaV5S_NoPerp_Model3 PruebaV5S_YesPerp_Model1 PruebaV5S_YesPerp_Model2 PruebaV5S_YesPerp_Model3\
 PruebaPetsc\
 Prueba1D \
 L2Projection AdaptiveL2Projection \
@@ -110,6 +111,30 @@ PruebaV5S_NoPerp: PruebaV5S_NoPerp.o chkopts
 	$(RM) -f $<
 
 PruebaV5S_YesPerp: PruebaV5S_YesPerp.o chkopts
+	$(CLINKER) -o $@ $< $(PETIGA_LIB)
+	$(RM) -f $<
+
+PruebaV5S_NoPerp_Model1: PruebaV5S_NoPerp_Model1.o chkopts
+	$(CLINKER) -o $@ $< $(PETIGA_LIB)
+	$(RM) -f $<
+
+PruebaV5S_YesPerp_Model1: PruebaV5S_YesPerp_Model1.o chkopts
+	$(CLINKER) -o $@ $< $(PETIGA_LIB)
+	$(RM) -f $<
+
+PruebaV5S_NoPerp_Model2: PruebaV5S_NoPerp_Model2.o chkopts
+	$(CLINKER) -o $@ $< $(PETIGA_LIB)
+	$(RM) -f $<
+
+PruebaV5S_YesPerp_Model2: PruebaV5S_YesPerp_Model2.o chkopts
+	$(CLINKER) -o $@ $< $(PETIGA_LIB)
+	$(RM) -f $<
+
+PruebaV5S_NoPerp_Model3: PruebaV5S_NoPerp_Model3.o chkopts
+	$(CLINKER) -o $@ $< $(PETIGA_LIB)
+	$(RM) -f $<
+
+PruebaV5S_YesPerp_Model3: PruebaV5S_YesPerp_Model3.o chkopts
 	$(CLINKER) -o $@ $< $(PETIGA_LIB)
 	$(RM) -f $<
 
