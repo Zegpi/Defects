@@ -7,18 +7,19 @@ nano .bashrc
 
 Copy inside:
 
-absolutepath should be /home/eazegpi in my case
+alias petsc="/**absolutepath**/petsc/arch-linux2-c-debug/bin/mpiexec" 
+#alias petsc="/**absolutepath**/petsc/optimO3/bin/mpiexec"
+export PETSC_DIR="/**absolutepath**/petsc"
+export PETSC_ARCH="arch-linux2-c-debug"
+#export PETSC_ARCH="optimO3"
+export PETIGA_DIR="/**absolutepath**/PetIGA"
+
+**absolutepath** should be /home/eazegpi in my case
 
 *Do not forget to replace absolutepath*
 
-alias petsc="/absolutepath/petsc/arch-linux2-c-debug/bin/mpiexec" 
-#alias petsc="/absolutepath/petsc/optimO3/bin/mpiexec"
-export PETSC_DIR="/absolutepath/petsc"
-export PETSC_ARCH="arch-linux2-c-debug"
-#export PETSC_ARCH="optimO3"
-export PETIGA_DIR="/absolutepath/PetIGA"
 
-source .bashrc
+close nano and do "source .bashrc"
 
 
 //Packages to install/update at the beginning, if any software ask for another package, install using this same command
@@ -41,17 +42,17 @@ git clone -b maint https://bitbucket.org/petsc/petsc petsc
 cd petsc
 unset PETSC_DIR
 unset PETSC_ARCH
-echo $PETSC_DIR
+echo $PETSC_DIR			//This should output a blank line
 
 // Debug version
 
 ./configure --with-cc=gcc --with-fc=gfortran --download-fblaslapack --download-mpich --download-scalapack --download-mumps --download-parmetis --download-metis --download-ptscotch --download-hypre --download-ml --download-cmake
 
-make PETSC_DIR=/absolutepath/petsc PETSC_ARCH=arch-linux2-c-debug all
+make PETSC_DIR=/**absolutepath**/petsc PETSC_ARCH=arch-linux2-c-debug all
 
-make PETSC_DIR=/absolutepath/petsc PETSC_ARCH=arch-linux2-c-debug test
+make PETSC_DIR=/**absolutepath**/petsc PETSC_ARCH=arch-linux2-c-debug test
 
-make PETSC_DIR=/absolutepath/petsc PETSC_ARCH=arch-linux2-c-debug streams NPMAX=4
+make PETSC_DIR=/**absolutepath**/petsc PETSC_ARCH=arch-linux2-c-debug streams NPMAX=4
 
 ----go back to home and do----
 source .bashrc	
@@ -76,15 +77,13 @@ cd igakit
 python setup.py install --user
 
 
-// Update igakit (For future updates)
+// Update igakit (For future updates)	//This is untested
 
 Open a terminal in home
 
 cd igakit
 
-hg pull
-
-hg update
+git pull
 
 python setup.py install --user
 
@@ -102,7 +101,7 @@ make all
 make test
 
 
-// Update PetIGA  (For future updates) (This has not been tested)
+// Update PetIGA  (For future updates) //This is untested
 
 cd PetIGA
 
@@ -114,10 +113,12 @@ make test
 
 
 // Optimized version
+Open a terminal in home
 
+cd petsc
 unset PETSC_DIR
 unset PETSC_ARCH
-echo $PETSC_DIR
+echo $PETSC_DIR					//This should output a blank line
 
 ./configure  --with-cc=gcc --with-fc=gfortran --download-fblaslapack --download-mpich --with-debugging=0 COPTFLAGS=-O3 FOPTFLAGS=-O3 CXXOPTFLAGS=-O3 PETSC_ARCH=optimO3 --download-mumps --download-hypre --download-ml --download-scalapack --download-parmetis --download-metis --download-cmake
 
@@ -127,7 +128,16 @@ make PETSC_DIR=/absolutepath/petsc PETSC_ARCH=optimO3 test
 
 make PETSC_DIR=/absolutepath/petsc PETSC_ARCH=optimO3 streams NPMAX=4
 
-----go back to home and comment the paths for arch-linux2, and uncomment the paths for optimO3----
+----go back to home, open .bashrc in nano and comment the paths for arch-linux2, and uncomment the paths for optimO3----
+File should look like
+#alias petsc="/**absolutepath**/petsc/arch-linux2-c-debug/bin/mpiexec" 
+alias petsc="/**absolutepath**/petsc/optimO3/bin/mpiexec"
+export PETSC_DIR="/**absolutepath**/petsc"
+#export PETSC_ARCH="arch-linux2-c-debug"
+export PETSC_ARCH="optimO3"
+export PETIGA_DIR="/**absolutepath**/PetIGA"
+with absolutepath replaced as before
+
 source .bashrc		//with the correct lines for the optimO3 lines uncommented !!!!
 
 
@@ -139,7 +149,7 @@ git pull
 
 and compile again
 
-
+//This has to be done again, so igakit and PetIGA generate libraries for the optimized version of petsc
 // Install igakit !!
 
 Open a terminal in home

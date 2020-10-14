@@ -1121,7 +1121,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 							{
 								for (w=0; w<3; w++)
 								{
-									Feq[a][i]+=-0.5*(C[k][l][u][w]*(-fullChi[u][w]+fullZ[u][w])+C[l][k][u][w]*(-fullChi[u][w])+fullZ[u][w])*0.5*(dv[k][l]+dv[l][k]);
+									Feq[a][i]+=-0.5*(C[k][l][u][w]*(-fullChi[u][w])+C[l][k][u][w]*(-fullChi[u][w]))*0.5*(dv[k][l]+dv[l][k]);
 								}
 							}
 						}
@@ -1137,14 +1137,9 @@ PetscReal delta(PetscInt i, PetscInt j)
 										   -0.25*eps*(-full_dChi[k][l][u]-full_dChi[k][u][l]+full_dChi[l][k][u]+full_dChi[l][u][k])*d2v[k][l][u]
 										   //Next part is the contribution from having S in the energy function
 										   -0.25*eps*(-fullS[k][l][u]-fullS[k][u][l]-fullS[l][k][u]-fullS[l][u][k])*0.5*(d2v[k][l][u]+d2v[l][k][u])
-										   -0.25*eps*(-fullS[k][l][u]-fullS[k][u][l]+fullS[l][k][u]+fullS[l][u][k])*d2v[k][l][u]
-										   //Next part is the contribution of adding grad(Z) from the energy function, to turn J_hat into J
-										   -0.25*eps*(+fullGradZ[k][l][u]+fullGradZ[k][u][l]+fullGradZ[l][k][u]+fullGradZ[l][u][k])*0.5*(d2v[k][l][u]+d2v[l][k][u])
-										   -0.25*eps*(+fullGradZ[k][l][u]+fullGradZ[k][u][l]-fullGradZ[l][k][u]-fullGradZ[l][u][k])*d2v[k][l][u];
-							}
+										   -0.25*eps*(-fullS[k][l][u]-fullS[k][u][l]+fullS[l][k][u]+fullS[l][u][k])*d2v[k][l][u];
 						}
 					}
-
 				}
 			}
 		}

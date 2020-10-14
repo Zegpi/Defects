@@ -1,5 +1,5 @@
 Start of generateInputS 
-Current time is 15:48:08 
+Current time is 16:11:47 
 h= 0.137694
 System for initial state of S started 
 IGA: dim=2 dof=8 order=1 geometry=2 rational=0 property=0
@@ -21,11 +21,11 @@ Partition - nel: sum=337561 min=337561 max=337561 max/min=1.
 
 ---------------------------------------------- PETSc Performance Summary: ----------------------------------------------
 
-./generateInputS on a optimO3 named DESKTOP-NCAM2GT with 1 processor, by eazegpi Mon Sep 28 15:48:11 2020
+./generateInputS on a optimO3 named DESKTOP-NCAM2GT with 1 processor, by eazegpi Fri Oct  2 16:11:48 2020
 Using Petsc Release Version 3.12.4, unknown 
 
                          Max       Max/Min     Avg       Total 
-Time (sec):           2.742e+00     1.000   2.742e+00
+Time (sec):           8.188e-01     1.000   8.188e-01
 Objects:              7.000e+01     1.000   7.000e+01
 Flop:                 0.000e+00     0.000   0.000e+00  0.000e+00
 Flop/sec:             0.000e+00     0.000   0.000e+00  0.000e+00
@@ -39,7 +39,7 @@ Flop counting convention: 1 flop = 1 real number operation of type (multiply/div
 
 Summary of Stages:   ----- Time ------  ----- Flop ------  --- Messages ---  -- Message Lengths --  -- Reductions --
                         Avg     %Total     Avg     %Total    Count   %Total     Avg         %Total    Count   %Total 
- 0:      Main Stage: 2.7420e+00 100.0%  0.0000e+00   0.0%  0.000e+00   0.0%  0.000e+00        0.0%  0.000e+00   0.0% 
+ 0:      Main Stage: 8.1880e-01 100.0%  0.0000e+00   0.0%  0.000e+00   0.0%  0.000e+00        0.0%  0.000e+00   0.0% 
 
 ------------------------------------------------------------------------------------------------------------------------
 See the 'Profiling' chapter of the users' manual for details on interpreting output.
@@ -63,12 +63,12 @@ Event                Count      Time (sec)     Flop                             
 
 --- Event Stage 0: Main Stage
 
-VecView                2 1.0 2.0032e-02 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  1  0  0  0  0   1  0  0  0  0     0
-VecSet                14 1.0 1.2881e-01 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  5  0  0  0  0   5  0  0  0  0     0
-VecAssemblyBegin       6 1.0 7.1526e-06 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
-VecAssemblyEnd         6 1.0 5.0068e-06 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
-VecLoad                2 1.0 7.5622e-03 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
-VecScatterBegin        6 1.0 4.9760e-03 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+VecView                2 1.0 2.4531e-02 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  3  0  0  0  0   3  0  0  0  0     0
+VecSet                14 1.0 1.2580e-01 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00 15  0  0  0  0  15  0  0  0  0     0
+VecAssemblyBegin       6 1.0 7.8678e-06 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+VecAssemblyEnd         6 1.0 5.4836e-06 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+VecLoad                2 1.0 7.3636e-03 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  1  0  0  0  0   1  0  0  0  0     0
+VecScatterBegin        6 1.0 4.6542e-03 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  1  0  0  0  0   1  0  0  0  0     0
 ------------------------------------------------------------------------------------------------------------------------
 
 Memory usage is given in bytes:
@@ -86,7 +86,7 @@ Reports information only for process 0.
               Vector    14             10    102987696     0.
    Application Order     4              2      5420928     0.
 ========================================================================================================================
-Average time to get PetscTime(): 8.34465e-07
+Average time to get PetscTime(): 8.58307e-07
 #PETSc Option Table entries:
 -iga_fd
 -iga_view

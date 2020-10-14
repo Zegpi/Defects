@@ -77,33 +77,15 @@ if num1==num2:
 			print('Mismatch in vector lengths, wrong mesh?, file1='+sys.argv[1]+' file2='+sys.argv[2])
 			sys.exit()
 
-		diff=numpy.ndarray([sol1.shape[0],sol1.shape[1]])
+		matA=numpy.ndarray([sol1.shape[0],sol1.shape[1],sol1.shape[2]])
 
 		for i in range(sol1.shape[0]):
 			for j in range(sol1.shape[1]):
 
-				matA[0][0]=sol2[i][j][0]-sol1[i][j][0]							#Sigma_exact-Sigma
-				matA[0][1]=sol2[i][j][1]-sol1[i][j][1]
-				matA[1][0]=sol2[i][j][2]-sol1[i][j][2]
-				matA[1][1]=sol2[i][j][3]-sol1[i][j][3]
-
-				val1=numpy.sqrt(matA[0][0]*matA[0][0]+matA[0][1]*matA[0][1]+matA[1][0]*matA[1][0]+matA[1][1]*matA[1][1])
-
-				#lam,v=numpy.linalg.eig(matB);
-				#eig1=numpy.max(lam);
-
-				matA[0][0]=sol2[i][j][0]										#Sigma_exact
-				matA[0][1]=sol2[i][j][1]
-				matA[1][0]=sol2[i][j][2]
-				matA[1][1]=sol2[i][j][3]
-
-				#lam,v=numpy.linalg.eig(matB);
-				#eig2=numpy.max(lam);
-
-				val2=numpy.sqrt(matA[0][0]*matA[0][0]+matA[0][1]*matA[0][1]+matA[1][0]*matA[1][0]+matA[1][1]*matA[1][1])
-
-				#diff[i][j]=eig1/eig2
-				diff[i][j]=val1/val2
+				matA[i][j][0]=0.0
+				matA[i][j][1]=0.5*(sol1[i][j][1]+sol2[i][j][1])-0.5*(sol1[i][j][2]+sol2[i][j][2])
+				matA[i][j][2]=-0.5*(sol1[i][j][1]+sol2[i][j][1])+0.5*(sol1[i][j][2]+sol2[i][j][2])
+				matA[i][j][3]=0.0
 
 		outfile = Lista1[x][:-4] +"_" +fileNameInput2[:-1] +" - Diff.vtk"
 
@@ -117,9 +99,9 @@ if num1==num2:
 		# write a binary VTK file
 		VTK().write(outfile,       			# output filename
 	            nrb,                    	# igakit NURBS object
-	            fields=diff,             	# field is the numpy array to plot 
+	            fields=matA,             	# field is the numpy array to plot 
 	            sampler=uniform,        	# specify the function to sample points
-	            scalars={nombre+'Diff(1)':0}) # adds a scalar plot to the VTK file
+	            scalars={nombre+"(1)":0,nombre+"(2)":1,nombre+"(3)":2,nombre+"(4)":3}) # adds a scalar plot to the VTK file
 
 else:
 	print('Number of files to compare is different')
