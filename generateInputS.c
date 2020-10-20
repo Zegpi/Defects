@@ -128,8 +128,8 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	numF=8;			//Number of node rows to assign, rows of elements will be one less
 	dist=80;				//Distance from center to eigenwall (Distance center to center is 2*dist [elements])
 	
-	ierr = PetscCalloc1(524288,&pointsS);CHKERRQ(ierr);
-	ierr = PetscCalloc1(524288,&valoresS);CHKERRQ(ierr);
+	ierr = PetscCalloc1(1048576,&pointsS);CHKERRQ(ierr);
+	ierr = PetscCalloc1(1048576,&valoresS);CHKERRQ(ierr);
 
 	ierr = VecAssemblyBegin(s0);CHKERRQ(ierr);
 	ierr = VecAssemblyEnd  (s0);CHKERRQ(ierr);
@@ -198,8 +198,8 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	nf=(b-2)/2;			//For even values of b 
 	//nc=(b+1)/2;		//Half the length of the body, for a disclination on the center
 	nc=b+1;				//Full length of the body, for something like a through twin
-	numF=8;				//Number of node rows to assign, rows of elements will be one less
-	dist=2;				//Distance from center to eigenwall (Distance center to center is 2*dist [elements])
+	numF=48;				//Number of node rows to assign, rows of elements will be one less
+	dist=22;				//Distance from center to eigenwall (Distance center to center is 2*dist [elements])
 	counter=0;
 	l=t*(numF+1);
 
@@ -216,14 +216,14 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 
 	g[0]=0.0;
 	g[1]=0.0;																					//S_112
-	g[2]=0.0;
-	g[3]=tan(5.0/180.0*ConstPi);																//S_122
-	g[4]=0.0;
-	g[5]=-tan(5.0/180.0*ConstPi);																//S_212
+	g[2]=1.0;
+	g[3]=0.0;																					//S_122
+	g[4]=-1.0;
+	g[5]=0.0;																					//S_212
 	g[6]=0.0;
 	g[7]=0.0;																					//S_222
 
-	PetscReal factor=1.11732661608249;
+	PetscReal factor=1.0/(64.0*c*t*numF/8.0);
 
 	for (int i=nf; i<nf+numF; i++)
 	{
@@ -232,11 +232,11 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 		{
 			for (int k=0; k<8; k++)
 			{ 
-				if(j>=294)
+				if(j>=295)
 				//if(j>=154)
 				{
 					pointsS[counter]=cord-8*(nx+1)*dist;
-					valoresS[counter]=factor*g[k]/l;
+					valoresS[counter]=0.0;
 					cord=cord+1;
 					counter=counter+1;	
 				}
@@ -244,7 +244,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 				//else if(j>=147)
 				{
 					pointsS[counter]=cord-8*(nx+1)*dist;
-					valoresS[counter]=factor*(g[k]/l)* (double)(j-287.0)/(7.0);
+					valoresS[counter]=factor*g[k];
 					//valoresS[counter]=factor*(g[k]/l)* (double)(j-147.0)/(7.0);
 					cord=cord+1;
 					counter=counter+1;

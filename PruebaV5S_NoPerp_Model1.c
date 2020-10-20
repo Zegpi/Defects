@@ -41,7 +41,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 	else
 		return 0.0;
 }
-
+  
 /*
 //L2 projection of S(0)
 	#undef  __FUNCT__
@@ -403,13 +403,11 @@ PetscReal delta(PetscInt i, PetscInt j)
 
 		PetscInt a,b,u,w,i,j,k,nen=p->nen, dof=p->dof;
 
-		PetscReal S[8];																		//Create array to recieve Alfa
-		//PetscReal dS[8][2];																	//Create array to recieve dAlfa
+		PetscReal S[8];																			//Create array to recieve Alfa
 		IGAPointFormValue(pS,US,&S[0]);															//This fills the values
-		//IGAPointFormGrad (pS,U,&dS[0][0]);														//This fills the values of the derivatives
 
 		PetscReal fullS[3][3][3]={0};
-		fullS[0][0][0]=S[0]; fullS[0][0][1]=S[1]; 											//Expand S to full 3rd order form, only non-zero elements
+		fullS[0][0][0]=S[0]; fullS[0][0][1]=S[1]; 												//Expand S to full 3rd order form, only non-zero elements
 		fullS[0][1][0]=S[2]; fullS[0][1][1]=S[3];		
 		fullS[1][0][0]=S[4]; fullS[1][0][1]=S[5]; 
 		fullS[1][1][0]=S[6]; fullS[1][1][1]=S[7];
@@ -728,7 +726,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=0.0*mu/10.0;								//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/10.0;								//Choose later based on whatever Amit says :)
 
 		PetscReal Chi0[4];																	//Assign chi to a vector
 		PetscReal dChi0[4][2];																//Same for partial derivatives
@@ -1171,7 +1169,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=0.0*mu/10.0;															//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/10.0;															//Choose later based on whatever Amit says :)
 
 		PetscReal chi0[4];																	//Array to contain the vector chi(0)
 		PetscReal d2_Chi0[4][2][2];															//Same for its Hessian
@@ -1560,7 +1558,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		//const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		//const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=0.0*mu/10.0;															//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/10.0;															//Choose later based on whatever Amit says :)
 
 		//Definition of alternating tensor
 		const PetscReal e[3][3][3]=
@@ -1669,7 +1667,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=0.0*mu/10.0;															//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/10.0;															//Choose later based on whatever Amit says :)
 
 		//Definition of alternating tensor
 		//const PetscReal e[3][3][3]=
@@ -1924,7 +1922,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 
 		//Change to consider G=1
 		const PetscReal mu=1.0;
-		const PetscReal eps=0.0*mu/10.0;															//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/10.0;															//Choose later based on whatever Amit says :)
 
 		PetscReal d_Chi0[4][2];																//Same for its gradient
 		IGAPointFormGrad(pChi,Chi,&d_Chi0[0][0]);											//Assign grad chi to its container
@@ -2013,7 +2011,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=0.0*mu/10.0;															//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/10.0;															//Choose later based on whatever Amit says :)
 
 		PetscReal chi0[4];																	//Array to contain the vector chi(0)
 		PetscReal d2_Chi0[4][2][2];															//Same for its Hessian
@@ -2171,7 +2169,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=0.0*mu/10.0;															//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/10.0;															//Choose later based on whatever Amit says :)
 
 		//Definition of alternating tensor
 		const PetscReal e[3][3][3]=
@@ -2328,7 +2326,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=0.0*mu/10.0;														//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/10.0;														//Choose later based on whatever Amit says :)
 
 		PetscReal C[3][3][3][3]={0};
 		//Creation of elasticity tensor

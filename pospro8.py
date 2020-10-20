@@ -53,8 +53,8 @@ for infile in glob.glob(fileName):
 	num = numpy.round(numpy.sqrt(sol.size/8.0),decimals=0)
 
 	# write a function to sample the nrbs object
-	uniform = lambda U: linspace(U[0], U[-1], 4*num-3)		#This takes 4 samples per element
-	#uniform = lambda U: linspace(U[0], U[-1], num)			#This takes 1 sample per element
+	#uniform = lambda U: linspace(U[0], U[-1], 4*num-3)		#This takes 4 samples per element
+	uniform = lambda U: linspace(U[0], U[-1], num)			#This takes 1 sample per element
 
 
 	outfile = infile[:-4] + ".vtk"				#string[:-4] cuts the last 4 characters from the string, in this case ".dat"
