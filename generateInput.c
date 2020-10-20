@@ -142,7 +142,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	PetscReal normdr2=dr*dr;
 	PetscReal gamma=0.0/normdr2*dr/(c*t);
 	//PetscReal tanTh=-0.0/normdr2*dr/(c*t);
-	PetscReal tanTh=tan(5.0/180.0*ConstPi)/(c*t);
+	PetscReal tanTh=0.0*tan(5.0/180.0*ConstPi)/(c*t);
 
 	//Borrar esto, es solo para lo que pidio el profesor Hirth
 	//tanTh=tanTh/(N/13.0);
@@ -226,8 +226,8 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	//PetscReal e1=(0.0-a)/(c*t);
 	//PetscReal e2=0.0*(a-0.100211061)/(c*t);
 
-	PetscReal e1=(-0.717056874438438)/(c*t);
-	PetscReal e2=(0.697014661840465)/(c*t);
+	PetscReal e1=(1.0)/(c*t);
+	PetscReal e2=(0.0)/(c*t);
 
 	PetscInt *pointsAl1,*pointsAl2 ;
 	PetscReal *valoresAl1,*valoresAl2;
@@ -284,7 +284,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	counter=0;
 	center=(nx+1)*ny/2-1;
 	for (int i=-5*numEls; i<7*numEls; i++)		//normal core goes form i=0 to i<2*numEls, if a core twice as tall is desired, use i=-numEls to i<3 numEls and so on
-										//modify the factor (1.0/x.0) so the integral remains 1 (if core is twice as tall, x=2 and so on)
+												//modify the factor (1.0/x.0) so the integral remains 1 (if core is twice as tall, x=2 and so on)
 	{
 		for (int j=0; j<2*numEls; j++)			//If you wanted a wide core instead of tall, do same here.
 		{
