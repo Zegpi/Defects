@@ -30,9 +30,9 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 
 //Generate Mesh and copy cpp to result folder to save for reproduction (check that parameters are the same on file to run)
 
-	PetscInt b=581;					//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
-	PetscReal Lx=80.0;
-	PetscReal Ly=80.0;
+	PetscInt b=300;					//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
+	PetscReal Lx=10.0;
+	PetscReal Ly=10.0;
 	PetscInt  nx=b;
 	PetscInt  ny=b;
 
@@ -141,7 +141,6 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	//fullS[0][0][0]=S[0]; fullS[0][0][1]=S[1]; fullS[0][1][0]=S[2]; fullS[0][1][1]=S[3];		//Expand S to full 3rd order form, only non-zero elements
 	//fullS[1][0][0]=S[4]; fullS[1][0][1]=S[5]; fullS[1][1][0]=S[6]; fullS[1][1][1]=S[7];
 
-	/*
 	PetscReal alpha=0.5;																	//Alpha linearly interpolates between a pure twin (alpha=0.0) and a pure rotation grain boundary (alpha=1.0)
 	
 	g[0]=0.0;
@@ -172,7 +171,6 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 			}
 		}
 	}
-	*/
 
 	//Uncomment for 2 eigenwalls
 	/*
@@ -194,6 +192,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	}
 	*/
 
+	/*
 	//This is for coherency defect (see Amit's email on 11/08/2020, subject: "some thoughts")
 	nf=(b-2)/2;			//For even values of b 
 	//nc=(b+1)/2;		//Half the length of the body, for a disclination on the center
@@ -202,17 +201,6 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	dist=22;				//Distance from center to eigenwall (Distance center to center is 2*dist [elements])
 	counter=0;
 	l=t*(numF+1);
-
-	/*
-	g[0]=0.0;								//S_111 (these indices in 1 based numbering)
-	g[1]=0.0;								//S_112
-	g[2]=0.0;								//S_121
-	g[3]=1.0;								//S_122
-	g[4]=0.0;								//S_211
-	g[5]=0.0;								//S_212
-	g[6]=0.0;								//S_221
-	g[7]=0.0;								//S_222
-	*/
 
 	g[0]=0.0;
 	g[1]=0.0;																					//S_112
@@ -259,6 +247,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 			}
 		}
 	}
+	*/
 
 	ierr = VecSetValues(s0,8*nc*numF*4,pointsS,valoresS,ADD_VALUES);	
 	ierr = VecAssemblyBegin(s0);CHKERRQ(ierr);
