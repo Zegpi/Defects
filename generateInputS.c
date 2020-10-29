@@ -31,8 +31,8 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 //Generate Mesh and copy cpp to result folder to save for reproduction (check that parameters are the same on file to run)
 
 	PetscInt b=581;					//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
-	PetscReal Lx=80.0;
-	PetscReal Ly=80.0;
+	PetscReal Lx=20.0;
+	PetscReal Ly=20.0;
 	PetscInt  nx=b;
 	PetscInt  ny=b;
 
@@ -121,15 +121,16 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	PetscInt nf,nc,numF,cord,counter, *pointsS, dist;
 	PetscReal *valoresS,c,t,l,g[8];
 
+	
 	//nf=(b-1)/2; 		//For odd values of b 
 	nf=(b-2)/2;			//For even values of b 
 	//nc=(b+1)/2;			//Half the length of the body, for a disclination on the center
 	nc=b+1;				//Full length of the body, for something like a through twin
-	numF=8;			//Number of node rows to assign, rows of elements will be one less
-	dist=80;				//Distance from center to eigenwall (Distance center to center is 2*dist [elements])
+	numF=30;			//Number of node rows to assign, rows of elements will be one less
+	dist=0;				//Distance from center to eigenwall (Distance center to center is 2*dist [elements])
 	
-	ierr = PetscCalloc1(1048576,&pointsS);CHKERRQ(ierr);
-	ierr = PetscCalloc1(1048576,&valoresS);CHKERRQ(ierr);
+	ierr = PetscCalloc1(2097152,&pointsS);CHKERRQ(ierr);
+	ierr = PetscCalloc1(2097152,&valoresS);CHKERRQ(ierr);
 
 	ierr = VecAssemblyBegin(s0);CHKERRQ(ierr);
 	ierr = VecAssemblyEnd  (s0);CHKERRQ(ierr);
@@ -138,11 +139,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	t=Ly/ny;
 	l=t*(numF-1);
 
-	//fullS[0][0][0]=S[0]; fullS[0][0][1]=S[1]; fullS[0][1][0]=S[2]; fullS[0][1][1]=S[3];		//Expand S to full 3rd order form, only non-zero elements
-	//fullS[1][0][0]=S[4]; fullS[1][0][1]=S[5]; fullS[1][1][0]=S[6]; fullS[1][1][1]=S[7];
-
-	/*
-	PetscReal alpha=0.5;																	//Alpha linearly interpolates between a pure twin (alpha=0.0) and a pure rotation grain boundary (alpha=1.0)
+	PetscReal alpha=0.0;																	//Alpha linearly interpolates between a pure twin (alpha=0.0) and a pure rotation grain boundary (alpha=1.0)
 	
 	g[0]=0.0;
 	g[1]=alpha*(cos(85.0/180.0*ConstPi)-cos(90.0/180.0*ConstPi));								//S_112
@@ -172,7 +169,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 			}
 		}
 	}
-	*/
+
 
 	//Uncomment for 2 eigenwalls
 	/*
@@ -194,6 +191,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	}
 	*/
 
+	/*
 	//This is for coherency defect (see Amit's email on 11/08/2020, subject: "some thoughts")
 	nf=(b-2)/2;			//For even values of b 
 	//nc=(b+1)/2;		//Half the length of the body, for a disclination on the center
@@ -202,17 +200,6 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	dist=22;				//Distance from center to eigenwall (Distance center to center is 2*dist [elements])
 	counter=0;
 	l=t*(numF+1);
-
-	/*
-	g[0]=0.0;								//S_111 (these indices in 1 based numbering)
-	g[1]=0.0;								//S_112
-	g[2]=0.0;								//S_121
-	g[3]=1.0;								//S_122
-	g[4]=0.0;								//S_211
-	g[5]=0.0;								//S_212
-	g[6]=0.0;								//S_221
-	g[7]=0.0;								//S_222
-	*/
 
 	g[0]=0.0;
 	g[1]=0.0;																					//S_112
@@ -259,6 +246,158 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 			}
 		}
 	}
+	*/
+
+	/*
+	//This is for Amit and Hirt's jog as S, the idea is to get an eigenwall that looks like ths
+	//				  ________________
+	//				 |
+	// ______________|
+
+	//Where at all points S=W \tensor normal, and normal changes along the wall
+	PetscReal value=tan(5.0*ConstPi/180.0);				//Misorientation angle
+	
+	//First the lower horizontal part
+	counter=0;
+	nf=193;												//For even values of b (this is considering 581 elements in the mesh, modify accordingly)
+	numF=8;												//Thickness of the layer in the y direction, in number of rows, elements will be one less
+	nc=b+1;
+	PetscInt lim_izq, lim_der;
+	lim_izq=341; lim_der=348;
+
+	g[0]=0.0;											
+	g[1]=0.0;											//S_112
+	g[2]=0.0;
+	g[3]=value;											//S_122
+	g[4]=0.0;
+	g[5]=-value;										//S_212
+	g[6]=0.0;
+	g[7]=0.0;											//S_222
+
+	for (int i=nf; i<nf+numF; i++)
+	{
+		for (int j=0; j<nc; j++)
+		{
+			for (int k=0; k<8; k++)
+			{ 
+				if(j<lim_izq)
+				{
+					pointsS[counter]=8*(nx+1)*i+8*j+k;
+					valoresS[counter]=g[k];
+					cord=cord+1;
+					counter=counter+1;
+				}
+				else
+				{
+					if(j<lim_der)
+					{
+						pointsS[counter]=8*(nx+1)*i+8*j+k;
+						valoresS[counter]=g[k]*(1.0-(double)(j-lim_izq)/(1.0*(lim_der-lim_izq)) );
+						cord=cord+1;
+						counter=counter+1;
+					}
+					else
+					{
+						pointsS[counter]=8*(nx+1)*i+8*j+k;
+						valoresS[counter]=0.0;
+						cord=cord+1;
+						counter=counter+1;
+					}
+				}
+			}
+		}
+	}
+
+	//Now the vertical part
+	PetscInt numF_H=150;
+
+	//S (and it's 8 non-zero components stored in g) change here because the vertical part is W \tensor -e_1
+	g[0]=0.0;											
+	g[1]=0.0;											//S_112
+	g[2]=-value;
+	g[3]=0.0;											//S_122
+	g[4]=value;
+	g[5]=0.0;											//S_212
+	g[6]=0.0;
+	g[7]=0.0;
+
+	for (int i=nf; i<nf+numF_H; i++)
+	{
+		for (int j=lim_izq; j<lim_izq+numF; j++)
+		{
+			for (int k=0; k<8; k++)
+			{ 
+				if(i<nf+numF-1)
+				{
+					pointsS[counter]=8*(nx+1)*i+8*j+k;
+					valoresS[counter]=g[k]*(double)(i-nf)/(1.0*numF);
+					cord=cord+1;
+					counter=counter+1;
+				}
+				else
+				{
+					if(i<nf+numF_H-numF-1)
+					{
+						pointsS[counter]=8*(nx+1)*i+8*j+k;
+						valoresS[counter]=g[k];
+						cord=cord+1;
+						counter=counter+1;
+					}
+					else
+					{
+						if(i<nf+numF_H-3)
+						{
+							pointsS[counter]=8*(nx+1)*i+8*j+k;
+							valoresS[counter]=g[k]*(1.0-(i-(double)(nf+numF_H-numF-3))/(1.0*numF));
+							cord=cord+1;
+							counter=counter+1;
+						}
+					}
+				}
+				
+			}
+		}
+	}
+
+	//Now the second horizontal part
+
+	g[0]=0.0;											
+	g[1]=0.0;											//S_112
+	g[2]=0.0;
+	g[3]=value;											//S_122
+	g[4]=0.0;
+	g[5]=-value;										//S_212
+	g[6]=0.0;
+	g[7]=0.0;											//S_222
+
+	for (int i=nf+numF_H-numF-2; i<nf+numF_H-2; i++)
+	{
+		for (int j=0; j<nc; j++)
+		{
+			for (int k=0; k<8; k++)
+			{ 
+				if(j>lim_der-numF && j<=lim_der)
+				{
+					pointsS[counter]=8*(nx+1)*i+8*j+k;
+					valoresS[counter]=g[k]*(double)(j-(lim_der-numF))/(1.0*numF);
+					cord=cord+1;
+					counter=counter+1;
+				}
+				else
+				{
+					if(j>lim_der)
+					{
+						pointsS[counter]=8*(nx+1)*i+8*j+k;
+						valoresS[counter]=g[k];
+						cord=cord+1;
+						counter=counter+1;
+					}
+				}
+			}
+		}
+	}
+	*/
+
 
 	ierr = VecSetValues(s0,8*nc*numF*4,pointsS,valoresS,ADD_VALUES);	
 	ierr = VecAssemblyBegin(s0);CHKERRQ(ierr);

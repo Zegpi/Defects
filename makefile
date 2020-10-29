@@ -1,7 +1,7 @@
 TARGETS = \
 Poisson1D Poisson2D Poisson3D \
 poisson2dmod \
-Prueba PruebaV2 PruebaV3 PruebaV4 PruebaV4S PruebaV4S_V2 PruebaV5 PruebaV5-1 PruebaV5I PruebaV5S PruebaTest PruebaV5S_NoPerp PruebaV5S_YesPerp Eq Energy generateInput generateInputS\
+Prueba PruebaV2 PruebaV3 PruebaV4 PruebaV4S PruebaV4S_V2 PruebaV5 PruebaV5-1 PruebaV5I PruebaV5S PruebaTest PruebaV5S_NoPerp PruebaV5S_YesPerp Eq Energy generateInput generateInputS generateInput_tanh\
 PruebaV5S_NoPerp_Model1 PruebaV5S_NoPerp_Model2 PruebaV5S_NoPerp_Model3 PruebaV5S_YesPerp_Model1 PruebaV5S_YesPerp_Model2 PruebaV5S_YesPerp_Model3\
 PruebaPetsc\
 Prueba1D \
@@ -151,6 +151,10 @@ Energy: Energy.o chkopts
 	$(RM) -f $<
 
 generateInput: generateInput.o chkopts
+	$(CLINKER) -o $@ $< $(PETIGA_LIB)
+	$(RM) -f $<
+
+generateInput_tanh: generateInput_tanh.o chkopts
 	$(CLINKER) -o $@ $< $(PETIGA_LIB)
 	$(RM) -f $<
 

@@ -2007,7 +2007,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal 0.0*mu/100.0;															//Choose later based on whatever Amit says :)
+		const PetscReal eps=0.0*mu/100.0;															//Choose later based on whatever Amit says :)
 
 		//Definition of alternating tensor
 		const PetscReal e[3][3][3]=
@@ -3149,7 +3149,7 @@ int main(int argc, char *argv[]) {
 
 //App context creation and some data
 	//Mesh parameters (to fix specific points in z0 system)
-	PetscInt b=581;				//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
+	PetscInt b=301;				//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
 	PetscReal Lx=80.0;
 	PetscReal Ly=80.0;
 	PetscInt  nx=b;
@@ -3419,12 +3419,12 @@ int main(int argc, char *argv[]) {
 	ierr = VecAssemblyEnd  (FchiS);CHKERRQ(ierr);
 
 	ierr = KSPSetOperators(kspchiS,KchiS,KchiS);CHKERRQ(ierr);
-	//PC pcchiS;
-	//ierr = KSPGetPC(kspchiS,&pcchiS); CHKERRQ(ierr);
-	//ierr = PCSetType(pcchiS,PCLU); CHKERRQ(ierr);
-	//ierr = PCFactorSetMatSolverType(pcchiS,MATSOLVERMUMPS); CHKERRQ(ierr);
-	ierr = KSPSetFromOptions(kspchiS);CHKERRQ(ierr);
-	ierr = KSPSetTolerances(kspchiS,1.0e-18,1.0e-30,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	PC pcchiS;
+	ierr = KSPGetPC(kspchiS,&pcchiS); CHKERRQ(ierr);
+	ierr = PCSetType(pcchiS,PCLU); CHKERRQ(ierr);
+	ierr = PCFactorSetMatSolverType(pcchiS,MATSOLVERMUMPS); CHKERRQ(ierr);
+	//ierr = KSPSetFromOptions(kspchiS);CHKERRQ(ierr);
+	//ierr = KSPSetTolerances(kspchiS,1.0e-18,1.0e-30,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
 	ierr = KSPSolve(kspchiS,FchiS,chiS0);CHKERRQ(ierr);
 
 	ierr = KSPDestroy(&kspchiS);CHKERRQ(ierr);
@@ -3643,6 +3643,7 @@ int main(int argc, char *argv[]) {
 		ierr = IGASetRuleSize(igaAl,dir,6);CHKERRQ(ierr);
 	}
 	ierr = IGASetUp(igaAl);CHKERRQ(ierr);
+	
 	//PetscInt dir,side;
 	for (dir=0; dir<2; dir++) 
 	{
@@ -3664,9 +3665,9 @@ int main(int argc, char *argv[]) {
 	IGAElement      elemAlp, elemSp;				//element
 	PetscReal       *KlocAlp,*FlocAlp;				//AA y BB
 	PetscReal       *KpointAlp,*FpointAlp;			//KKK y FFF
-	const PetscReal *arrayS0Alp;					//arrayU
-	Vec  			localS0Alp;						//localU
-	PetscReal       *S0Alp;							//U
+	const PetscReal *arraySpAlp;					//arrayU
+	Vec  			localSpAlp;						//localU
+	PetscReal       *SpAlp;							//U
 
   	IGAFormSystem  wtfAlp;
  	void           *wtf2Alp;
@@ -3675,7 +3676,7 @@ int main(int argc, char *argv[]) {
 	ierr = IGACreateKSP(igaAl,&kspAlp);CHKERRQ(ierr);
 
 	//Get local vectors s0 and arrays
-	ierr = IGAGetLocalVecArray(igachiS,chiS0,&localS0Alp,&arrayS0Alp);CHKERRQ(ierr);
+	ierr = IGAGetLocalVecArray(igachiS,chiS0,&localSpAlp,&arraySpAlp);CHKERRQ(ierr);
 
 	//Element loop
 	ierr = IGABeginElement(igaAl,&elemAlp);CHKERRQ(ierr);
@@ -3686,7 +3687,7 @@ int main(int argc, char *argv[]) {
 		IGANextElement(igachiS,elemSp);
 		ierr = IGAElementGetWorkMat(elemAlp,&KlocAlp);CHKERRQ(ierr);
 		ierr = IGAElementGetWorkVec(elemAlp,&FlocAlp);CHKERRQ(ierr);
-		ierr = IGAElementGetValues(elemSp,arrayS0Alp,&S0Alp);CHKERRQ(ierr);
+		ierr = IGAElementGetValues(elemSp,arraySpAlp,&SpAlp);CHKERRQ(ierr);
 
 		//FormSystem loop
 		while (IGAElementNextFormSystem(elemAlp,&wtfAlp,&wtf2Alp)) 
@@ -3701,7 +3702,7 @@ int main(int argc, char *argv[]) {
 					IGAElementNextPoint(elemSp,pointSp);
 					ierr = IGAPointGetWorkMat(pointAlp,&KpointAlp);CHKERRQ(ierr);
 					ierr = IGAPointGetWorkVec(pointAlp,&FpointAlp);CHKERRQ(ierr);
-					ierr = L2ProjectionAlSp(pointAlp,pointSp,KpointAlp,FpointAlp,S0Alp,&userL2);CHKERRQ(ierr);
+					ierr = L2ProjectionAlSp(pointAlp,pointSp,KpointAlp,FpointAlp,SpAlp,&userL2);CHKERRQ(ierr);
 					ierr = IGAPointAddMat(pointAlp,KpointAlp,KlocAlp);CHKERRQ(ierr);
 					ierr = IGAPointAddVec(pointAlp,FpointAlp,FlocAlp);CHKERRQ(ierr);
 				}
@@ -3720,7 +3721,7 @@ int main(int argc, char *argv[]) {
 	ierr = IGAEndElement(igachiS,&elemSp);CHKERRQ(ierr);
 
 	// Restore local vectors s0 and arrays
-	ierr = IGARestoreLocalVecArray(igachiS,chiS0,&localS0Alp,&arrayS0Alp);CHKERRQ(ierr);
+	ierr = IGARestoreLocalVecArray(igachiS,chiS0,&localSpAlp,&arraySpAlp);CHKERRQ(ierr);
 
 	//Form system matrix and vector
 	ierr = MatAssemblyBegin(KAlp,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
@@ -3731,7 +3732,7 @@ int main(int argc, char *argv[]) {
 
 	ierr = KSPSetOperators(kspAlp,KAlp,KAlp);CHKERRQ(ierr);
 	ierr = KSPSetFromOptions(kspAlp);CHKERRQ(ierr);
-	ierr = KSPSetTolerances(kspAlp,1.0e-25,1.0e-40,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	ierr = KSPSetTolerances(kspAlp,1.0e-30,1.0e-45,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
 	ierr = KSPSolve(kspAlp,FAlp,alp0);CHKERRQ(ierr);
 
 	char nameAlInput[]="/Input-Al-2d-0.dat";
@@ -3913,11 +3914,6 @@ int main(int argc, char *argv[]) {
 
 	PetscInt fijaPunto=1;																		//Fix a single point (1) or a side (chosen in blocks below)
 
-	ierr = IGASetUp(igaZ0);CHKERRQ(ierr);
-	ierr = IGASetUp(igachiUp);CHKERRQ(ierr);
-	ierr = IGASetUp(igaS);CHKERRQ(ierr);
-
-
 	for (dir=0; dir<2; dir++) 
 	{
 		for (side=0; side<2; side++) 
@@ -4083,13 +4079,13 @@ int main(int argc, char *argv[]) {
 		}
 
 		rows=0;
-		vals[rows]=1.0e6;
+		vals[rows]=1.0e10;
 		ierr = MatSetValues(KZ0,1,&rows,m,cols,vals,INSERT_VALUES);CHKERRQ(ierr);
 		ierr = MatSetValues(KZ0,n,cols,1,&rows,vals,INSERT_VALUES);CHKERRQ(ierr);
 		vals[rows]=0.0;
 
 		rows=1;
-		vals[rows]=1.0e6;
+		vals[rows]=1.0e10;
 		ierr = MatSetValues(KZ0,1,&rows,m,cols,vals,INSERT_VALUES);CHKERRQ(ierr);
 		ierr = MatSetValues(KZ0,n,cols,1,&rows,vals,INSERT_VALUES);CHKERRQ(ierr);
 		vals[rows]=0.0;
@@ -4097,7 +4093,7 @@ int main(int argc, char *argv[]) {
 		rows=2*(nx+3)*(ny+3)-2; 										//This is for when z is a 3rd order nurb
 		//rows=2*(nx+2)*(ny+2)-2*(nx+1)-2; 										//This is for when z is a 2nd order nurb
 		//rows=2*(nx+1)*(ny+1)-1;														//This is the dof in x on the upper right corner for 1st order elements
-		vals[rows]=1.0e6;
+		vals[rows]=1.0e10;
 		ierr = MatSetValues(KZ0,1,&rows,m,cols,vals,INSERT_VALUES);CHKERRQ(ierr);
 		ierr = MatSetValues(KZ0,n,cols,1,&rows,vals,INSERT_VALUES);CHKERRQ(ierr);
 		vals[rows]=0.0;
@@ -5114,7 +5110,6 @@ int main(int argc, char *argv[]) {
 //
 */
 
-/*
 //System for L2 projection of full stress
 	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for full Stress starting \n\n");
 	T=time(NULL);
@@ -5284,9 +5279,7 @@ int main(int argc, char *argv[]) {
 	sprintf(pathFullS,"%s%s",direct,nameFullS);
 	ierr = IGAWriteVec(igaFullS,Fs0,pathFullS);CHKERRQ(ierr);	
 //
-*/
 
-/*
 //System for L2 projection of V^{alpha}
 	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for V-alpha starting \n\n");
 	T=time(NULL);
@@ -5450,9 +5443,7 @@ int main(int argc, char *argv[]) {
 	sprintf(pathVa,"%s%s",direct,nameVa);
 	ierr = IGAWriteVec(igaVa,Va0,pathVa);CHKERRQ(ierr);	
 //
-*/
 
-/*
 //System for L2 projection of V^{S}
 	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for V-S starting \n\n");
 	T=time(NULL);
@@ -5616,7 +5607,6 @@ int main(int argc, char *argv[]) {
 	sprintf(pathVs,"%s%s",direct,nameVs);
 	ierr = IGAWriteVec(igaVs,Vs0,pathVs);CHKERRQ(ierr);	
 //
-*/
 
 /*
 //Under construction

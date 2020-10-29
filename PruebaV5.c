@@ -480,7 +480,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 			//PetscReal Omega=tan(5.0/180.0*ConstPi);
 			//PetscReal rho=sqrt(x[0]*x[0]+x[1]*x[1]);
 			//const PetscReal burgers[2]={1.0,0.0};
-			//PetscReal burgers=1.0;
+			PetscReal burgers=1.0;
 
 			//Stress for single disclination
 			//Sborde[0][0]=mu*Omega/(2.0*ConstPi*(1.0-nu))*(log(rho)+(x[1]*x[1])/(rho*rho)+nu/(1.0-2.0*nu));
@@ -490,11 +490,11 @@ PetscReal delta(PetscInt i, PetscInt j)
 			//Sborde[0][2]=0.0; Sborde[1][2]=0.0; Sborde[2][0]=0.0; Sborde[2][1]=0.0; Sborde[2][2]=0.0;
 
 			//Stress for single dislocation
-			//Sborde[0][0]=-mu*burgers/(ConstPi*(1.0-nu))/2.0*x[1]*(x[1]*x[1]+3*x[0]*x[0])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
-			//Sborde[0][1]=-mu*burgers/(ConstPi*(1.0-nu))/2.0*x[0]*(x[1]*x[1]-x[0]*x[0])  /((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
-			//Sborde[1][0]=-mu*burgers/(ConstPi*(1.0-nu))/2.0*x[0]*(x[1]*x[1]-x[0]*x[0])  /((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
-			//Sborde[1][1]=-mu*burgers/(ConstPi*(1.0-nu))/2.0*x[1]*(x[1]*x[1]-x[0]*x[0])  /((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
-			//Sborde[0][2]=0.0; Sborde[1][2]=0.0; Sborde[2][0]=0.0; Sborde[2][1]=0.0; Sborde[2][2]=0.0;
+			Sborde[0][0]=-mu*burgers/(ConstPi*(1.0-nu))/2.0*x[1]*(x[1]*x[1]+3*x[0]*x[0])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
+			Sborde[0][1]=-mu*burgers/(ConstPi*(1.0-nu))/2.0*x[0]*(x[1]*x[1]-x[0]*x[0])  /((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
+			Sborde[1][0]=-mu*burgers/(ConstPi*(1.0-nu))/2.0*x[0]*(x[1]*x[1]-x[0]*x[0])  /((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
+			Sborde[1][1]=-mu*burgers/(ConstPi*(1.0-nu))/2.0*x[1]*(x[1]*x[1]-x[0]*x[0])  /((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
+			Sborde[0][2]=0.0; Sborde[1][2]=0.0; Sborde[2][0]=0.0; Sborde[2][1]=0.0; Sborde[2][2]=0.0;
 
 			//When b in y axis
 			//Sborde[0][0]=-mu*burgers/(ConstPi*(1.0-nu))/2.0*-x[0]*(x[0]*x[0]+3.0*x[1]*x[1])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
@@ -515,11 +515,11 @@ PetscReal delta(PetscInt i, PetscInt j)
 			//Sborde[0][2]=0.0; Sborde[1][2]=0.0; Sborde[2][0]=0.0; Sborde[2][1]=0.0; Sborde[2][2]=0.0;
 
 			//No stress in boundary
-			Sborde[0][0]=0.0;
-			Sborde[0][1]=0.0;
-			Sborde[1][0]=0.0;
-			Sborde[1][1]=0.0;
-			Sborde[0][2]=0.0; Sborde[1][2]=0.0; Sborde[2][0]=0.0; Sborde[2][1]=0.0; Sborde[2][2]=0.0;
+			//Sborde[0][0]=0.0;
+			//Sborde[0][1]=0.0;
+			//Sborde[1][0]=0.0;
+			//Sborde[1][1]=0.0;
+			//Sborde[0][2]=0.0; Sborde[1][2]=0.0; Sborde[2][0]=0.0; Sborde[2][1]=0.0; Sborde[2][2]=0.0;
 
 			PetscInt dir  = p->boundary_id / 2;
 			PetscInt side = p->boundary_id % 2;
@@ -1747,6 +1747,59 @@ PetscReal delta(PetscInt i, PetscInt j)
 		//	 -mu*burgers[1]/(ConstPi*(1.0-nu))/2.0*x[1]*(x[0]*x[0]-x[1]*x[1])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
 		//g[3]=-mu*burgers[0]/(ConstPi*(1.0-nu))/2.0*x[1]*(x[1]*x[1]-x[0]*x[0])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]))
 		//	 -mu*burgers[1]/(ConstPi*(1.0-nu))/2.0*-x[0]*(x[0]*x[0]-x[1]*x[1])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
+
+		const PetscReal (*N) = (typeof(N)) p->shape[0];
+		PetscReal (*FF)[dof] = (PetscReal (*)[dof])F;
+		PetscReal (*KK)[dof][nen][dof] = (PetscReal (*)[dof][nen][dof])K;
+		for(a=0; a<nen; a++)
+		{
+			for(i=0; i<dof; i++) 
+			{
+				for(b=0; b<nen; b++)
+				{
+		  			KK[a][i][b][i] = N[a]*N[b];
+		  		}
+		  		FF[a][i] = N[a]*g[i];
+			}
+		}
+		return 0;
+	}
+//
+
+//System for L2 projection of Peierls stress
+	#undef  __FUNCT__
+	#define __FUNCT__ "L2ProjectionPeierlsStress"
+	PetscErrorCode L2ProjectionPeierlsStress(IGAPoint p,PetscReal *K,PetscReal *F,void *ctx)
+	{
+		if (p->atboundary)
+		{
+			return 0;																		//Zero Neumann boundary condition
+		}
+
+		PetscInt a,b,i;
+		PetscInt nen = p->nen;																//Number of shape functions
+		PetscInt dim = p->dim;																//Spatial dimensions of the problem
+		PetscInt dof = p->dof;
+
+		PetscReal x[dim];																	//Vector of reals, size equal to problem's dimension
+		IGAPointFormGeomMap(p,x);															//Fills x with the coordinates of p, Gauss's point
+
+		//g is the function to L2 project
+		//Stress has 4 components, in order S(1,1), S(1,2), S(2,1), S(2,2)
+		PetscReal g[dof];
+		
+		const PetscReal nu=0.33;
+		const PetscReal mu=1.0;
+
+		PetscReal burgers=1.0;
+
+		PetscReal zeta=burgers/(2*(1.0-nu));
+
+		//This for dislocation with burgers vector in x axis
+		g[0]=0.0;
+		g[1]=mu*burgers/(2*ConstPi*(1.0-nu))*x[0]/(x[0]*x[0]+zeta*zeta);
+		g[2]=mu*burgers/(2*ConstPi*(1.0-nu))*x[0]/(x[0]*x[0]+zeta*zeta);
+		g[3]=0.0;
 
 		const PetscReal (*N) = (typeof(N)) p->shape[0];
 		PetscReal (*FF)[dof] = (PetscReal (*)[dof])F;
@@ -3946,7 +3999,6 @@ int main(int argc, char *argv[]) {
 	ierr = IGAWriteVec(igaNormUeSkw,NormUeSkw,pathNormUeSkw);CHKERRQ(ierr);	
 //
 
-/*
 //System for L2 projection of exact stress
 	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for L2 projection for exact stress starting \n\n");
 	T=time(NULL);
@@ -4003,7 +4055,63 @@ int main(int argc, char *argv[]) {
 	sprintf(pathE,"%s%s",direct,nameE);
 	ierr = IGAWriteVec(igaExact,e0,pathE);CHKERRQ(ierr);
 //
-*/
+
+//System for L2 projection of Peierls stress
+	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for L2 projection for exact stress starting \n\n");
+	T=time(NULL);
+	tm=*localtime(&T);
+	PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.tm_min,tm.tm_sec);
+	IGA igaPeierls;
+	ierr = IGACreate(PETSC_COMM_WORLD,&igaPeierls);CHKERRQ(ierr);
+	ierr = IGASetDim(igaPeierls,2);CHKERRQ(ierr);														//Spatial dimension of the problem
+	ierr = IGASetDof(igaPeierls,4);CHKERRQ(ierr);														//Number of degrees of freedom, per node
+	ierr = IGASetOrder(igaPeierls,2);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
+	ierr = IGASetFromOptions(igaPeierls);CHKERRQ(ierr);												//Note: The order (or degree) of the shape functions is given by the mesh!
+	ierr = IGARead(igaPeierls,"./geometry3.dat");CHKERRQ(ierr);
+	
+	for (dir=0; dir<2; dir++)
+	{
+		ierr = IGASetRuleType(igaPeierls,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
+		ierr = IGASetRuleSize(igaPeierls,dir,6);CHKERRQ(ierr);
+	}
+	ierr = IGASetUp(igaPeierls);CHKERRQ(ierr);
+	
+	for (dir=0; dir<2; dir++) 
+	{
+		for (side=0; side<2; side++) 
+		{
+			//ierr = IGASetBoundaryValue(iga,dir,side,dof,0.0);CHKERRQ(ierr);    				// Dirichlet boundary conditions
+			//ierr = IGASetBoundaryForm(igaPeierls,dir,side,PETSC_TRUE);CHKERRQ(ierr);  				// Neumann boundary conditions
+		}
+	}
+
+	Vec stress_peierls;
+	Mat Kl2p;
+	Vec Fl2p;
+	ierr = IGACreateVec(igaPeierls,&stress_peierls);CHKERRQ(ierr);  
+	ierr = IGACreateMat(igaPeierls,&Kl2p);CHKERRQ(ierr);
+	ierr = IGACreateVec(igaPeierls,&Fl2p);CHKERRQ(ierr);
+	ierr = IGASetFormSystem(igaPeierls,L2ProjectionPeierlsStress,&userL2);CHKERRQ(ierr);
+	ierr = IGAComputeSystem(igaPeierls,Kl2p,Fl2p);CHKERRQ(ierr);
+
+	//This parts set and calls KSP to solve the linear system
+	KSP kspl2p;
+	ierr = IGACreateKSP(igaPeierls,&kspl2p);CHKERRQ(ierr);										
+	ierr = KSPSetOperators(kspl2p,Kl2p,Kl2p);CHKERRQ(ierr); 								//This function creates the matrix for the system on the second parameter and uses the 3rd parameter as a preconditioner
+	ierr = KSPSetType(kspl2p,KSPCG);CHKERRQ(ierr);											//Using KSPCG (conjugated gradient) because the matrix is symmetric
+	//ierr = KSPSetOptionsPrefix(kspl2S,"l2pS_");CHKERRQ(ierr);
+	ierr = KSPSetFromOptions(kspl2p);CHKERRQ(ierr);
+	ierr = KSPSetTolerances(kspl2p,1.0e-30,1.0e-45,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	ierr = KSPSolve(kspl2p,Fl2p,stress_peierls);CHKERRQ(ierr);										//This is a simple system, so it can be solved with just this command
+
+	ierr = KSPDestroy(&kspl2p);CHKERRQ(ierr);
+	ierr = MatDestroy(&Kl2p);CHKERRQ(ierr);
+	ierr = VecDestroy(&Fl2p);CHKERRQ(ierr);
+	char nameP[]="/PeierlsStress-2d-0.dat";
+	char pathP[512];
+	sprintf(pathP,"%s%s",direct,nameP);
+	ierr = IGAWriteVec(igaPeierls,stress_peierls,pathP);CHKERRQ(ierr);
+//
 
 //System for L2 projection of grad(Z0)
 	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for L2 projection for grad(Z0) \n\n");
