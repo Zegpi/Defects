@@ -68,11 +68,11 @@ typedef struct
 
 		PetscReal dfx,dfy;
 
-		dfx=-0.25*( tanh( (x[1]-b)/s )+1.0 )*( 1.0/s *1.0/( cosh((a-x[0])/s)*cosh((a-x[0])/s ) ) )
-			+0.25*( tanh( (x[1]-c)/s )+1.0 )*( 1.0/s *1.0/( cosh((a-x[0])/s)*cosh((a-x[0])/s ) ) );
+		dfx=-factor*0.25*( tanh( (x[1]-b)/s )+1.0 )*( 1.0/s *1.0/( cosh((a-x[0])/s)*cosh((a-x[0])/s ) ) )
+			+factor*0.25*( tanh( (x[1]-c)/s )+1.0 )*( 1.0/s *1.0/( cosh((a-x[0])/s)*cosh((a-x[0])/s ) ) );
 
-		dfy= 0.25*( 1.0/s *1.0/( cosh((b-x[1])/s )*cosh((b-x[1])/s ) ) )*( 1.0-tanh( (x[0]-a)/s ) )
-			+0.25*( 1.0/s *1.0/( cosh((c-x[1])/s )*cosh((c-x[1])/s ) ) )*( tanh( (x[0]-a)/s )+1.0 );    
+		dfy= factor*0.25*( 1.0/s *1.0/( cosh((b-x[1])/s )*cosh((b-x[1])/s ) ) )*( 1.0-tanh( (x[0]-a)/s ) )
+			+factor*0.25*( 1.0/s *1.0/( cosh((c-x[1])/s )*cosh((c-x[1])/s ) ) )*( tanh( (x[0]-a)/s )+1.0 );    
 
 		V[0][0]=0.0; V[0][1]=0.0; V[0][2]=0.0;
 		V[1][0]=0.0; V[1][1]=0.0; V[1][2]=0.0;
