@@ -3149,7 +3149,7 @@ int main(int argc, char *argv[]) {
 
 //App context creation and some data
 	//Mesh parameters (to fix specific points in z0 system)
-	PetscInt b=301;				//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
+	PetscInt b=581;				//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
 	PetscReal Lx=80.0;
 	PetscReal Ly=80.0;
 	PetscInt  nx=b;
@@ -3419,12 +3419,13 @@ int main(int argc, char *argv[]) {
 	ierr = VecAssemblyEnd  (FchiS);CHKERRQ(ierr);
 
 	ierr = KSPSetOperators(kspchiS,KchiS,KchiS);CHKERRQ(ierr);
-	PC pcchiS;
-	ierr = KSPGetPC(kspchiS,&pcchiS); CHKERRQ(ierr);
-	ierr = PCSetType(pcchiS,PCLU); CHKERRQ(ierr);
-	ierr = PCFactorSetMatSolverType(pcchiS,MATSOLVERMUMPS); CHKERRQ(ierr);
-	//ierr = KSPSetFromOptions(kspchiS);CHKERRQ(ierr);
-	//ierr = KSPSetTolerances(kspchiS,1.0e-18,1.0e-30,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	//PC pcchiS;
+	//ierr = KSPGetPC(kspchiS,&pcchiS); CHKERRQ(ierr);
+	//ierr = PCSetType(pcchiS,PCLU); CHKERRQ(ierr);
+	//ierr = PCFactorSetMatSolverType(pcchiS,MATSOLVERMUMPS); CHKERRQ(ierr);
+	ierr = KSPSetFromOptions(kspchiS);CHKERRQ(ierr);
+	ierr = KSPSetType(kspchiS,KSPBCGS);																	//This solver seems to work well for this equation
+	ierr = KSPSetTolerances(kspchiS,1.0e-18,1.0e-30,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
 	ierr = KSPSolve(kspchiS,FchiS,chiS0);CHKERRQ(ierr);
 
 	ierr = KSPDestroy(&kspchiS);CHKERRQ(ierr);
@@ -3451,6 +3452,13 @@ int main(int argc, char *argv[]) {
 	ierr = IGASetOrder(igaZS,2);CHKERRQ(ierr);														//Number of spatial derivatives to calculate
 	ierr = IGASetFromOptions(igaZS);CHKERRQ(ierr);													//Note: The order (or degree) of the shape functions is given by the mesh!
 	ierr = IGARead(igaZS,"./geometry.dat");CHKERRQ(ierr);
+	
+	for (dir=0; dir<2; dir++)
+	{
+		ierr = IGASetRuleType(igaZS,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
+		ierr = IGASetRuleSize(igaZS,dir,6);CHKERRQ(ierr);
+	}
+
 	ierr = IGASetUp(igaZS);CHKERRQ(ierr);
 	
 	//PetscInt dir,side;
@@ -3537,13 +3545,30 @@ int main(int argc, char *argv[]) {
 	// Restore local vectors s0 and arrays
 	ierr = IGARestoreLocalVecArray(igaS,s0,&localS0ZS,&arrayS0ZS);CHKERRQ(ierr);
 	
+	
+	ierr = PetscPrintf(PETSC_COMM_WORLD,"System formed, fixing single point \n");CHKERRQ(ierr);
+	T=time(NULL);
+	tm=*localtime(&T);
+	PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.tm_min,tm.tm_sec);
+
 	//Impose Dirichlet condition on a single point
 	//First we replace rows and columns with associated rows and columns from identity matrix
 	PetscInt mz,nz;
 	ierr = MatGetSize(KZS,&nz,&mz);CHKERRQ(ierr);
 	ierr = MatSetOption(KZS, MAT_NEW_NONZERO_ALLOCATION_ERR, PETSC_FALSE);CHKERRQ(ierr);
+	
+	ierr = PetscPrintf(PETSC_COMM_WORLD,"Prepare to recieve new zeros \n");CHKERRQ(ierr);
+	T=time(NULL);
+	tm=*localtime(&T);
+	PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.tm_min,tm.tm_sec);
+
 	ierr = MatAssemblyBegin(KZS,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
 	ierr = MatAssemblyEnd  (KZS,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);	
+
+	ierr = PetscPrintf(PETSC_COMM_WORLD,"First assembly done \n");CHKERRQ(ierr);
+	T=time(NULL);
+	tm=*localtime(&T);
+	PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.tm_min,tm.tm_sec);
 
 	PetscInt rowsZ, *colsZ;
 	PetscReal valZ, *valsZ;
@@ -3557,34 +3582,54 @@ int main(int argc, char *argv[]) {
 		valsZ[i]=0.0;
 	}
 
+	ierr = PetscPrintf(PETSC_COMM_WORLD,"Allocated arrays for values \n");CHKERRQ(ierr);
+	T=time(NULL);
+	tm=*localtime(&T);
+	PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.tm_min,tm.tm_sec);
+
 	rowsZ=0;
-	valsZ[rowsZ]=1.0e6;
+	valsZ[rowsZ]=1.0e16;
 	ierr = MatSetValues(KZS,1,&rowsZ,mz,colsZ,valsZ,INSERT_VALUES);CHKERRQ(ierr);		//Replace row and column to keep matrix symmetric
 	ierr = MatSetValues(KZS,nz,colsZ,1,&rowsZ,valsZ,INSERT_VALUES);CHKERRQ(ierr);
 	valsZ[rowsZ]=0.0;
 	rowsZ=1;
-	valsZ[rowsZ]=1.0e6;
+	valsZ[rowsZ]=1.0e16;
 	ierr = MatSetValues(KZS,1,&rowsZ,mz,colsZ,valsZ,INSERT_VALUES);CHKERRQ(ierr);
 	ierr = MatSetValues(KZS,nz,colsZ,1,&rowsZ,valsZ,INSERT_VALUES);CHKERRQ(ierr);
 	valsZ[rowsZ]=0.0;
 	rowsZ=2;
-	valsZ[rowsZ]=1.0e6;
+	valsZ[rowsZ]=1.0e16;
 	ierr = MatSetValues(KZS,1,&rowsZ,mz,colsZ,valsZ,INSERT_VALUES);CHKERRQ(ierr);
 	ierr = MatSetValues(KZS,nz,colsZ,1,&rowsZ,valsZ,INSERT_VALUES);CHKERRQ(ierr);
 	valsZ[rowsZ]=0.0;
 	rowsZ=3;
-	valsZ[rowsZ]=1.0e6;
+	valsZ[rowsZ]=1.0e16;
 	ierr = MatSetValues(KZS,1,&rowsZ,mz,colsZ,valsZ,INSERT_VALUES);CHKERRQ(ierr);
 	ierr = MatSetValues(KZS,nz,colsZ,1,&rowsZ,valsZ,INSERT_VALUES);CHKERRQ(ierr);
 	valsZ[rowsZ]=0.0;
 
+	ierr = PetscPrintf(PETSC_COMM_WORLD,"Values set, begin second assembly \n");CHKERRQ(ierr);
+	T=time(NULL);
+	tm=*localtime(&T);
+	PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.tm_min,tm.tm_sec);
+
 	ierr = MatAssemblyBegin(KZS,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
 	ierr = MatAssemblyEnd  (KZS,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
+
+	ierr = PetscPrintf(PETSC_COMM_WORLD,"Second assembly done, begin vector assembly \n");CHKERRQ(ierr);
+	T=time(NULL);
+	tm=*localtime(&T);
+	PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.tm_min,tm.tm_sec);
 
 	//Here we set values to the vector directly
 	ierr = VecAssemblyBegin(FZS);CHKERRQ(ierr);
 	ierr = VecAssemblyEnd  (FZS);CHKERRQ(ierr);
 
+	ierr = PetscPrintf(PETSC_COMM_WORLD,"Vector assembly done, begin setting values \n");CHKERRQ(ierr);
+	T=time(NULL);
+	tm=*localtime(&T);
+	PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.tm_min,tm.tm_sec);
+
 	rowsZ=0;
 	valZ=0.0;
 	ierr = VecSetValue(FZS,rowsZ,valZ,INSERT_VALUES);CHKERRQ(ierr);
@@ -3598,9 +3643,19 @@ int main(int argc, char *argv[]) {
 	valZ=0.0;
 	ierr = VecSetValue(FZS,rowsZ,valZ,INSERT_VALUES);CHKERRQ(ierr);
 
+	ierr = PetscPrintf(PETSC_COMM_WORLD,"Values set, begin second vector assembly \n");CHKERRQ(ierr);
+	T=time(NULL);
+	tm=*localtime(&T);
+	PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.tm_min,tm.tm_sec);
+
 	ierr = VecAssemblyBegin(FZS);CHKERRQ(ierr);
 	ierr = VecAssemblyEnd  (FZS);CHKERRQ(ierr);
 	//
+
+	ierr = PetscPrintf(PETSC_COMM_WORLD,"Second vector assembly done, begin solving \n");CHKERRQ(ierr);
+	T=time(NULL);
+	tm=*localtime(&T);
+	PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.tm_min,tm.tm_sec);
 
 	ierr = KSPSetOperators(kspZS,KZS,KZS);CHKERRQ(ierr);
 	//PC pcZs;
@@ -3608,8 +3663,8 @@ int main(int argc, char *argv[]) {
 	//ierr = PCSetType(pcZs,PCLU); CHKERRQ(ierr);
 	//ierr = PCFactorSetMatSolverType(pcZs,MATSOLVERMUMPS); CHKERRQ(ierr);
 	ierr = KSPSetFromOptions(kspZS);CHKERRQ(ierr);
-	ierr = KSPSetType(kspZS,KSPCG);																				//UNTESTED LINE, BE CAREFUL!!!
-	ierr = KSPSetTolerances(kspZS,1.0e-12,1.0e-24,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	ierr = KSPSetType(kspZS,KSPBCGSL);																				//Find a good solver for this system, KSPBCGS diverges for n=1000
+	ierr = KSPSetTolerances(kspZS,1.0e-24,1.0e-36,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
 	ierr = KSPSolve(kspZS,FZS,ZS0);CHKERRQ(ierr);
 
 	ierr = KSPDestroy(&kspZS);CHKERRQ(ierr);
@@ -3654,6 +3709,9 @@ int main(int argc, char *argv[]) {
 		}
 	}
 	
+	PetscInt add_S=1;																			//If add_S=1, we form \tilde\alpha=\alpha-S:X
+																								//If add_S=0, we form \hat\alpha=\alpha-S^perp:X
+
 	Mat KAlp;
 	Vec alp0,alInput,FAlp;
 	ierr = IGACreateMat(igaAl,&KAlp);CHKERRQ(ierr);
@@ -3675,8 +3733,16 @@ int main(int argc, char *argv[]) {
  	KSP kspAlp;
 	ierr = IGACreateKSP(igaAl,&kspAlp);CHKERRQ(ierr);
 
-	//Get local vectors s0 and arrays
-	ierr = IGAGetLocalVecArray(igachiS,chiS0,&localSpAlp,&arraySpAlp);CHKERRQ(ierr);
+	//Get local vectors S^perp and arrays
+	if(add_S==0)
+	{
+		ierr = IGAGetLocalVecArray(igachiS,chiS0,&localSpAlp,&arraySpAlp);CHKERRQ(ierr);
+	}
+	if(add_S==1)
+	{
+		ierr = IGAGetLocalVecArray(igaS,s0,&localSpAlp,&arraySpAlp);CHKERRQ(ierr);
+	}
+	
 
 	//Element loop
 	ierr = IGABeginElement(igaAl,&elemAlp);CHKERRQ(ierr);
@@ -3732,7 +3798,7 @@ int main(int argc, char *argv[]) {
 
 	ierr = KSPSetOperators(kspAlp,KAlp,KAlp);CHKERRQ(ierr);
 	ierr = KSPSetFromOptions(kspAlp);CHKERRQ(ierr);
-	ierr = KSPSetTolerances(kspAlp,1.0e-30,1.0e-45,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	ierr = KSPSetTolerances(kspAlp,1.0e-38,1.0e-45,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
 	ierr = KSPSolve(kspAlp,FAlp,alp0);CHKERRQ(ierr);
 
 	char nameAlInput[]="/Input-Al-2d-0.dat";
@@ -3870,12 +3936,13 @@ int main(int argc, char *argv[]) {
 	ierr = VecAssemblyEnd  (FchiUp);CHKERRQ(ierr);
 
 	ierr = KSPSetOperators(kspchiUp,KchiUp,KchiUp);CHKERRQ(ierr);
-	PC pcChiUp;
-	ierr = KSPGetPC(kspchiUp,&pcChiUp); CHKERRQ(ierr);
-	ierr = PCSetType(pcChiUp,PCLU); CHKERRQ(ierr);
-	ierr = PCFactorSetMatSolverType(pcChiUp,MATSOLVERMUMPS); CHKERRQ(ierr);
-	//ierr = KSPSetFromOptions(kspchiUp);CHKERRQ(ierr);
-	//ierr = KSPSetTolerances(kspchiUp,1.0e-8,1.0e-20,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	//PC pcChiUp;
+	//ierr = KSPGetPC(kspchiUp,&pcChiUp); CHKERRQ(ierr);
+	//ierr = PCSetType(pcChiUp,PCLU); CHKERRQ(ierr);
+	//ierr = PCFactorSetMatSolverType(pcChiUp,MATSOLVERMUMPS); CHKERRQ(ierr);
+	ierr = KSPSetFromOptions(kspchiUp);CHKERRQ(ierr);
+	ierr = KSPSetType(kspchiUp,KSPBCGS);
+	ierr = KSPSetTolerances(kspchiUp,1.0e-24,1.0e-30,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
 	ierr = KSPSolve(kspchiUp,FchiUp,chiUp0);CHKERRQ(ierr);
 
 	ierr = KSPDestroy(&kspchiUp);CHKERRQ(ierr);

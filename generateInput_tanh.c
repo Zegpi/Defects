@@ -35,7 +35,7 @@ typedef struct
 		PetscReal nx     = user->nx;
 		PetscReal ny     = user->ny;
 
-		PetscInt a,b,i;
+		PetscInt i,j,k,l;
 		PetscInt nen = p->nen;																//Number of shape functions
 		PetscInt dim = p->dim;																//Spatial dimensions of the problem
 		PetscInt dof = p->dof;
@@ -49,45 +49,72 @@ typedef struct
 
 		//S has 8 components, in order S(1,1,1), S(1,1,2), S(1,2,1), S(1,2,2), S(2,1,1), S(2,1,2), S(2,2,1), S(2,2,2)
 
-		PetscReal a1,a2,a3,a4,a5,a6,b0,b1;
-		a1=-145.0*dy;
-		a2=-138.0*dy;
-		a3=  60.0*dx;
-		a4=  68.0*dx;
-		b0=1.0/5.0;
-		b1=1.0/4.5;
-		b1=1.0/2.0;
+		const PetscReal e[3][3][3]=
+		{
+			{{0.0,0.0,0.0},{0.0,0.0,1.0},{0.0,-1.0,0.0}},
+			{{0.0,0.0,-1.0},{0.0,0.0,0.0},{1.0,0.0,0.0}},
+			{{0.0,1.0,0.0},{-1.0,0.0,0.0},{0.0,0.0,0.0}}
+		};
 
-		PetscReal tanh_y=0.5*(tanh((x[1]-a1)/b0)-tanh((x[1]-a2)/b0));
-		PetscReal tanh_x=0.5*(tanh((x[0]-a3)/b1)-tanh((x[0]-a4)/b1));
-		PetscReal half_tanh_x=0.5*(1.0-tanh((x[0]-a3)/b1));
-		PetscReal half_tanh_y=0.5*(tanh((x[1]-a1+5.0*dy)/b1)+1.0);;
+		PetscReal a,b,c,s;
+		a= 145.0*dy;
+		b=-138.0*dy;
+		c=  62.0*dx;
+		s= 1.0/3.0;
 
-		PetscReal g[dof];
+		PetscReal factor=tan(5.0/180.0*ConstPi);
+		PetscReal g[dof],V[3][3];
+		PetscReal S[3][3][3]={0};
 
-		g[0]=0.0;
-		g[1]=0.0;
-		g[2]= tan(5.0*ConstPi/180.0)*tanh_x*half_tanh_y*0.92;
-		g[3]=-tan(5.0*ConstPi/180.0)*tanh_y*half_tanh_x;
-		g[4]=-tan(5.0*ConstPi/180.0)*tanh_x*half_tanh_y*0.92;
-		g[5]= tan(5.0*ConstPi/180.0)*tanh_y*half_tanh_x;
-		g[6]=0.0;
-		g[7]=0.0;
+		PetscReal dfx,dfy;
+
+		dfx=-0.25*( tanh( (x[1]-b)/s )+1.0 )*( 1.0/s *1.0/( cosh((a-x[0])/s)*cosh((a-x[0])/s ) ) )
+			+0.25*( tanh( (x[1]-c)/s )+1.0 )*( 1.0/s *1.0/( cosh((a-x[0])/s)*cosh((a-x[0])/s ) ) );
+
+		dfy= 0.25*( 1.0/s *1.0/( cosh((b-x[1])/s )*cosh((b-x[1])/s ) ) )*( 1.0-tanh( (x[0]-a)/s ) )
+			+0.25*( 1.0/s *1.0/( cosh((c-x[1])/s )*cosh((c-x[1])/s ) ) )*( tanh( (x[0]-a)/s )+1.0 );    
+
+		V[0][0]=0.0; V[0][1]=0.0; V[0][2]=0.0;
+		V[1][0]=0.0; V[1][1]=0.0; V[1][2]=0.0;
+		V[2][0]=dfx; V[2][1]=dfy; V[2][2]=0.0;
+
+		for(i=0;i<3;i++)
+		{
+			for(j=0;j<3;j++)
+			{
+				for(k=0;k<3;k++)
+				{
+					for(l=0;l<3;l++)
+					{
+						S[i][j][k]=S[i][j][k]+0.5*e[l][j][k]*V[l][i];
+					}
+				}
+			}
+		}
+
+		g[0]=S[0][0][0];
+		g[1]=S[0][0][1];
+		g[2]=S[0][1][0];
+		g[3]=S[0][1][1];
+		g[4]=S[1][0][0];
+		g[5]=S[1][0][1];
+		g[6]=S[1][1][0];
+		g[7]=S[1][1][1];
 
 		//Consider changing all this to just assigning S directly
 
 		const PetscReal (*N) = (typeof(N)) p->shape[0];
 		PetscReal (*FF)[dof] = (PetscReal (*)[dof])F;
 		PetscReal (*KK)[dof][nen][dof] = (PetscReal (*)[dof][nen][dof])K;
-		for(a=0; a<nen; a++)
+		for(i=0; i<nen; i++)
 		{
-			for(i=0; i<dof; i++) 
+			for(j=0; j<dof; j++) 
 			{
-				for(b=0; b<nen; b++)
+				for(k=0; k<nen; k++)
 				{
-		  			KK[a][i][b][i] = N[a]*N[b];
+		  			KK[i][j][k][j] = N[i]*N[k];
 		  		}
-		  		FF[a][i] = N[a]*g[i];
+		  		FF[i][j] = N[i]*g[j];
 			}
 		}
 		return 0;
@@ -175,8 +202,8 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	FILE *source, *dest;
 	char buffer[8192];
 	size_t bytes;
-	source = fopen("./generateInputS.c","r");
-	dest   = fopen("../Results/generateInputS.c","w");
+	source = fopen("./generateInput_tanh.c","r");
+	dest   = fopen("../Results/generateInput_tanh.c","w");
 
 	while (0 < (bytes = fread(buffer, 1, sizeof(buffer), source)))
     	fwrite(buffer, 1, bytes, dest);
@@ -226,7 +253,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	ierr = KSPSetOperators(ksp_L2_S,K_L2_8GDL,K_L2_8GDL);CHKERRQ(ierr); 									//This function creates the matrix for the system on the second parameter and uses the 3rd parameter as a preconditioner
 	ierr = KSPSetType(ksp_L2_S,KSPCG);CHKERRQ(ierr);											//Using KSPCG (conjugated gradient) because the matrix is symmetric
 	ierr = KSPSetFromOptions(ksp_L2_S);CHKERRQ(ierr);
-	ierr = KSPSetTolerances(ksp_L2_S,1.0e-35,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	ierr = KSPSetTolerances(ksp_L2_S,1.0e-35,1.0e-45,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
 	ierr = KSPSolve(ksp_L2_S,F_L2_S,S0);CHKERRQ(ierr);											//This is a simple system, so it can be solved with just this command
 
 	ierr = KSPDestroy(&ksp_L2_S);CHKERRQ(ierr);

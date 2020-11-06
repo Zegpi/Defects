@@ -405,7 +405,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=0.0*mu/100.0;								//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/100.0;								//Choose later based on whatever Amit says :)
 
 		PetscReal Chi0[4];																	//Assign chi(t) to a vector
 		PetscReal dChi0[4][2];																//Same for partial derivatives
@@ -818,7 +818,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=0.0*mu/100.0;															//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/100.0;															//Choose later based on whatever Amit says :)
 
 		PetscReal chi0[4];																	//Array to contain the vector chi(0)
 		PetscReal d2_Chi0[4][2][2];															//Same for its Hessian
@@ -1056,7 +1056,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		//const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		//const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=0.0*mu/100.0;															//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/100.0;															//Choose later based on whatever Amit says :)
 
 		//Definition of alternating tensor
 		const PetscReal e[3][3][3]=
@@ -1155,7 +1155,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=0.0*mu/100.0;															//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/100.0;															//Choose later based on whatever Amit says :)
 
 		//Definition of alternating tensor
 		//const PetscReal e[3][3][3]=
@@ -1279,7 +1279,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=0.0*mu/100.0;														//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/100.0;														//Choose later based on whatever Amit says :)
 
 		PetscReal x[2];																		//Vector of reals, size equal to problem's dimension
 		IGAPointFormGeomMap(p,x);															//Fills x with the coordinates of p, Gauss's point
@@ -1793,7 +1793,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 
 		PetscReal burgers=1.0;
 
-		PetscReal zeta=burgers/(2*(1.0-nu));
+		PetscReal zeta=burgers/(2.0*(1.0-nu));
 
 		//This for dislocation with burgers vector in x axis
 		g[0]=0.0;
@@ -1888,7 +1888,7 @@ int main(int argc, char *argv[]) {
 
 //App context creation and some data
 	//Mesh parameters (to fix specific points in z0 system)
-	PetscInt b=581;				//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
+	PetscInt b=401;				//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
 	PetscReal Lx=80.0;
 	PetscReal Ly=80.0;
 	PetscInt  nx=b;

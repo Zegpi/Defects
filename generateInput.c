@@ -31,9 +31,9 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 //Generate Mesh and copy cpp to result folder to save for reproduction (check that parameters are the same on file to run)
 
 	//PetscInt b=581;		//581 works, 621 doesn't	//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
-	PetscInt b=581;
-	PetscReal Lx=80.0;
-	PetscReal Ly=80.0;
+	PetscInt b=401;
+	PetscReal Lx=20.0;
+	PetscReal Ly=20.0;
 	PetscInt  nx=b;
 	PetscInt  ny=b;
 
@@ -103,7 +103,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 
 //General parameters
 	PetscInt N,M, numEls;
-	N=0;	M=0;	numEls=4;
+	N=0;	M=0;	numEls=1;
 //
 
 //Creation of Initialization of Pi
@@ -245,7 +245,6 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 
 	//N=0; M=0;
 
-	/*
 	counter=0;
 	if(b%2==0)		
 	{
@@ -278,8 +277,8 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 			}
 		}
 	}
-	*/
 
+	/*
 	//This is for Hirth's rectangular dislocation core
 	counter=0;
 	center=(nx+1)*ny/2-1;
@@ -294,6 +293,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 			counter=counter+2;					//Modify accodringly to hoy many gdl you are setting
 		}
 	}
+	*/
 
 	//Here I build two dislocation cores with 2*dist_centro+1 elements between them, or 2*(dist_centro+1) center-to-center
 	/*
