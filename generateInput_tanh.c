@@ -57,9 +57,9 @@ typedef struct
 		};
 
 		PetscReal a,b,c,s;
-		a= 145.0*dy;
-		b=-138.0*dy;
-		c=  62.0*dx;
+		a= 15.0;
+		b=-12.0;
+		c= 9.0;
 		s= 1.0/3.0;
 
 		PetscReal factor=tan(5.0/180.0*ConstPi);
@@ -253,7 +253,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	ierr = KSPSetOperators(ksp_L2_S,K_L2_8GDL,K_L2_8GDL);CHKERRQ(ierr); 						//This function creates the matrix for the system on the second parameter and uses the 3rd parameter as a preconditioner
 	ierr = KSPSetType(ksp_L2_S,KSPGMRES);CHKERRQ(ierr);
 	ierr = KSPSetFromOptions(ksp_L2_S);CHKERRQ(ierr);
-	ierr = KSPSetTolerances(ksp_L2_S,1.0e-30,3.0e-29,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	ierr = KSPSetTolerances(ksp_L2_S,1.0e-29,2.5e-28,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
 	ierr = KSPSolve(ksp_L2_S,F_L2_S,S0);CHKERRQ(ierr);											//This is a simple system, so it can be solved with just this command
 
 	ierr = KSPDestroy(&ksp_L2_S);CHKERRQ(ierr);

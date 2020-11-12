@@ -3066,7 +3066,7 @@ int main(int argc, char *argv[]) {
 	//ierr = PCFactorSetMatSolverType(pcchiS,MATSOLVERMUMPS); CHKERRQ(ierr);
 	ierr = KSPSetFromOptions(kspchiS);CHKERRQ(ierr);
 	ierr = KSPSetType(kspchiS,KSPCG);																	//This solver seems to work well for this equation
-	ierr = KSPSetTolerances(kspchiS,1.0e-24,1.0e-30,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	ierr = KSPSetTolerances(kspchiS,1.0e-23,1.0e-29,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
 	ierr = KSPSolve(kspchiS,FchiS,chiS0);CHKERRQ(ierr);
 
 	ierr = KSPDestroy(&kspchiS);CHKERRQ(ierr);
@@ -3236,7 +3236,7 @@ int main(int argc, char *argv[]) {
 	//ierr = PCFactorSetMatSolverType(pcZs,MATSOLVERMUMPS); CHKERRQ(ierr);
 	ierr = KSPSetFromOptions(kspZS);CHKERRQ(ierr);
 	ierr = KSPSetType(kspZS,KSPCG);																			//Find a good solver for this system, KSGMRES can only go down to 1e-29 for solution
-	ierr = KSPSetTolerances(kspZS,1.0e-28,1.0e-36,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	ierr = KSPSetTolerances(kspZS,1.0e-27,1.0e-35,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
 	ierr = KSPSolve(kspZS,FZS,ZS0);CHKERRQ(ierr);
 
 	ierr = KSPDestroy(&kspZS);CHKERRQ(ierr);
@@ -3370,7 +3370,7 @@ int main(int argc, char *argv[]) {
 	ierr = KSPSetOperators(kspAlp,KAlp,KAlp);CHKERRQ(ierr);
 	ierr = KSPSetFromOptions(kspAlp);CHKERRQ(ierr);
 	ierr = KSPSetType(kspAlp,KSPGMRES);
-	ierr = KSPSetTolerances(kspAlp,1.0e-38,1.0e-29,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	ierr = KSPSetTolerances(kspAlp,1.0e-37,1.0e-28,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
 	ierr = KSPSolve(kspAlp,FAlp,alp0);CHKERRQ(ierr);	
 
 	char nameAlInput[]="/Input-Al-2d-0.dat";
@@ -3514,7 +3514,7 @@ int main(int argc, char *argv[]) {
 	//ierr = PCFactorSetMatSolverType(pcChiUp,MATSOLVERMUMPS); CHKERRQ(ierr);
 	ierr = KSPSetFromOptions(kspchiUp);CHKERRQ(ierr);
 	ierr = KSPSetType(kspchiUp,KSPCG);
-	ierr = KSPSetTolerances(kspchiUp,1.0e-26,1.0e-30,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	ierr = KSPSetTolerances(kspchiUp,1.0e-25,1.0e-29,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
 	ierr = KSPSolve(kspchiUp,FchiUp,chiUp0);CHKERRQ(ierr);
 
 	ierr = KSPDestroy(&kspchiUp);CHKERRQ(ierr);
@@ -3851,7 +3851,7 @@ int main(int argc, char *argv[]) {
 	//ierr = PCFactorSetMatSolverType(pcZ0,MATSOLVERMUMPS); CHKERRQ(ierr);
 	ierr = KSPSetFromOptions(kspZ0);CHKERRQ(ierr);
 	ierr = KSPSetType(kspZ0,KSPCG);
-	ierr = KSPSetTolerances(kspZ0,1.0e-28,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	ierr = KSPSetTolerances(kspZ0,1.0e-27,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
 	ierr = KSPSolve(kspZ0,FZ0,Z0);CHKERRQ(ierr);
 
 	ierr = KSPDestroy(&kspZ0);CHKERRQ(ierr);
@@ -4022,7 +4022,7 @@ int main(int argc, char *argv[]) {
 	//ierr = PCSetType(pcStress,PCLU); CHKERRQ(ierr);
 	//ierr = PCFactorSetMatSolverType(pcStress,MATSOLVERMUMPS); CHKERRQ(ierr);
 	ierr = KSPSetFromOptions(kspStress);CHKERRQ(ierr);
-	ierr = KSPSetTolerances(kspStress,1.0e-25,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	ierr = KSPSetTolerances(kspStress,1.0e-24,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
 	ierr = KSPSolve(kspStress,FStress,sigma0);CHKERRQ(ierr);
 
 	ierr = KSPDestroy(&kspStress);CHKERRQ(ierr);
@@ -4506,7 +4506,7 @@ int main(int argc, char *argv[]) {
 	//ierr = PCSetType(pcED,PCLU); CHKERRQ(ierr);
 	//ierr = PCFactorSetMatSolverType(pcED,MATSOLVERMUMPS); CHKERRQ(ierr);
 	ierr = KSPSetFromOptions(kspED);CHKERRQ(ierr);
-	ierr = KSPSetTolerances(kspED,1.0e-28,1.0e-29,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	ierr = KSPSetTolerances(kspED,1.0e-27,1.0e-28,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
 	ierr = KSPSolve(kspED,FED,ed0);CHKERRQ(ierr);
 
 	ierr = KSPDestroy(&kspED);CHKERRQ(ierr);
@@ -5865,7 +5865,7 @@ int main(int argc, char *argv[]) {
 	//ierr = PCSetType(pcUe,PCLU); CHKERRQ(ierr);
 	//ierr = PCFactorSetMatSolverType(pcUe,MATSOLVERMUMPS); CHKERRQ(ierr);
 	ierr = KSPSetFromOptions(kspUe);CHKERRQ(ierr);
-	ierr = KSPSetTolerances(kspUe,1.0e-25,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	ierr = KSPSetTolerances(kspUe,1.0e-24,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
 	ierr = KSPSolve(kspUe,FUe,Ue);CHKERRQ(ierr);
 	ierr = KSPSolve(kspUe,FUeSkw,UeSkw);CHKERRQ(ierr);
 

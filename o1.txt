@@ -1,156 +1,100 @@
 Start of generateInputS 
-Current time is 16:02:49 
+Current time is 10:21:46 
 
  System for L2 projection for S starting 
 
 IGA: dim=2 dof=8 order=1 geometry=2 rational=0 property=0
-Axis 0: basis=BSPLINE[1,0] rule=LEGENDRE[6] periodic=0 nnp=1002 nel=1001
-Axis 1: basis=BSPLINE[1,0] rule=LEGENDRE[6] periodic=0 nnp=1002 nel=1001
+Axis 0: basis=BSPLINE[1,0] rule=LEGENDRE[6] periodic=0 nnp=1202 nel=1201
+Axis 1: basis=BSPLINE[1,0] rule=LEGENDRE[6] periodic=0 nnp=1202 nel=1201
 Partition - MPI: processors=[1,1,1] total=1
-Partition - nnp: sum=1004004 min=1004004 max=1004004 max/min=1.
-Partition - nel: sum=1002001 min=1002001 max=1002001 max/min=1.
-  0 KSP Residual norm 7.589913652660e+00 
-  1 KSP Residual norm 4.990120216310e-12 
-  2 KSP Residual norm 3.528546955626e-12 
-  3 KSP Residual norm 2.881046404035e-12 
-  4 KSP Residual norm 2.495059279417e-12 
-  5 KSP Residual norm 2.231648817802e-12 
-  6 KSP Residual norm 2.037207301539e-12 
-  7 KSP Residual norm 1.886087448552e-12 
-  8 KSP Residual norm 1.764273245418e-12 
-  9 KSP Residual norm 1.663372758014e-12 
- 10 KSP Residual norm 1.578013946683e-12 
- 11 KSP Residual norm 1.504577257794e-12 
- 12 KSP Residual norm 1.440523047797e-12 
- 13 KSP Residual norm 1.384009773262e-12 
- 14 KSP Residual norm 1.333665185247e-12 
- 15 KSP Residual norm 1.288442974300e-12 
- 16 KSP Residual norm 1.247529543343e-12 
- 17 KSP Residual norm 1.210281428337e-12 
- 18 KSP Residual norm 1.176182129715e-12 
- 19 KSP Residual norm 1.144811618156e-12 
- 20 KSP Residual norm 1.115824339353e-12 
- 21 KSP Residual norm 1.088933053097e-12 
- 22 KSP Residual norm 1.063896761736e-12 
- 23 KSP Residual norm 1.040511558782e-12 
- 24 KSP Residual norm 1.018603597939e-12 
- 25 KSP Residual norm 9.980236253552e-13 
- 26 KSP Residual norm 9.786426802815e-13 
- 27 KSP Residual norm 9.603486800799e-13 
- 28 KSP Residual norm 9.430436823431e-13 
- 29 KSP Residual norm 9.266416709735e-13 
- 30 KSP Residual norm 4.986597732909e-12 
- 31 KSP Residual norm 1.811441226259e-24 
- 32 KSP Residual norm 1.280881330587e-24 
- 33 KSP Residual norm 1.045835084898e-24 
- 34 KSP Residual norm 9.057196388836e-25 
- 35 KSP Residual norm 8.101002196980e-25 
- 36 KSP Residual norm 7.395169069410e-25 
- 37 KSP Residual norm 6.846595946827e-25 
- 38 KSP Residual norm 6.404403920950e-25 
- 39 KSP Residual norm 6.038129809908e-25 
- 40 KSP Residual norm 5.728272816580e-25 
- 41 KSP Residual norm 5.461693764871e-25 
- 42 KSP Residual norm 5.229173611510e-25 
- 43 KSP Residual norm 5.024027454742e-25 
- 44 KSP Residual norm 4.841273957278e-25 
- 45 KSP Residual norm 4.677114959829e-25 
- 46 KSP Residual norm 4.528597061569e-25 
- 47 KSP Residual norm 4.393384453754e-25 
- 48 KSP Residual norm 4.269602215481e-25 
- 49 KSP Residual norm 4.155725618019e-25 
- 50 KSP Residual norm 4.050500280903e-25 
- 51 KSP Residual norm 3.952883506962e-25 
- 52 KSP Residual norm 3.862000461977e-25 
- 53 KSP Residual norm 3.777110954614e-25 
- 54 KSP Residual norm 3.697583913641e-25 
- 55 KSP Residual norm 3.622877539702e-25 
- 56 KSP Residual norm 3.552523698481e-25 
- 57 KSP Residual norm 3.486115524098e-25 
- 58 KSP Residual norm 3.423297480459e-25 
- 59 KSP Residual norm 3.363757324603e-25 
- 60 KSP Residual norm 3.676488091780e-15 
- 61 KSP Residual norm 4.530551146164e-28 
- 62 KSP Residual norm 3.203575831048e-28 
- 63 KSP Residual norm 2.615707677625e-28 
- 64 KSP Residual norm 2.265268475926e-28 
- 65 KSP Residual norm 2.026117335571e-28 
- 66 KSP Residual norm 1.849583371869e-28 
- 67 KSP Residual norm 1.712381302456e-28 
- 68 KSP Residual norm 1.601785925341e-28 
- 69 KSP Residual norm 1.510178170986e-28 
- 70 KSP Residual norm 1.432680745581e-28 
- 71 KSP Residual norm 1.366007444633e-28 
- 72 KSP Residual norm 1.307852518104e-28 
- 73 KSP Residual norm 1.256544023509e-28 
- 74 KSP Residual norm 1.210836092372e-28 
- 75 KSP Residual norm 1.169778777691e-28 
- 76 KSP Residual norm 1.132633412712e-28 
- 77 KSP Residual norm 1.098815794943e-28 
- 78 KSP Residual norm 1.067856993275e-28 
- 79 KSP Residual norm 1.039375662184e-28 
- 80 KSP Residual norm 1.013058072195e-28 
- 81 KSP Residual norm 9.886434373415e-29 
- 82 KSP Residual norm 9.659129553842e-29 
- 83 KSP Residual norm 9.446814992311e-29 
- 84 KSP Residual norm 9.247912335054e-29 
- 85 KSP Residual norm 9.061066503633e-29 
- 86 KSP Residual norm 8.885106661104e-29 
- 87 KSP Residual norm 8.719015207235e-29 
- 88 KSP Residual norm 8.561902921230e-29 
- 89 KSP Residual norm 8.412988861487e-29 
- 90 KSP Residual norm 3.286467565445e-15 
- 91 KSP Residual norm 1.598362834536e-28 
- 92 KSP Residual norm 1.130195300359e-28 
- 93 KSP Residual norm 9.227981628429e-29 
- 94 KSP Residual norm 7.991647180697e-29 
- 95 KSP Residual norm 7.147937499270e-29 
- 96 KSP Residual norm 6.525138632215e-29 
- 97 KSP Residual norm 6.041100748451e-29 
- 98 KSP Residual norm 5.650929675067e-29 
- 99 KSP Residual norm 5.327745659213e-29 
-100 KSP Residual norm 5.054341857004e-29 
-101 KSP Residual norm 4.819124730162e-29 
-102 KSP Residual norm 4.613959739768e-29 
-103 KSP Residual norm 4.432948387298e-29 
-104 KSP Residual norm 4.271695338991e-29 
-105 KSP Residual norm 4.126849253774e-29 
-106 KSP Residual norm 3.995804173385e-29 
-107 KSP Residual norm 3.876499078788e-29 
-108 KSP Residual norm 3.767279620060e-29 
-109 KSP Residual norm 3.666800442670e-29 
-110 KSP Residual norm 3.573954736277e-29 
-111 KSP Residual norm 3.487822471047e-29 
-112 KSP Residual norm 3.407631732322e-29 
-113 KSP Residual norm 3.332729408574e-29 
-114 KSP Residual norm 3.262558671143e-29 
-115 KSP Residual norm 3.196641460986e-29 
-116 KSP Residual norm 3.134564717858e-29 
-117 KSP Residual norm 3.075969442068e-29 
-118 KSP Residual norm 3.020541925045e-29 
-119 KSP Residual norm 2.968006658138e-29 
-Linear solve converged due to CONVERGED_ATOL iterations 119
+Partition - nnp: sum=1444804 min=1444804 max=1444804 max/min=1.
+Partition - nel: sum=1442401 min=1442401 max=1442401 max/min=1.
+  0 KSP Residual norm 8.967089271460e+00 
+  1 KSP Residual norm 6.272302275363e-13 
+  2 KSP Residual norm 4.435080587676e-13 
+  3 KSP Residual norm 3.621213591049e-13 
+  4 KSP Residual norm 3.136051416368e-13 
+  5 KSP Residual norm 2.804964260911e-13 
+  6 KSP Residual norm 2.560566918795e-13 
+  7 KSP Residual norm 2.370622080294e-13 
+  8 KSP Residual norm 2.217512331097e-13 
+  9 KSP Residual norm 2.090689522017e-13 
+ 10 KSP Residual norm 1.983401355438e-13 
+ 11 KSP Residual norm 1.891098308882e-13 
+ 12 KSP Residual norm 1.810588239431e-13 
+ 13 KSP Residual norm 1.739556469486e-13 
+ 14 KSP Residual norm 1.676278191688e-13 
+ 15 KSP Residual norm 1.619438280782e-13 
+ 16 KSP Residual norm 1.568014113366e-13 
+ 17 KSP Residual norm 1.521196910023e-13 
+ 18 KSP Residual norm 1.478337475559e-13 
+ 19 KSP Residual norm 1.438907870030e-13 
+ 20 KSP Residual norm 1.402473762408e-13 
+ 21 KSP Residual norm 1.368674117581e-13 
+ 22 KSP Residual norm 1.337206023384e-13 
+ 23 KSP Residual norm 1.307813188033e-13 
+ 24 KSP Residual norm 1.280277102783e-13 
+ 25 KSP Residual norm 1.254410169418e-13 
+ 26 KSP Residual norm 1.230050296342e-13 
+ 27 KSP Residual norm 1.207056606230e-13 
+ 28 KSP Residual norm 1.185305994744e-13 
+ 29 KSP Residual norm 1.164690347831e-13 
+ 30 KSP Residual norm 6.293516977202e-13 
+ 31 KSP Residual norm 1.013148296567e-25 
+ 32 KSP Residual norm 7.164006750677e-26 
+ 33 KSP Residual norm 5.849382451045e-26 
+ 34 KSP Residual norm 5.065710173845e-26 
+ 35 KSP Residual norm 4.530907226274e-26 
+ 36 KSP Residual norm 4.136132418237e-26 
+ 37 KSP Residual norm 3.829313824825e-26 
+ 38 KSP Residual norm 3.581994595714e-26 
+ 39 KSP Residual norm 3.377136529539e-26 
+ 40 KSP Residual norm 3.203832745915e-26 
+ 41 KSP Residual norm 3.054734450983e-26 
+ 42 KSP Residual norm 2.924685399271e-26 
+ 43 KSP Residual norm 2.809946701580e-26 
+ 44 KSP Residual norm 2.707732279233e-26 
+ 45 KSP Residual norm 2.615917809553e-26 
+ 46 KSP Residual norm 2.532851446365e-26 
+ 47 KSP Residual norm 2.457226764912e-26 
+ 48 KSP Residual norm 2.387995116559e-26 
+ 49 KSP Residual norm 2.324303716287e-26 
+ 50 KSP Residual norm 2.265450985715e-26 
+ 51 KSP Residual norm 2.210853741572e-26 
+ 52 KSP Residual norm 2.160022686831e-26 
+ 53 KSP Residual norm 2.112543830621e-26 
+ 54 KSP Residual norm 2.068064213249e-26 
+ 55 KSP Residual norm 2.026280805029e-26 
+ 56 KSP Residual norm 1.986931777330e-26 
+ 57 KSP Residual norm 1.949789569117e-26 
+ 58 KSP Residual norm 1.914655328238e-26 
+ 59 KSP Residual norm 1.881354416503e-26 
+ 60 KSP Residual norm 4.514597435796e-15 
+ 61 KSP Residual norm 3.618777433005e-28 
+ 62 KSP Residual norm 2.558845366605e-28 
+ 63 KSP Residual norm 2.089286220946e-28 
+Linear solve converged due to CONVERGED_ATOL iterations 63
 System for initial state of Alpha starting 
 IGA: dim=2 dof=2 order=1 geometry=2 rational=0 property=0
-Axis 0: basis=BSPLINE[1,0] rule=LEGENDRE[2] periodic=0 nnp=1002 nel=1001
-Axis 1: basis=BSPLINE[1,0] rule=LEGENDRE[2] periodic=0 nnp=1002 nel=1001
+Axis 0: basis=BSPLINE[1,0] rule=LEGENDRE[2] periodic=0 nnp=1202 nel=1201
+Axis 1: basis=BSPLINE[1,0] rule=LEGENDRE[2] periodic=0 nnp=1202 nel=1201
 Partition - MPI: processors=[1,1,1] total=1
-Partition - nnp: sum=1004004 min=1004004 max=1004004 max/min=1.
-Partition - nel: sum=1002001 min=1002001 max=1002001 max/min=1.
+Partition - nnp: sum=1444804 min=1444804 max=1444804 max/min=1.
+Partition - nel: sum=1442401 min=1442401 max=1442401 max/min=1.
 ************************************************************************************************************************
 ***             WIDEN YOUR WINDOW TO 120 CHARACTERS.  Use 'enscript -r -fCourier9' to print this document            ***
 ************************************************************************************************************************
 
 ---------------------------------------------- PETSc Performance Summary: ----------------------------------------------
 
-./generateInput_tanh on a optimO3 named DESKTOP-NCAM2GT with 1 processor, by eazegpi Tue Nov 10 16:05:36 2020
+./generateInput_tanh on a optimO3 named DESKTOP-NCAM2GT with 1 processor, by eazegpi Thu Nov 12 10:24:24 2020
 Using Petsc Release Version 3.12.4, unknown 
 
                          Max       Max/Min     Avg       Total 
-Time (sec):           1.676e+02     1.000   1.676e+02
+Time (sec):           1.582e+02     1.000   1.582e+02
 Objects:              1.170e+02     1.000   1.170e+02
-Flop:                 4.350e+11     1.000   4.350e+11  4.350e+11
-Flop/sec:             2.595e+09     1.000   2.595e+09  2.595e+09
+Flop:                 3.978e+11     1.000   3.978e+11  3.978e+11
+Flop/sec:             2.515e+09     1.000   2.515e+09  2.515e+09
 MPI Messages:         0.000e+00     0.000   0.000e+00  0.000e+00
 MPI Message Lengths:  0.000e+00     0.000   0.000e+00  0.000e+00
 MPI Reductions:       0.000e+00     0.000
@@ -161,7 +105,7 @@ Flop counting convention: 1 flop = 1 real number operation of type (multiply/div
 
 Summary of Stages:   ----- Time ------  ----- Flop ------  --- Messages ---  -- Message Lengths --  -- Reductions --
                         Avg     %Total     Avg     %Total    Count   %Total     Avg         %Total    Count   %Total 
- 0:      Main Stage: 1.6764e+02 100.0%  4.3499e+11 100.0%  0.000e+00   0.0%  0.000e+00        0.0%  0.000e+00   0.0% 
+ 0:      Main Stage: 1.5818e+02 100.0%  3.9784e+11 100.0%  0.000e+00   0.0%  0.000e+00        0.0%  0.000e+00   0.0% 
 
 ------------------------------------------------------------------------------------------------------------------------
 See the 'Profiling' chapter of the users' manual for details on interpreting output.
@@ -185,34 +129,34 @@ Event                Count      Time (sec)     Flop                             
 
 --- Event Stage 0: Main Stage
 
-PCSetUp                1 1.0 8.5602e+00 1.0 2.09e+10 1.0 0.0e+00 0.0e+00 0.0e+00  5  5  0  0  0   5  5  0  0  0  2443
-PCApply              123 1.0 5.4375e+01 1.0 1.34e+11 1.0 0.0e+00 0.0e+00 0.0e+00 32 31  0  0  0  32 31  0  0  0  2467
-MatMult              122 1.0 4.2648e+01 1.0 1.40e+11 1.0 0.0e+00 0.0e+00 0.0e+00 25 32  0  0  0  25 32  0  0  0  3281
-MatSolve             123 1.0 5.4375e+01 1.0 1.34e+11 1.0 0.0e+00 0.0e+00 0.0e+00 32 31  0  0  0  32 31  0  0  0  2468
-MatLUFactorNum         1 1.0 3.8243e+00 1.0 2.09e+10 1.0 0.0e+00 0.0e+00 0.0e+00  2  5  0  0  0   2  5  0  0  0  5468
-MatILUFactorSym        1 1.0 4.7284e+00 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  3  0  0  0  0   3  0  0  0  0     0
-MatAssemblyBegin       2 1.0 4.0531e-06 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
-MatAssemblyEnd         2 1.0 8.1789e-03 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
-MatGetRowIJ            1 1.0 5.0068e-06 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
-MatGetOrdering         1 1.0 7.3009e-03 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
-MatZeroEntries         1 1.0 1.5946e-01 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
-IGAFormSystem          1 1.0 2.7915e+01 1.0 7.62e+10 1.0 0.0e+00 0.0e+00 0.0e+00 17 18  0  0  0  17 18  0  0  0  2729
-VecView                2 1.0 7.0407e-02 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
-VecMDot              119 1.0 1.2963e+01 1.0 2.94e+10 1.0 0.0e+00 0.0e+00 0.0e+00  8  7  0  0  0   8  7  0  0  0  2268
-VecNorm              123 1.0 1.3426e+00 1.0 1.98e+09 1.0 0.0e+00 0.0e+00 0.0e+00  1  0  0  0  0   1  0  0  0  0  1472
-VecScale             123 1.0 5.8796e-01 1.0 9.88e+08 1.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0  1680
-VecCopy                4 1.0 1.8408e-02 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
-VecSet                55 1.0 2.5571e+00 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  2  0  0  0  0   2  0  0  0  0     0
-VecAXPY                7 1.0 6.0511e-02 1.0 1.12e+08 1.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0  1858
-VecMAXPY             123 1.0 8.9656e+00 1.0 3.13e+10 1.0 0.0e+00 0.0e+00 0.0e+00  5  7  0  0  0   5  7  0  0  0  3492
-VecAssemblyBegin       5 1.0 6.9141e-06 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+PCSetUp                1 1.0 1.1589e+01 1.0 3.01e+10 1.0 0.0e+00 0.0e+00 0.0e+00  7  8  0  0  0   7  8  0  0  0  2597
+PCApply               66 1.0 4.2666e+01 1.0 1.04e+11 1.0 0.0e+00 0.0e+00 0.0e+00 27 26  0  0  0  27 26  0  0  0  2429
+MatMult               65 1.0 3.2415e+01 1.0 1.07e+11 1.0 0.0e+00 0.0e+00 0.0e+00 20 27  0  0  0  20 27  0  0  0  3311
+MatSolve              66 1.0 4.2665e+01 1.0 1.04e+11 1.0 0.0e+00 0.0e+00 0.0e+00 27 26  0  0  0  27 26  0  0  0  2429
+MatLUFactorNum         1 1.0 5.4113e+00 1.0 3.01e+10 1.0 0.0e+00 0.0e+00 0.0e+00  3  8  0  0  0   3  8  0  0  0  5561
+MatILUFactorSym        1 1.0 6.1733e+00 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  4  0  0  0  0   4  0  0  0  0     0
+MatAssemblyBegin       2 1.0 3.8147e-06 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+MatAssemblyEnd         2 1.0 7.8061e-03 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+MatGetRowIJ            1 1.0 4.5300e-06 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+MatGetOrdering         1 1.0 4.2486e-03 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+MatZeroEntries         1 1.0 2.6757e-01 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+IGAFormSystem          1 1.0 4.0540e+01 1.0 1.10e+11 1.0 0.0e+00 0.0e+00 0.0e+00 26 28  0  0  0  26 28  0  0  0  2705
+VecView                2 1.0 9.6495e-02 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+VecMDot               63 1.0 8.7086e+00 1.0 2.16e+10 1.0 0.0e+00 0.0e+00 0.0e+00  6  5  0  0  0   6  5  0  0  0  2485
+VecNorm               66 1.0 9.7439e-01 1.0 1.53e+09 1.0 0.0e+00 0.0e+00 0.0e+00  1  0  0  0  0   1  0  0  0  0  1566
+VecScale              66 1.0 4.8022e-01 1.0 7.63e+08 1.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0  1589
+VecCopy                3 1.0 2.5736e-02 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+VecSet                54 1.0 3.6155e+00 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  2  0  0  0  0   2  0  0  0  0     0
+VecAXPY                5 1.0 6.3660e-02 1.0 1.16e+08 1.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0  1816
+VecMAXPY              66 1.0 7.0087e+00 1.0 2.31e+10 1.0 0.0e+00 0.0e+00 0.0e+00  4  6  0  0  0   4  6  0  0  0  3295
+VecAssemblyBegin       5 1.0 5.9605e-06 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
 VecAssemblyEnd         5 1.0 4.7684e-06 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
-VecLoad                2 1.0 2.2092e-02 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
-VecScatterBegin        6 1.0 1.6737e-02 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
-VecNormalize         123 1.0 1.9313e+00 1.0 2.96e+09 1.0 0.0e+00 0.0e+00 0.0e+00  1  1  0  0  0   1  1  0  0  0  1535
-KSPSetUp               1 1.0 3.1283e-01 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
-KSPSolve               1 1.0 1.3168e+02 1.0 3.59e+11 1.0 0.0e+00 0.0e+00 0.0e+00 79 82  0  0  0  79 82  0  0  0  2725
-KSPGMRESOrthog       119 1.0 2.1275e+01 1.0 5.88e+10 1.0 0.0e+00 0.0e+00 0.0e+00 13 14  0  0  0  13 14  0  0  0  2764
+VecLoad                2 1.0 2.8936e-02 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+VecScatterBegin        6 1.0 2.2468e-02 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+VecNormalize          66 1.0 1.4549e+00 1.0 2.29e+09 1.0 0.0e+00 0.0e+00 0.0e+00  1  1  0  0  0   1  1  0  0  0  1573
+KSPSetUp               1 1.0 4.1987e-01 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+KSPSolve               1 1.0 1.0683e+02 1.0 2.88e+11 1.0 0.0e+00 0.0e+00 0.0e+00 68 72  0  0  0  68 72  0  0  0  2697
+KSPGMRESOrthog        63 1.0 1.5125e+01 1.0 4.33e+10 1.0 0.0e+00 0.0e+00 0.0e+00 10 11  0  0  0  10 11  0  0  0  2861
 ------------------------------------------------------------------------------------------------------------------------
 
 Memory usage is given in bytes:
@@ -225,18 +169,18 @@ Reports information only for process 0.
                  IGA     2              0            0     0.
       Preconditioner     1              1         1008     0.
     Distributed Mesh     1              1         4904     0.
-              Matrix     2              2   9373030972     0.
-           Index Set    31             29     52230632     0.
-   IS L to G Mapping     5              3     12050064     0.
+              Matrix     2              2  13491152572     0.
+           Index Set    31             29     75152232     0.
+   IS L to G Mapping     5              3     17339664     0.
               Viewer     6              5         4200     0.
          Vec Scatter    12              4         3072     0.
-              Vector    49             45   2554256376     0.
-   Application Order     4              2     16065408     0.
+              Vector    49             45   3675651576     0.
+   Application Order     4              2     23118208     0.
        Krylov Solver     1              1        18640     0.
    Star Forest Graph     2              2         1792     0.
      Discrete System     1              1          944     0.
 ========================================================================================================================
-Average time to get PetscTime(): 8.82149e-07
+Average time to get PetscTime(): 1.16825e-06
 #PETSc Option Table entries:
 -iga_fd
 -iga_view
