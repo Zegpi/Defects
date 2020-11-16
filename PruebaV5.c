@@ -405,7 +405,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=mu/100.0;								//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/10.0;								//Choose later based on whatever Amit says :)
 
 		PetscReal Chi0[4];																	//Assign chi(t) to a vector
 		PetscReal dChi0[4][2];																//Same for partial derivatives
@@ -818,7 +818,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=mu/100.0;															//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/10.0;															//Choose later based on whatever Amit says :)
 
 		PetscReal chi0[4];																	//Array to contain the vector chi(0)
 		PetscReal d2_Chi0[4][2][2];															//Same for its Hessian
@@ -1056,7 +1056,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		//const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		//const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=mu/100.0;															//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/10.0;															//Choose later based on whatever Amit says :)
 
 		//Definition of alternating tensor
 		const PetscReal e[3][3][3]=
@@ -1155,7 +1155,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=mu/100.0;															//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/10.0;															//Choose later based on whatever Amit says :)
 
 		//Definition of alternating tensor
 		//const PetscReal e[3][3][3]=
@@ -1279,7 +1279,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=mu/100.0;														//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/10.0;														//Choose later based on whatever Amit says :)
 
 		PetscReal x[2];																		//Vector of reals, size equal to problem's dimension
 		IGAPointFormGeomMap(p,x);															//Fills x with the coordinates of p, Gauss's point
@@ -1888,7 +1888,7 @@ int main(int argc, char *argv[]) {
 
 //App context creation and some data
 	//Mesh parameters (to fix specific points in z0 system)
-	PetscInt b=401;				//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
+	PetscInt b=1163;				//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
 	PetscReal Lx=80.0;
 	PetscReal Ly=80.0;
 	PetscInt  nx=b;
@@ -1955,7 +1955,7 @@ int main(int argc, char *argv[]) {
 	for (dir=0; dir<2; dir++)
 	{
 		ierr = IGASetRuleType(igaPi,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
-		ierr = IGASetRuleSize(igaPi,dir,4);CHKERRQ(ierr);
+		ierr = IGASetRuleSize(igaPi,dir,6);CHKERRQ(ierr);
 	}
 	ierr = IGASetUp(igaPi);CHKERRQ(ierr);
 
@@ -1985,7 +1985,7 @@ int main(int argc, char *argv[]) {
 	for (dir=0; dir<2; dir++)
 	{
 		ierr = IGASetRuleType(igachiS,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
-		ierr = IGASetRuleSize(igachiS,dir,4);CHKERRQ(ierr);
+		ierr = IGASetRuleSize(igachiS,dir,6);CHKERRQ(ierr);
 	}
 	ierr = IGASetUp(igachiS);CHKERRQ(ierr);
 	//PetscInt dir,side;
@@ -2102,12 +2102,13 @@ int main(int argc, char *argv[]) {
 	ierr = VecAssemblyEnd  (FchiS);CHKERRQ(ierr);
 
 	ierr = KSPSetOperators(kspchiS,KchiS,KchiS);CHKERRQ(ierr);
-	PC pcchiS;
-	ierr = KSPGetPC(kspchiS,&pcchiS); CHKERRQ(ierr);
-	ierr = PCSetType(pcchiS,PCLU); CHKERRQ(ierr);
-	ierr = PCFactorSetMatSolverType(pcchiS,MATSOLVERMUMPS); CHKERRQ(ierr);
-	//ierr = KSPSetFromOptions(kspchiS);CHKERRQ(ierr);
-	//ierr = KSPSetTolerances(kspchiS,1.0e-8,5.0e-18,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	//PC pcchiS;
+	//ierr = KSPGetPC(kspchiS,&pcchiS); CHKERRQ(ierr);
+	//ierr = PCSetType(pcchiS,PCLU); CHKERRQ(ierr);
+	//ierr = PCFactorSetMatSolverType(pcchiS,MATSOLVERMUMPS); CHKERRQ(ierr);
+	ierr = KSPSetFromOptions(kspchiS);CHKERRQ(ierr);
+	ierr = KSPSetType(kspchiS,KSPCG);
+	ierr = KSPSetTolerances(kspchiS,1.0e-23,1.0e-29,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
 	ierr = KSPSolve(kspchiS,FchiS,chiS0);CHKERRQ(ierr);
 
 	ierr = KSPDestroy(&kspchiS);CHKERRQ(ierr);
@@ -2142,7 +2143,7 @@ int main(int argc, char *argv[]) {
 	for (dir=0; dir<2; dir++)
 	{
 		ierr = IGASetRuleType(igaAl,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
-		ierr = IGASetRuleSize(igaAl,dir,4);CHKERRQ(ierr);
+		ierr = IGASetRuleSize(igaAl,dir,6);CHKERRQ(ierr);
 	}
 	ierr = IGASetUp(igaAl);CHKERRQ(ierr);
 	//PetscInt dir,side;
@@ -2235,7 +2236,8 @@ int main(int argc, char *argv[]) {
 
 	ierr = KSPSetOperators(kspAlp,KAlp,KAlp);CHKERRQ(ierr);
 	ierr = KSPSetFromOptions(kspAlp);CHKERRQ(ierr);
-	ierr = KSPSetTolerances(kspAlp,1.0e-25,1.0e-40,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	ierr = KSPSetType(kspAlp,KSPGMRES);
+	ierr = KSPSetTolerances(kspAlp,1.0e-37,1.0e-28,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
 	ierr = KSPSolve(kspAlp,FAlp,alp0);CHKERRQ(ierr);
 
 	char nameAlInput1[]="/Input-Al-2d-0.dat";
@@ -2292,7 +2294,7 @@ int main(int argc, char *argv[]) {
 	for (dir=0; dir<2; dir++)
 	{
 		ierr = IGASetRuleType(igachiUp,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
-		ierr = IGASetRuleSize(igachiUp,dir,4);CHKERRQ(ierr);
+		ierr = IGASetRuleSize(igachiUp,dir,6);CHKERRQ(ierr);
 	}
 	ierr = IGASetUp(igachiUp);CHKERRQ(ierr);
 
@@ -2387,12 +2389,13 @@ int main(int argc, char *argv[]) {
 	ierr = VecAssemblyEnd  (FchiUp);CHKERRQ(ierr);
 
 	ierr = KSPSetOperators(kspchiUp,KchiUp,KchiUp);CHKERRQ(ierr);
-	PC pcChiUp;
-	ierr = KSPGetPC(kspchiUp,&pcChiUp); CHKERRQ(ierr);
-	ierr = PCSetType(pcChiUp,PCLU); CHKERRQ(ierr);
-	ierr = PCFactorSetMatSolverType(pcChiUp,MATSOLVERMUMPS); CHKERRQ(ierr);
-	//ierr = KSPSetFromOptions(kspchiUp);CHKERRQ(ierr);
-	//ierr = KSPSetTolerances(kspchiUp,1.0e-8,1.0e-20,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	//PC pcChiUp;
+	//ierr = KSPGetPC(kspchiUp,&pcChiUp); CHKERRQ(ierr);
+	//ierr = PCSetType(pcChiUp,PCLU); CHKERRQ(ierr);
+	//ierr = PCFactorSetMatSolverType(pcChiUp,MATSOLVERMUMPS); CHKERRQ(ierr);
+	ierr = KSPSetFromOptions(kspchiUp);CHKERRQ(ierr);
+	ierr = KSPSetType(kspchiUp,KSPCG);
+	ierr = KSPSetTolerances(kspchiUp,1.0e-25,1.0e-29,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
 	ierr = KSPSolve(kspchiUp,FchiUp,chiUp0);CHKERRQ(ierr);
 
 	ierr = KSPDestroy(&kspchiUp);CHKERRQ(ierr);
@@ -2425,7 +2428,7 @@ int main(int argc, char *argv[]) {
 	for (dir=0; dir<2; dir++)
 	{
 		ierr = IGASetRuleType(igaZ0,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
-		ierr = IGASetRuleSize(igaZ0,dir,4);CHKERRQ(ierr);
+		ierr = IGASetRuleSize(igaZ0,dir,6);CHKERRQ(ierr);
 	}
 	ierr = IGASetUp(igaZ0);CHKERRQ(ierr);
 
@@ -2572,6 +2575,7 @@ int main(int argc, char *argv[]) {
 		*/
 	}
 
+	/*
 	if (fijaPunto==1)
 	{
 		//Here we set values to the Matrix directly, to impose Dirichlet condition in a single point.
@@ -2635,17 +2639,83 @@ int main(int argc, char *argv[]) {
 		val=0.0;
 		ierr = VecSetValue(FZ0,rows,val,INSERT_VALUES);CHKERRQ(ierr);
 	}
+	*/
+
+	if (fijaPunto==1)
+	{
+		//Here we set values to the Matrix directly, to impose Dirichlet condition in a single point.
+		//Note: Lower Left corner is gdl's  0 and 1,
+		
+		//This is only if using PCSORSetOmega below
+		ierr = MatSetOption(KZ0,MAT_USE_INODES,PETSC_FALSE);CHKERRQ(ierr);
+
+		PetscInt *filas_z;
+		PetscInt gdl_to_fix=3;
+
+		ierr = PetscCalloc1(gdl_to_fix,&filas_z);CHKERRQ(ierr);
+
+		filas_z[0]=0;	
+		filas_z[1]=1;
+		//filas_z[2]=2*(nx+1)*(ny+1)-2;									//This is for z a 1st order nurb
+		//filas_z[2]=2*(nx+2)*(ny+2)-2;									//This is for z a 2nd order nurb
+		filas_z[2]=2*(nx+3)*(ny+3)-2;									//This is for z a 3rd order nurb
+
+		ierr = MatZeroRowsColumns(KZ0,gdl_to_fix,filas_z,1.0e30,0,0);CHKERRQ(ierr);
+
+		ierr = MatAssemblyBegin(KZ0,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
+		ierr = MatAssemblyEnd  (KZ0,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
+		//
+
+		//Here we set values to the vector directly (to impose Dirichlet condition in a single point)
+		//Note: Lower Left corner is gdl's  0 and 1,
+		//		Lower Right corner is gdl's 2*(nx+2)-2 and 2*(nx+2)-1 
+		//		Upper Left corner is gdl's  2*(nx+2)*(ny+2)-2-2*(nx+1) and 2*(nx+2)*(ny+2)-1-2*(nx+1)
+		//		Upper Right corner is gdl's 2*(nx+2)*(ny+2)-2 and 2*(nx+2)*(ny+2)-1
+		//All of these for when z is a 2nd order nurbs
+		ierr = VecAssemblyBegin(FZ0);CHKERRQ(ierr);
+		ierr = VecAssemblyEnd  (FZ0);CHKERRQ(ierr);
+
+		PetscInt rows;
+		PetscReal val;
+
+		rows=0;
+		val=0.0;
+		ierr = VecSetValue(FZ0,rows,val,INSERT_VALUES);CHKERRQ(ierr);
+
+		ierr = VecAssemblyBegin(FZ0);CHKERRQ(ierr);
+		ierr = VecAssemblyEnd  (FZ0);CHKERRQ(ierr);
+
+		rows=1;
+		val=0.0;
+		ierr = VecSetValue(FZ0,rows,val,INSERT_VALUES);CHKERRQ(ierr);
+
+		ierr = VecAssemblyBegin(FZ0);CHKERRQ(ierr);
+		ierr = VecAssemblyEnd  (FZ0);CHKERRQ(ierr);
+		
+		rows=2*(nx+3)*(ny+3)-2;
+		//rows=2*(nx+2)*(ny+2)-2; 										//This is for when z is a 2nd order nurb
+		//rows=2*(nx+1)*(ny-1)-2;										//This is for when z is a 3rd order nurb
+		val=0.0;
+		ierr = VecSetValue(FZ0,rows,val,INSERT_VALUES);CHKERRQ(ierr);
+	}
 
 	ierr = VecAssemblyBegin(FZ0);CHKERRQ(ierr);
 	ierr = VecAssemblyEnd  (FZ0);CHKERRQ(ierr);
 
 	ierr = KSPSetOperators(kspZ0,KZ0,KZ0);CHKERRQ(ierr);
 	PC pcZ0;
-	ierr = KSPGetPC(kspZ0,&pcZ0); CHKERRQ(ierr);
-	ierr = PCSetType(pcZ0,PCLU); CHKERRQ(ierr);
-	ierr = PCFactorSetMatSolverType(pcZ0,MATSOLVERMUMPS); CHKERRQ(ierr);
-	//ierr = KSPSetFromOptions(kspZ0);CHKERRQ(ierr);
-	//ierr = KSPSetTolerances(kspZ0,1e-22,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	ierr = KSPGetPC(kspZ0,&pcZ0);CHKERRQ(ierr);
+	ierr = PCSetType(pcZ0,PCSOR);CHKERRQ(ierr);
+	ierr = PCSORSetIterations(pcZ0,3,3);CHKERRQ(ierr);
+	ierr = PCSORSetOmega(pcZ0,1.3);CHKERRQ(ierr);
+	//ierr = PCFactorSetMatSolverType(pcZ0,MATSOLVERMUMPS); CHKERRQ(ierr);
+	ierr = KSPSetFromOptions(kspZ0);CHKERRQ(ierr);
+	ierr = KSPSetType(kspZ0,KSPGMRES);
+	ierr = KSPGMRESSetRestart(kspZ0,120);CHKERRQ(ierr);		//Default is 30
+	ierr = KSPGMRESSetCGSRefinementType(kspZ0,KSP_GMRES_CGS_REFINE_ALWAYS);CHKERRQ(ierr);  //Default is never
+	ierr = KSPSetInitialGuessNonzero(kspZ0,PETSC_TRUE);CHKERRQ(ierr);
+	ierr = VecCopy(FZ0,Z0);CHKERRQ(ierr);
+	ierr = KSPSetTolerances(kspZ0,1e-27,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
 	ierr = KSPSolve(kspZ0,FZ0,Z0);CHKERRQ(ierr);
 
 	ierr = KSPDestroy(&kspZ0);CHKERRQ(ierr);
@@ -2674,7 +2744,7 @@ int main(int argc, char *argv[]) {
 	for (dir=0; dir<2; dir++)
 	{
 		ierr = IGASetRuleType(igaStress,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
-		ierr = IGASetRuleSize(igaStress,dir,4);CHKERRQ(ierr);
+		ierr = IGASetRuleSize(igaStress,dir,6);CHKERRQ(ierr);
 	}
 	ierr = IGASetUp(igaStress);CHKERRQ(ierr);
 
@@ -2800,7 +2870,7 @@ int main(int argc, char *argv[]) {
 	//ierr = PCSetType(pcStress,PCLU); CHKERRQ(ierr);
 	//ierr = PCFactorSetMatSolverType(pcStress,MATSOLVERMUMPS); CHKERRQ(ierr);
 	ierr = KSPSetFromOptions(kspStress);CHKERRQ(ierr);
-	ierr = KSPSetTolerances(kspStress,1e-20,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	ierr = KSPSetTolerances(kspStress,1e-24,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
 	ierr = KSPSolve(kspStress,FStress,sigma0);CHKERRQ(ierr);
 
 	ierr = KSPDestroy(&kspStress);CHKERRQ(ierr);
@@ -2829,7 +2899,7 @@ int main(int argc, char *argv[]) {
 	for (dir=0; dir<2; dir++)
 	{
 		ierr = IGASetRuleType(igaClassicStress,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
-		ierr = IGASetRuleSize(igaClassicStress,dir,4);CHKERRQ(ierr);
+		ierr = IGASetRuleSize(igaClassicStress,dir,6);CHKERRQ(ierr);
 	}
 	ierr = IGASetUp(igaClassicStress);CHKERRQ(ierr);
 
@@ -2983,7 +3053,7 @@ int main(int argc, char *argv[]) {
 	for (dir=0; dir<2; dir++)
 	{
 		ierr = IGASetRuleType(igaCS,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
-		ierr = IGASetRuleSize(igaCS,dir,4);CHKERRQ(ierr);
+		ierr = IGASetRuleSize(igaCS,dir,6);CHKERRQ(ierr);
 	}
 	ierr = IGASetUp(igaCS);CHKERRQ(ierr);
 
@@ -3135,7 +3205,7 @@ int main(int argc, char *argv[]) {
 	for (dir=0; dir<2; dir++)
 	{
 		ierr = IGASetRuleType(igaED,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
-		ierr = IGASetRuleSize(igaED,dir,4);CHKERRQ(ierr);
+		ierr = IGASetRuleSize(igaED,dir,6);CHKERRQ(ierr);
 	}
 	ierr = IGASetUp(igaED);CHKERRQ(ierr);
 
@@ -3280,7 +3350,7 @@ int main(int argc, char *argv[]) {
 	for (dir=0; dir<2; dir++)
 	{
 		ierr = IGASetRuleType(igaVa,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
-		ierr = IGASetRuleSize(igaVa,dir,4);CHKERRQ(ierr);
+		ierr = IGASetRuleSize(igaVa,dir,6);CHKERRQ(ierr);
 	}
 	ierr = IGASetUp(igaVa);CHKERRQ(ierr);
 
@@ -4129,7 +4199,7 @@ int main(int argc, char *argv[]) {
 	for (dir=0; dir<2; dir++)
 	{
 		ierr = IGASetRuleType(igaGrad,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
-		ierr = IGASetRuleSize(igaGrad,dir,4);CHKERRQ(ierr);
+		ierr = IGASetRuleSize(igaGrad,dir,6);CHKERRQ(ierr);
 	}
 	ierr = IGASetUp(igaGrad);CHKERRQ(ierr);
 	

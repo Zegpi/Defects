@@ -3849,6 +3849,11 @@ int main(int argc, char *argv[]) {
 	//ierr = KSPGetPC(kspZ0,&pcZ0); CHKERRQ(ierr);
 	//ierr = PCSetType(pcZ0,PCLU); CHKERRQ(ierr);
 	//ierr = PCFactorSetMatSolverType(pcZ0,MATSOLVERMUMPS); CHKERRQ(ierr);
+
+	//If the solver diverges, uncomment the following lines
+	//PC pcZ0;
+	//ierr = KSPGetPC(kspZ0,&pcZ0); CHKERRQ(ierr);
+	//ierr = PCSetType(pcZ0,PCSOR); CHKERRQ(ierr);
 	ierr = KSPSetFromOptions(kspZ0);CHKERRQ(ierr);
 	ierr = KSPSetType(kspZ0,KSPCG);
 	ierr = KSPSetTolerances(kspZ0,1.0e-27,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);

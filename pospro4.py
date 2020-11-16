@@ -55,8 +55,8 @@ for infile in glob.glob(fileName):
 	num = numpy.round(numpy.sqrt(sol.size/4.0),decimals=0)
 	
 	# write a function to sample the nrbs object
-	#uniform = lambda U: linspace(U[0], U[-1], 4*num-3)				#4 samples per element
-	uniform = lambda U: linspace(U[0], U[-1], 2*num-1)				#2 samples per element
+	uniform = lambda U: linspace(U[0], U[-1], 4*num-3)				#4 samples per element
+	#uniform = lambda U: linspace(U[0], U[-1], 2*num-1)				#2 samples per element
 	#uniform = lambda U: linspace(U[0], U[-1], num)					#1 sample  per element
 	
 	# write a binary VTK file

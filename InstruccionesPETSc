@@ -46,7 +46,7 @@ echo $PETSC_DIR			//This should output a blank line
 
 // Debug version
 
-./configure --with-cc=gcc --with-fc=gfortran --download-fblaslapack --download-mpich --download-scalapack --download-mumps --download-parmetis --download-metis --download-ptscotch --download-hypre --download-ml --download-cmake
+./configure --with-cc=gcc --with-fc=gfortran --download-fblaslapack --download-mpich --download-scalapack --download-mumps --download-parmetis --download-metis --download-ptscotch --download-hypre --download-ml --download-cmake --download-superlu_dist
 
 make PETSC_DIR=/**absolutepath**/petsc PETSC_ARCH=arch-linux2-c-debug all
 
@@ -120,7 +120,7 @@ unset PETSC_DIR
 unset PETSC_ARCH
 echo $PETSC_DIR					//This should output a blank line
 
-./configure  --with-cc=gcc --with-fc=gfortran --download-fblaslapack --download-mpich --with-debugging=0 COPTFLAGS=-O3 FOPTFLAGS=-O3 CXXOPTFLAGS=-O3 PETSC_ARCH=optimO3 --download-mumps --download-hypre --download-ml --download-scalapack --download-parmetis --download-metis --download-cmake
+./configure  --with-cc=gcc --with-fc=gfortran --download-fblaslapack --download-mpich --with-debugging=0 COPTFLAGS=-O3 FOPTFLAGS=-O3 CXXOPTFLAGS=-O3 PETSC_ARCH=optimO3 --download-mumps --download-hypre --download-ml --download-scalapack --download-parmetis --download-metis --download-cmake --download-superlu_dist
 
 make PETSC_DIR=/absolutepath/petsc PETSC_ARCH=optimO3 all
 
