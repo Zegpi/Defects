@@ -1,21 +1,21 @@
 Start of generateInput 
-Current time is 23:49:56 
-h= 0.068788
+Current time is 13:49:14 
+h= 0.045898
 System for initial state of Pi starting 
 IGA: dim=2 dof=4 order=1 geometry=2 rational=0 property=0
-Axis 0: basis=BSPLINE[1,0] rule=LEGENDRE[2] periodic=0 nnp=1164 nel=1163
-Axis 1: basis=BSPLINE[1,0] rule=LEGENDRE[2] periodic=0 nnp=1164 nel=1163
+Axis 0: basis=BSPLINE[1,0] rule=LEGENDRE[2] periodic=0 nnp=1744 nel=1743
+Axis 1: basis=BSPLINE[1,0] rule=LEGENDRE[2] periodic=0 nnp=1744 nel=1743
 Partition - MPI: processors=[1,1,1] total=1
-Partition - nnp: sum=1354896 min=1354896 max=1354896 max/min=1.
-Partition - nel: sum=1352569 min=1352569 max=1352569 max/min=1.
+Partition - nnp: sum=3041536 min=3041536 max=3041536 max/min=1.
+Partition - nel: sum=3038049 min=3038049 max=3038049 max/min=1.
 tanTh=0.000000 
 System for initial state of Alpha starting 
 IGA: dim=2 dof=2 order=1 geometry=2 rational=0 property=0
-Axis 0: basis=BSPLINE[1,0] rule=LEGENDRE[2] periodic=0 nnp=1164 nel=1163
-Axis 1: basis=BSPLINE[1,0] rule=LEGENDRE[2] periodic=0 nnp=1164 nel=1163
+Axis 0: basis=BSPLINE[1,0] rule=LEGENDRE[2] periodic=0 nnp=1744 nel=1743
+Axis 1: basis=BSPLINE[1,0] rule=LEGENDRE[2] periodic=0 nnp=1744 nel=1743
 Partition - MPI: processors=[1,1,1] total=1
-Partition - nnp: sum=1354896 min=1354896 max=1354896 max/min=1.
-Partition - nel: sum=1352569 min=1352569 max=1352569 max/min=1.
+Partition - nnp: sum=3041536 min=3041536 max=3041536 max/min=1.
+Partition - nel: sum=3038049 min=3038049 max=3038049 max/min=1.
 La ubicacion del archivo es ../Results/Input-Al-2d-1.dat 
 ************************************************************************************************************************
 ***             WIDEN YOUR WINDOW TO 120 CHARACTERS.  Use 'enscript -r -fCourier9' to print this document            ***
@@ -23,11 +23,11 @@ La ubicacion del archivo es ../Results/Input-Al-2d-1.dat
 
 ---------------------------------------------- PETSc Performance Summary: ----------------------------------------------
 
-./generateInput on a optimO3 named DESKTOP-NCAM2GT with 1 processor, by eazegpi Sat Nov 14 23:49:58 2020
+./generateInput on a optimO3 named DESKTOP-NCAM2GT with 1 processor, by eazegpi Fri Nov 20 13:49:18 2020
 Using Petsc Release Version 3.12.4, unknown 
 
                          Max       Max/Min     Avg       Total 
-Time (sec):           1.930e+00     1.000   1.930e+00
+Time (sec):           4.294e+00     1.000   4.294e+00
 Objects:              7.200e+01     1.000   7.200e+01
 Flop:                 0.000e+00     0.000   0.000e+00  0.000e+00
 Flop/sec:             0.000e+00     0.000   0.000e+00  0.000e+00
@@ -41,7 +41,7 @@ Flop counting convention: 1 flop = 1 real number operation of type (multiply/div
 
 Summary of Stages:   ----- Time ------  ----- Flop ------  --- Messages ---  -- Message Lengths --  -- Reductions --
                         Avg     %Total     Avg     %Total    Count   %Total     Avg         %Total    Count   %Total 
- 0:      Main Stage: 1.9298e+00 100.0%  0.0000e+00   0.0%  0.000e+00   0.0%  0.000e+00        0.0%  0.000e+00   0.0% 
+ 0:      Main Stage: 4.2937e+00 100.0%  0.0000e+00   0.0%  0.000e+00   0.0%  0.000e+00        0.0%  0.000e+00   0.0% 
 
 ------------------------------------------------------------------------------------------------------------------------
 See the 'Profiling' chapter of the users' manual for details on interpreting output.
@@ -65,12 +65,12 @@ Event                Count      Time (sec)     Flop                             
 
 --- Event Stage 0: Main Stage
 
-VecView                3 1.0 7.1560e-02 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  4  0  0  0  0   4  0  0  0  0     0
-VecSet                15 1.0 3.4079e-01 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00 18  0  0  0  0  18  0  0  0  0     0
-VecAssemblyBegin       8 1.0 8.5831e-06 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
-VecAssemblyEnd         8 1.0 7.3910e-06 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
-VecLoad                2 1.0 2.7065e-02 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  1  0  0  0  0   1  0  0  0  0     0
-VecScatterBegin        7 1.0 1.4497e-02 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  1  0  0  0  0   1  0  0  0  0     0
+VecView                3 1.0 1.5724e-01 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  4  0  0  0  0   4  0  0  0  0     0
+VecSet                15 1.0 9.9834e-01 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00 23  0  0  0  0  23  0  0  0  0     0
+VecAssemblyBegin       8 1.0 9.2983e-06 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+VecAssemblyEnd         8 1.0 6.9141e-06 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+VecLoad                2 1.0 6.0718e-02 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  1  0  0  0  0   1  0  0  0  0     0
+VecScatterBegin        7 1.0 3.3556e-02 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  1  0  0  0  0   1  0  0  0  0     0
 ------------------------------------------------------------------------------------------------------------------------
 
 Memory usage is given in bytes:
@@ -81,14 +81,14 @@ Reports information only for process 0.
 --- Event Stage 0: Main Stage
 
                  IGA     2              0            0     0.
-           Index Set    28             26     54215936     0.
-   IS L to G Mapping     4              2     10840512     0.
+           Index Set    28             26    121681536     0.
+   IS L to G Mapping     4              2     24333632     0.
               Viewer     7              6         5040     0.
          Vec Scatter    12              4         3072     0.
-              Vector    15             10    325190640     0.
-   Application Order     4              2     21679680     0.
+              Vector    15             10    729984240     0.
+   Application Order     4              2     48665920     0.
 ========================================================================================================================
-Average time to get PetscTime(): 8.34465e-07
+Average time to get PetscTime(): 8.82149e-07
 #PETSc Option Table entries:
 -iga_fd
 -iga_view

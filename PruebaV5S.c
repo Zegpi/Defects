@@ -733,7 +733,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=0.0*mu/100.0;								//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/100.0;								//Choose later based on whatever Amit says :)
 
 		PetscReal Chi0[4];																	//Assign chi to a vector
 		PetscReal dChi0[4][2];																//Same for partial derivatives
@@ -1164,7 +1164,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=0.0*mu/100.0;															//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/100.0;															//Choose later based on whatever Amit says :)
 
 		PetscReal chi0[4];																	//Array to contain the vector chi(0)
 		PetscReal d2_Chi0[4][2][2];															//Same for its Hessian
@@ -1419,7 +1419,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		//const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		//const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=0.0*mu/100.0;															//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/100.0;															//Choose later based on whatever Amit says :)
 
 		//Definition of alternating tensor
 		const PetscReal e[3][3][3]=
@@ -1528,7 +1528,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=0.0*mu/100.0;															//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/100.0;															//Choose later based on whatever Amit says :)
 
 		//Definition of alternating tensor
 		//const PetscReal e[3][3][3]=
@@ -1772,7 +1772,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 
 		//Change to consider G=1
 		const PetscReal mu=1.0;
-		const PetscReal eps=0.0*mu/100.0;															//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/100.0;															//Choose later based on whatever Amit says :)
 
 		PetscReal d_Chi0[4][2];																//Same for its gradient
 		IGAPointFormGrad(pChi,Chi,&d_Chi0[0][0]);											//Assign grad chi to its container
@@ -1861,7 +1861,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=0.0*mu/100.0;															//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/100.0;															//Choose later based on whatever Amit says :)
 
 		PetscReal chi0[4];																	//Array to contain the vector chi(0)
 		PetscReal d2_Chi0[4][2][2];															//Same for its Hessian
@@ -2007,7 +2007,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=0.0*mu/100.0;															//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/100.0;															//Choose later based on whatever Amit says :)
 
 		//Definition of alternating tensor
 		const PetscReal e[3][3][3]=
@@ -2164,7 +2164,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=0.0*mu/100.0;														//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/100.0;														//Choose later based on whatever Amit says :)
 
 		PetscReal C[3][3][3][3]={0};
 		//Creation of elasticity tensor
@@ -2195,10 +2195,10 @@ PetscReal delta(PetscInt i, PetscInt j)
 		IGAPointFormValue(pChi,Chi,&chi0[0]);												//Assign chi to its container
 		IGAPointFormHess (pChi,Chi,&d2_Chi0[0][0][0]);										//This should be the 3-rd order tensor Chi_{i,jk} (remember that we are storing Chi_{kl} as a column vector)
 
-		PetscReal d_Z0[2][2];																//Same for its gradient
-		PetscReal d3_Z0[2][2][2][2];														//Same for its 3rd order partial derivatives
-		IGAPointFormGrad (pZu,Zu,&d_Z0[0][0]);												//Same for the gradient
-		IGAPointFormDer3 (pZu,Zu,&d3_Z0[0][0][0][0]);										//Same for the thir derivatives
+		PetscReal d_z0[2][2];																//Same for its gradient
+		PetscReal d3_z0[2][2][2][2];														//Same for its 3rd order partial derivatives
+		IGAPointFormGrad (pZu,Zu,&d_z0[0][0]);												//Same for the gradient
+		IGAPointFormDer3 (pZu,Zu,&d3_z0[0][0][0][0]);										//Same for the thir derivatives
 
 		//The four non-zero components of Chi are stored as a vector, restore them to an array with the correct indexing for value and derivative
 		PetscReal fullChi[3][3]={0};
@@ -2213,14 +2213,14 @@ PetscReal delta(PetscInt i, PetscInt j)
 
 		//Expanding z (and derivatives) to 3 components, more convenient for sums in for loops
 		PetscReal fulld_z[3][3]={0};
-		fulld_z[0][0]=d_Z0[0][0]; fulld_z[0][1]=d_Z0[0][1];
-		fulld_z[1][0]=d_Z0[1][0]; fulld_z[1][1]=d_Z0[1][1];
+		fulld_z[0][0]=d_z0[0][0]; fulld_z[0][1]=d_z0[0][1];
+		fulld_z[1][0]=d_z0[1][0]; fulld_z[1][1]=d_z0[1][1];
 
 		PetscReal fulld3_z[3][3][3][3]={0};
-		fulld3_z[0][0][0][0]=d3_Z0[0][0][0][0]; fulld3_z[0][0][0][1]=d3_Z0[0][0][0][1]; fulld3_z[0][0][1][0]=d3_Z0[0][0][1][0]; fulld3_z[0][0][1][1]=d3_Z0[0][0][1][1];
-		fulld3_z[0][1][0][0]=d3_Z0[0][1][0][0]; fulld3_z[0][1][0][1]=d3_Z0[0][1][0][1]; fulld3_z[0][1][1][0]=d3_Z0[0][1][1][0]; fulld3_z[0][1][1][1]=d3_Z0[0][1][1][1];
-		fulld3_z[1][0][0][0]=d3_Z0[1][0][0][0]; fulld3_z[1][0][0][1]=d3_Z0[1][0][0][1]; fulld3_z[1][0][1][0]=d3_Z0[1][0][1][0]; fulld3_z[1][0][1][1]=d3_Z0[1][0][1][1]; 
-		fulld3_z[1][1][0][0]=d3_Z0[1][1][0][0]; fulld3_z[1][1][0][1]=d3_Z0[1][1][0][1]; fulld3_z[1][1][1][0]=d3_Z0[1][1][1][0]; fulld3_z[1][1][1][1]=d3_Z0[1][1][1][1];
+		fulld3_z[0][0][0][0]=d3_z0[0][0][0][0]; fulld3_z[0][0][0][1]=d3_z0[0][0][0][1]; fulld3_z[0][0][1][0]=d3_z0[0][0][1][0]; fulld3_z[0][0][1][1]=d3_z0[0][0][1][1];
+		fulld3_z[0][1][0][0]=d3_z0[0][1][0][0]; fulld3_z[0][1][0][1]=d3_z0[0][1][0][1]; fulld3_z[0][1][1][0]=d3_z0[0][1][1][0]; fulld3_z[0][1][1][1]=d3_z0[0][1][1][1];
+		fulld3_z[1][0][0][0]=d3_z0[1][0][0][0]; fulld3_z[1][0][0][1]=d3_z0[1][0][0][1]; fulld3_z[1][0][1][0]=d3_z0[1][0][1][0]; fulld3_z[1][0][1][1]=d3_z0[1][0][1][1]; 
+		fulld3_z[1][1][0][0]=d3_z0[1][1][0][0]; fulld3_z[1][1][0][1]=d3_z0[1][1][0][1]; fulld3_z[1][1][1][0]=d3_z0[1][1][1][0]; fulld3_z[1][1][1][1]=d3_z0[1][1][1][1];
 
 		//Inflate stored vectors to full tensor form
 		PetscReal fullS[3][3][3]={0};
@@ -3845,9 +3845,9 @@ int main(int argc, char *argv[]) {
 	ierr = VecAssemblyEnd  (FZ0);CHKERRQ(ierr);
 
 	ierr = KSPSetOperators(kspZ0,KZ0,KZ0);CHKERRQ(ierr);
-	//PC pcZ0;
-	//ierr = KSPGetPC(kspZ0,&pcZ0); CHKERRQ(ierr);
-	//ierr = PCSetType(pcZ0,PCLU); CHKERRQ(ierr);
+	PC pcZ0;
+	ierr = KSPGetPC(kspZ0,&pcZ0); CHKERRQ(ierr);
+	ierr = PCSetType(pcZ0,PCSOR); CHKERRQ(ierr);
 	//ierr = PCFactorSetMatSolverType(pcZ0,MATSOLVERMUMPS); CHKERRQ(ierr);
 
 	//If the solver diverges, uncomment the following lines
