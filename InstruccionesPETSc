@@ -201,5 +201,4 @@ sudo apt-get install whatever it asks for
 
 // Run codes
 
-time petsc -np <numberOfCores> ./<compiledCode> -iga_view -monitor 1 -output 1 -ksp_converged_reason -iga_fd -log_view > o1.txt
-
+time petsc -np <numberOfCores> ./<compiledCode> -iga_view -ksp_converged_reason -iga_fd -ksp_monitor -ksp_view -ksp_monitor_true_residual -log_view > o1.txt

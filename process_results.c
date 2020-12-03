@@ -1128,7 +1128,7 @@ int main(int argc, char *argv[]) {
 	PetscErrorCode  ierr;
 	ierr = PetscInitialize(&argc,&argv,0,0);CHKERRQ(ierr);										//Always initialize PETSc
 	PetscInt dir,side;
-	PetscPrintf(PETSC_COMM_WORLD,"Start of PruebaV5 \n");
+	PetscPrintf(PETSC_COMM_WORLD,"Start of process_results \n");
 
 	PetscInt commsize,rank;
 	ierr = MPI_Comm_size(PETSC_COMM_WORLD,&commsize);CHKERRQ(ierr);
@@ -1137,7 +1137,7 @@ int main(int argc, char *argv[]) {
 
 //App context creation and some data
 	//Mesh parameters (to fix specific points in z0 system)
-	PetscInt b=1743;				//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
+	PetscInt b=581;				//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
 	PetscReal Lx=80.0;
 	PetscReal Ly=80.0;
 	PetscInt  nx=b;
@@ -1180,8 +1180,8 @@ int main(int argc, char *argv[]) {
 		FILE *source, *dest;
 		char buffer[8192];
 		size_t bytes;
-		source = fopen("./PruebaV5.c","r");
-		dest   = fopen("../Results/PruebaV5.c","w");				//Change this to use directory variable "direct"
+		source = fopen("./process_results.c","r");
+		dest   = fopen("../Results/process_results.c","w");				//Change this to use directory variable "direct"
 
 		while (0 < (bytes = fread(buffer, 1, sizeof(buffer), source)))
 			fwrite(buffer, 1, bytes, dest);
@@ -1420,12 +1420,12 @@ int main(int argc, char *argv[]) {
 	ierr = VecAssemblyEnd  (FStress);CHKERRQ(ierr);
 
 	ierr = KSPSetOperators(kspStress,KStress,KStress);CHKERRQ(ierr);
-	//PC pcStress;
-	//ierr = KSPGetPC(kspStress,&pcStress); CHKERRQ(ierr);
-	//ierr = PCSetType(pcStress,PCLU); CHKERRQ(ierr);
+	PC pcStress;
+	ierr = KSPGetPC(kspStress,&pcStress); CHKERRQ(ierr);
+	ierr = PCSetType(pcStress,PCSOR); CHKERRQ(ierr);
 	//ierr = PCFactorSetMatSolverType(pcStress,MATSOLVERMUMPS); CHKERRQ(ierr);
 	ierr = KSPSetFromOptions(kspStress);CHKERRQ(ierr);
-	ierr = KSPSetTolerances(kspStress,1e-24,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	ierr = KSPSetTolerances(kspStress,1.0e-12,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
 	ierr = KSPSolve(kspStress,FStress,sigma0);CHKERRQ(ierr);
 
 	ierr = KSPDestroy(&kspStress);CHKERRQ(ierr);
@@ -1435,9 +1435,13 @@ int main(int argc, char *argv[]) {
 	char nameStress[]="/sigma-2d-0.dat";
 	char pathStress[512];
 	sprintf(pathStress,"%s%s",direct,nameStress);
-	ierr = IGAWriteVec(igaStress,sigma0,pathStress);CHKERRQ(ierr);	
+	ierr = IGAWriteVec(igaStress,sigma0,pathStress);CHKERRQ(ierr);
+
+	ierr = VecDestroy(&sigma0);CHKERRQ(ierr);
+	ierr = IGADestroy(&igaStress);CHKERRQ(ierr);
 //
 
+/*
 //System for L2 projection of classic stress (C*Ue)
 	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for Classic Stress starting \n\n");
 	T=time(NULL);
@@ -1574,12 +1578,12 @@ int main(int argc, char *argv[]) {
 	ierr = VecAssemblyEnd  (FClassicStress);CHKERRQ(ierr);
 
 	ierr = KSPSetOperators(kspClassicStress,KClassicStress,KClassicStress);CHKERRQ(ierr);
-	//PC pcStress;
-	//ierr = KSPGetPC(kspStress,&pcStress); CHKERRQ(ierr);
-	//ierr = PCSetType(pcStress,PCLU); CHKERRQ(ierr);
+	PC pcClassicStress;
+	ierr = KSPGetPC(kspClassicStress,&pcClassicStress); CHKERRQ(ierr);
+	ierr = PCSetType(pcClassicStress,PCSOR); CHKERRQ(ierr);
 	//ierr = PCFactorSetMatSolverType(pcStress,MATSOLVERMUMPS); CHKERRQ(ierr);
 	ierr = KSPSetFromOptions(kspClassicStress);CHKERRQ(ierr);
-	ierr = KSPSetTolerances(kspClassicStress,1.0e-16,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	ierr = KSPSetTolerances(kspClassicStress,1.0e-12,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
 	ierr = KSPSolve(kspClassicStress,FClassicStress,classicSigma0);CHKERRQ(ierr);
 
 	ierr = KSPDestroy(&kspClassicStress);CHKERRQ(ierr);
@@ -1589,8 +1593,12 @@ int main(int argc, char *argv[]) {
 	char nameClassicStress[]="/classicSigma-2d-0.dat";
 	char pathClassicStress[512];
 	sprintf(pathClassicStress,"%s%s",direct,nameClassicStress);
-	ierr = IGAWriteVec(igaClassicStress,classicSigma0,pathClassicStress);CHKERRQ(ierr);	
+	ierr = IGAWriteVec(igaClassicStress,classicSigma0,pathClassicStress);CHKERRQ(ierr);
+
+	ierr = VecDestroy(&classicSigma0);CHKERRQ(ierr);
+	ierr = IGADestroy(&igaClassicStress);CHKERRQ(ierr);
 //
+*/
 
 //System for L2 projection of couple stress
 	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for CoupleStress starting \n\n");
@@ -1726,12 +1734,12 @@ int main(int argc, char *argv[]) {
 	ierr = VecAssemblyEnd  (FCStress);CHKERRQ(ierr);
 
 	ierr = KSPSetOperators(kspCS,KCStress,KCStress);CHKERRQ(ierr);
-	//PC pcCS;
-	//ierr = KSPGetPC(kspCS,&pcCS); CHKERRQ(ierr);
-	//ierr = PCSetType(pcCS,PCLU); CHKERRQ(ierr);
+	PC pcCS;
+	ierr = KSPGetPC(kspCS,&pcCS); CHKERRQ(ierr);
+	ierr = PCSetType(pcCS,PCSOR); CHKERRQ(ierr);
 	//ierr = PCFactorSetMatSolverType(pcCS,MATSOLVERMUMPS); CHKERRQ(ierr);
 	ierr = KSPSetFromOptions(kspCS);CHKERRQ(ierr);
-	ierr = KSPSetTolerances(kspCS,1e-24,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	ierr = KSPSetTolerances(kspCS,1.0e-12,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
 	ierr = KSPSolve(kspCS,FCStress,lambda0);CHKERRQ(ierr);
 
 	ierr = KSPDestroy(&kspCS);CHKERRQ(ierr);
@@ -1741,7 +1749,10 @@ int main(int argc, char *argv[]) {
 	char nameCStress[]="/lambda-2d-0.dat";
 	char pathCStress[512];
 	sprintf(pathCStress,"%s%s",direct,nameCStress);
-	ierr = IGAWriteVec(igaCS,lambda0,pathCStress);CHKERRQ(ierr);	
+	ierr = IGAWriteVec(igaCS,lambda0,pathCStress);CHKERRQ(ierr);
+
+	ierr = VecDestroy(&lambda0);CHKERRQ(ierr);
+	ierr = IGADestroy(&igaCS);CHKERRQ(ierr);
 //
 
 //System for L2 projection of Energy Density
@@ -1803,6 +1814,8 @@ int main(int argc, char *argv[]) {
 	ierr = IGABeginElement(igaZ0,&elemZ0);CHKERRQ(ierr);
 	ierr = IGABeginElement(igachiUp,&elemchiUp);CHKERRQ(ierr);
 
+	ierr = PetscPrintf(PETSC_COMM_WORLD,"Antes de armar el sistema de energia \n");CHKERRQ(ierr);
+
 	while (IGANextElement(igaED,elemED)) 				
 	{
 		IGANextElement(igachiUp,elemchiUp);
@@ -1860,6 +1873,8 @@ int main(int argc, char *argv[]) {
 	ierr = IGAEndElement(igaZ0,&elemZ0);CHKERRQ(ierr);
 	ierr = IGAEndElement(igachiUp,&elemchiUp);CHKERRQ(ierr);
 
+	ierr = PetscPrintf(PETSC_COMM_WORLD,"Despues de armar el sistema de energia \n");CHKERRQ(ierr);
+
 	// Restore local vectors u, Z0, Chi0 and arrays
 	ierr = IGARestoreLocalVecArray(igachiUp,chiUp0,&localChi0ED,&arrayChi0ED);CHKERRQ(ierr);
 	ierr = IGARestoreLocalVecArray(igaZ0,Z0,&localZ0ED,&arrayZ0ED);CHKERRQ(ierr);
@@ -1870,13 +1885,15 @@ int main(int argc, char *argv[]) {
 	ierr = VecAssemblyBegin(FED);CHKERRQ(ierr);
 	ierr = VecAssemblyEnd  (FED);CHKERRQ(ierr);
 
+	ierr = PetscPrintf(PETSC_COMM_WORLD,"Despues de armar las matrices y vectores \n");CHKERRQ(ierr);
+
 	ierr = KSPSetOperators(kspED,KED,KED);CHKERRQ(ierr);
 	PC pcED;
 	ierr = KSPGetPC(kspED,&pcED); CHKERRQ(ierr);
-	ierr = PCSetType(pcED,PCLU); CHKERRQ(ierr);
-	ierr = PCFactorSetMatSolverType(pcED,MATSOLVERMUMPS); CHKERRQ(ierr);
-	//ierr = KSPSetFromOptions(kspStress);CHKERRQ(ierr);
-	//ierr = KSPSetTolerances(kspStress,1e-28,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	ierr = PCSetType(pcED,PCSOR); CHKERRQ(ierr);
+	//ierr = PCFactorSetMatSolverType(pcED,MATSOLVERMUMPS); CHKERRQ(ierr);
+	ierr = KSPSetFromOptions(kspED);CHKERRQ(ierr);
+	ierr = KSPSetTolerances(kspED,1.0e-12,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
 	ierr = KSPSolve(kspED,FED,ed0);CHKERRQ(ierr);
 
 	ierr = KSPDestroy(&kspED);CHKERRQ(ierr);
@@ -1886,9 +1903,13 @@ int main(int argc, char *argv[]) {
 	char nameED[]="/DensityEnergy.dat";
 	char pathED[512];
 	sprintf(pathED,"%s%s",direct,nameED);
-	ierr = IGAWriteVec(igaED,ed0,pathED);CHKERRQ(ierr);	
+	ierr = IGAWriteVec(igaED,ed0,pathED);CHKERRQ(ierr);
+
+	ierr = VecDestroy(&ed0);CHKERRQ(ierr);
+	ierr = IGADestroy(&igaED);CHKERRQ(ierr);
 //
 
+/*
 //System for L2 projection of V^{alpha}
 	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for V-alpha starting \n\n");
 	T=time(NULL);
@@ -2035,12 +2056,12 @@ int main(int argc, char *argv[]) {
 	ierr = VecAssemblyEnd  (FVa);CHKERRQ(ierr);
 
 	ierr = KSPSetOperators(kspVa,KVa,KVa);CHKERRQ(ierr);
-	//PC pcVa;
-	//ierr = KSPGetPC(kspStress,&pcStress); CHKERRQ(ierr);
-	//ierr = PCSetType(pcStress,PCLU); CHKERRQ(ierr);
+	PC pcVa;
+	ierr = KSPGetPC(kspVa,&pcVa); CHKERRQ(ierr);
+	ierr = PCSetType(pcVa,PCSOR); CHKERRQ(ierr);
 	//ierr = PCFactorSetMatSolverType(pcStress,MATSOLVERMUMPS); CHKERRQ(ierr);
 	ierr = KSPSetFromOptions(kspVa);CHKERRQ(ierr);
-	ierr = KSPSetTolerances(kspVa,1.0e-24,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	ierr = KSPSetTolerances(kspVa,1.0e-12,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
 	ierr = KSPSolve(kspVa,FVa,Va0);CHKERRQ(ierr);
 
 	//ierr = KSPDestroy(&kspVa);CHKERRQ(ierr);
@@ -2050,7 +2071,7 @@ int main(int argc, char *argv[]) {
 	char nameVa[]="/Va-2d-0.dat";
 	char pathVa[512];
 	sprintf(pathVa,"%s%s",direct,nameVa);
-	ierr = IGAWriteVec(igaVa,Va0,pathVa);CHKERRQ(ierr);	
+	ierr = IGAWriteVec(igaVa,Va0,pathVa);CHKERRQ(ierr);
 //
 
 //System for L2 proyection of smoothed V^{alpha}
@@ -2058,7 +2079,6 @@ int main(int argc, char *argv[]) {
 	T=time(NULL);
 	tm=*localtime(&T);
 	PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.tm_min,tm.tm_sec);
-
 
 	//First integrate velocity for both defects
 	Vec FVaInt, FVaXi, Int1aVec, Int2aVec, Int1bVec, Int2bVec;
@@ -2315,6 +2335,12 @@ int main(int argc, char *argv[]) {
 
 	ierr = KSPDestroy(&kspVa);CHKERRQ(ierr);
 	ierr = MatDestroy(&KVa);CHKERRQ(ierr);
+	ierr = VecDestroy(&FVaSmooth1);CHKERRQ(ierr);
+	ierr = VecDestroy(&FVaSmooth2);CHKERRQ(ierr);
+	ierr = VecDestroy(&Va1Smooth);CHKERRQ(ierr);
+	ierr = VecDestroy(&Va2Smooth);CHKERRQ(ierr);
+	ierr = VecDestroy(&Va0);CHKERRQ(ierr);
+	ierr = IGADestroy(&igaVa);CHKERRQ(ierr);
 //
 
 //System for L2 projection of \hat{Ue}
@@ -2463,12 +2489,12 @@ int main(int argc, char *argv[]) {
 	ierr = VecAssemblyEnd  (FUeSkw);CHKERRQ(ierr);
 
 	ierr = KSPSetOperators(kspUe,KUe,KUe);CHKERRQ(ierr);
-	//PC pcUe;
-	//ierr = KSPGetPC(kspUe,&pcUe); CHKERRQ(ierr);
-	//ierr = PCSetType(pcUe,PCLU); CHKERRQ(ierr);
+	PC pcUe;
+	ierr = KSPGetPC(kspUe,&pcUe); CHKERRQ(ierr);
+	ierr = PCSetType(pcUe,PCSOR); CHKERRQ(ierr);
 	//ierr = PCFactorSetMatSolverType(pcUe,MATSOLVERMUMPS); CHKERRQ(ierr);
 	ierr = KSPSetFromOptions(kspUe);CHKERRQ(ierr);
-	ierr = KSPSetTolerances(kspUe,1.0e-24,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	ierr = KSPSetTolerances(kspUe,1.0e-12,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
 	ierr = KSPSolve(kspUe,FUe,Ue);CHKERRQ(ierr);
 	ierr = KSPSolve(kspUe,FUeSkw,UeSkw);CHKERRQ(ierr);
 
@@ -2486,148 +2512,9 @@ int main(int argc, char *argv[]) {
 	char pathUeSkw[512];
 	sprintf(pathUeSkw,"%s%s",direct,nameUeSkw);
 	ierr = IGAWriteVec(igaUe,UeSkw,pathUeSkw);CHKERRQ(ierr);
-//
 
-//System for L2 projection of grad(Z0)
-	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for L2 projection for grad(Z0) \n\n");
-	T=time(NULL);
-	tm=*localtime(&T);
-	PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.tm_min,tm.tm_sec);
-	IGA igaGrad;
-	ierr = IGACreate(PETSC_COMM_WORLD,&igaGrad);CHKERRQ(ierr);
-	ierr = IGASetDim(igaGrad,2);CHKERRQ(ierr);														//Spatial dimension of the problem
-	ierr = IGASetDof(igaGrad,4);CHKERRQ(ierr);														//Number of degrees of freedom, per node
-	ierr = IGASetOrder(igaGrad,2);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
-	ierr = IGASetFromOptions(igaGrad);CHKERRQ(ierr);												//Note: The order (or degree) of the shape functions is given by the mesh!
-	ierr = IGARead(igaGrad,"./geometry3.dat");CHKERRQ(ierr);
-	
-	for (dir=0; dir<2; dir++)
-	{
-		ierr = IGASetRuleType(igaGrad,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
-		ierr = IGASetRuleSize(igaGrad,dir,6);CHKERRQ(ierr);
-	}
-	ierr = IGASetUp(igaGrad);CHKERRQ(ierr);
-	
-	for (dir=0; dir<2; dir++) 
-	{
-		for (side=0; side<2; side++) 
-		{
-			//ierr = IGASetBoundaryValue(iga,dir,side,dof,0.0);CHKERRQ(ierr);    				// Dirichlet boundary conditions
-			ierr = IGASetBoundaryForm(igaGrad,dir,side,PETSC_TRUE);CHKERRQ(ierr);  				// Neumann boundary conditions
-		}
-	}
-
-	Vec gradZ0;
-	Mat Kl2Grad;
-	Vec Fl2Grad;
-	ierr = IGACreateVec(igaGrad,&gradZ0);CHKERRQ(ierr);  
-	ierr = IGACreateMat(igaGrad,&Kl2Grad);CHKERRQ(ierr);
-	ierr = IGACreateVec(igaGrad,&Fl2Grad);CHKERRQ(ierr);
-	
-	IGAPoint		pointGrad;						//point
-	IGAElement		elemGrad;						//element
-	PetscReal		*KlocGrad,*FlocGrad;			//AA y BB
-	PetscReal		*KpointGrad,*FpointGrad;		//KKK y FFF
-	const PetscReal	*arrayGradZ0;					//arrayU
-	Vec				localGradZ0;					//localU
-	PetscReal		*GradZ0;						//U
-
-  	IGAFormSystem	wtfGrad;
- 	void			*wtf2Grad;
-
-	// Get local vectors Chi0 and arrays
-	ierr = IGAGetLocalVecArray(igaZ0,Z0,&localGradZ0,&arrayGradZ0);CHKERRQ(ierr);
-
-	// Element loop
-	ierr = IGABeginElement(igaGrad,&elemGrad);CHKERRQ(ierr);
-	ierr = IGABeginElement(igaZ0,&elemZ0);CHKERRQ(ierr);
-
-	while (IGANextElement(igaGrad,elemGrad)) 
-	{
-		IGANextElement(igaZ0,elemZ0);
-
-		ierr = IGAElementGetWorkMat(elemGrad,&KlocGrad);CHKERRQ(ierr);
-		ierr = IGAElementGetWorkVec(elemGrad,&FlocGrad);CHKERRQ(ierr);
-		ierr = IGAElementGetValues(elemZ0,arrayGradZ0,&GradZ0);CHKERRQ(ierr);
-
-		// FormSystem loop
-		while (IGAElementNextFormSystem(elemGrad,&wtfGrad,&wtf2Grad)) 
-		{
-		// Quadrature loop
-			ierr = IGAElementBeginPoint(elemGrad,&pointGrad);CHKERRQ(ierr);
-			ierr = IGAElementBeginPoint(elemZ0,&pointZ0);CHKERRQ(ierr);
-
-			while (IGAElementNextPoint(elemGrad,pointGrad))
-			{
-				if(pointGrad->atboundary==1)
-				{
-					ierr = IGAPointGetWorkMat(pointGrad,&KpointGrad);CHKERRQ(ierr);
-					ierr = IGAPointGetWorkVec(pointGrad,&FpointGrad);CHKERRQ(ierr);
-					ierr = L2ProjectionGradZ(pointGrad,pointZ0,KpointGrad,FpointGrad,GradZ0,NULL);CHKERRQ(ierr);
-					ierr = IGAPointAddMat(pointGrad,KpointGrad,KlocGrad);CHKERRQ(ierr);
-					ierr = IGAPointAddVec(pointGrad,FpointGrad,FlocGrad);CHKERRQ(ierr);
-				}
-
-				if(pointZ0->atboundary==1)
-				{
-					PetscPrintf(PETSC_COMM_WORLD,"Hola en Grad");
-				}
-
-				if(pointGrad->atboundary==0 && pointZ0->atboundary==0)
-				{
-					IGAElementNextPoint(elemZ0,pointZ0);
-
-					ierr = IGAPointGetWorkMat(pointGrad,&KpointGrad);CHKERRQ(ierr);
-					ierr = IGAPointGetWorkVec(pointGrad,&FpointGrad);CHKERRQ(ierr);
-					ierr = L2ProjectionGradZ(pointGrad,pointZ0,KpointGrad,FpointGrad,GradZ0,NULL);CHKERRQ(ierr);
-					ierr = IGAPointAddMat(pointGrad,KpointGrad,KlocGrad);CHKERRQ(ierr);
-					ierr = IGAPointAddVec(pointGrad,FpointGrad,FlocGrad);CHKERRQ(ierr);
-				}
-			}
-			if (pointZ0->index != -1)
-			{
-				IGAElementNextPoint(elemZ0,pointZ0);
-			}
-
-			ierr = IGAElementEndPoint(elemGrad,&pointGrad);CHKERRQ(ierr);
-			ierr = IGAElementEndPoint(elemZ0,&pointZ0);CHKERRQ(ierr);
-		}
-
-		ierr = IGAElementAssembleMat(elemGrad,KlocGrad,Kl2Grad);CHKERRQ(ierr);
-		ierr = IGAElementAssembleVec(elemGrad,FlocGrad,Fl2Grad);CHKERRQ(ierr);
-
-	}
-	IGANextElement(igaZ0,elemZ0);
-
-	ierr = IGAEndElement(igaGrad,&elemGrad);CHKERRQ(ierr);
-	ierr = IGAEndElement(igaZ0,&elemZ0);CHKERRQ(ierr);
-
-	// Restore local vectors Chi0 and arrays
-	ierr = IGARestoreLocalVecArray(igaZ0,Z0,&localGradZ0,&arrayGradZ0);CHKERRQ(ierr);
-
-	ierr = MatAssemblyBegin(Kl2Grad,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
-	ierr = MatAssemblyEnd  (Kl2Grad,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);	
-
-	ierr = VecAssemblyBegin(Fl2Grad);CHKERRQ(ierr);
-	ierr = VecAssemblyEnd  (Fl2Grad);CHKERRQ(ierr);
-
-	//This parts set and calls KSP to solve the linear system
-	KSP kspl2Grad;
-	ierr = IGACreateKSP(igaGrad,&kspl2Grad);CHKERRQ(ierr);										
-	ierr = KSPSetOperators(kspl2Grad,Kl2Grad,Kl2Grad);CHKERRQ(ierr); 								//This function creates the matrix for the system on the second parameter and uses the 3rd parameter as a preconditioner
-	ierr = KSPSetType(kspl2Grad,KSPCG);CHKERRQ(ierr);											//Using KSPCG (conjugated gradient) because the matrix is symmetric
-	//ierr = KSPSetOptionsPrefix(kspl2S,"l2pS_");CHKERRQ(ierr);
-	ierr = KSPSetFromOptions(kspl2Grad);CHKERRQ(ierr);
-	ierr = KSPSetTolerances(kspl2Grad,1.0e-16,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
-	ierr = KSPSolve(kspl2Grad,Fl2Grad,gradZ0);CHKERRQ(ierr);										//This is a simple system, so it can be solved with just this command
-
-	ierr = KSPDestroy(&kspl2Grad);CHKERRQ(ierr);
-	ierr = MatDestroy(&Kl2Grad);CHKERRQ(ierr);
-	ierr = VecDestroy(&Fl2Grad);CHKERRQ(ierr);
-	char nameGrad[]="/gradZ0-2d-0.dat";
-	char pathGrad[512];
-	sprintf(pathGrad,"%s%s",direct,nameGrad);
-	ierr = IGAWriteVec(igaGrad,gradZ0,pathGrad);CHKERRQ(ierr);
+	ierr = VecDestroy(&UeSkw);CHKERRQ(ierr);
+	ierr = IGADestroy(&igaUe);CHKERRQ(ierr);
 //
 
 //System for L2 projection of Norm \hat{UeSkw}
@@ -2748,12 +2635,12 @@ int main(int argc, char *argv[]) {
 	ierr = VecAssemblyEnd  (FNormUeSkw);CHKERRQ(ierr);
 
 	ierr = KSPSetOperators(kspNormUeSkw,KNormUeSkw,KNormUeSkw);CHKERRQ(ierr);
-	//PC pcNormUeSkw;
-	//ierr = KSPGetPC(kspNormUeSkw,&pcNormUeSkw); CHKERRQ(ierr);
-	//ierr = PCSetType(pcNormUeSkw,PCLU); CHKERRQ(ierr);
+	PC pcNormUeSkw;
+	ierr = KSPGetPC(kspNormUeSkw,&pcNormUeSkw); CHKERRQ(ierr);
+	ierr = PCSetType(pcNormUeSkw,PCSOR); CHKERRQ(ierr);
 	//ierr = PCFactorSetMatSolverType(pcNormUeSkw,MATSOLVERMUMPS); CHKERRQ(ierr);
 	ierr = KSPSetFromOptions(kspNormUeSkw);CHKERRQ(ierr);
-	ierr = KSPSetTolerances(kspNormUeSkw,1e-16,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	ierr = KSPSetTolerances(kspNormUeSkw,1.0e-12,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
 	ierr = KSPSolve(kspNormUeSkw,FNormUeSkw,NormUeSkw);CHKERRQ(ierr);
 
 	ierr = KSPDestroy(&kspNormUeSkw);CHKERRQ(ierr);
@@ -2763,7 +2650,10 @@ int main(int argc, char *argv[]) {
 	char nameNormUeSkw[]="/NormUeSkw.dat";
 	char pathNormUeSkw[512];
 	sprintf(pathNormUeSkw,"%s%s",direct,nameNormUeSkw);
-	ierr = IGAWriteVec(igaNormUeSkw,NormUeSkw,pathNormUeSkw);CHKERRQ(ierr);	
+	ierr = IGAWriteVec(igaNormUeSkw,NormUeSkw,pathNormUeSkw);CHKERRQ(ierr);
+
+	ierr = VecDestroy(&NormUeSkw);CHKERRQ(ierr);
+	ierr = IGADestroy(&igaNormUeSkw);CHKERRQ(ierr);
 //
 
 //System for L2 projection of exact stress
@@ -2771,30 +2661,28 @@ int main(int argc, char *argv[]) {
 	T=time(NULL);
 	tm=*localtime(&T);
 	PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.tm_min,tm.tm_sec);
+	ierr = PetscPrintf(PETSC_COMM_WORLD,"Tension exacta paso 0 \n");CHKERRQ(ierr);
 	IGA igaExact;
 	ierr = IGACreate(PETSC_COMM_WORLD,&igaExact);CHKERRQ(ierr);
 	ierr = IGASetDim(igaExact,2);CHKERRQ(ierr);														//Spatial dimension of the problem
 	ierr = IGASetDof(igaExact,4);CHKERRQ(ierr);														//Number of degrees of freedom, per node
-	ierr = IGASetOrder(igaExact,2);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
+	ierr = IGASetOrder(igaExact,1);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
+	ierr = PetscPrintf(PETSC_COMM_WORLD,"Tension exacta paso 0.5 \n");CHKERRQ(ierr);
 	ierr = IGASetFromOptions(igaExact);CHKERRQ(ierr);												//Note: The order (or degree) of the shape functions is given by the mesh!
 	ierr = IGARead(igaExact,"./geometry3.dat");CHKERRQ(ierr);
 	
+	ierr = PetscPrintf(PETSC_COMM_WORLD,"Tension exacta paso 1 \n");CHKERRQ(ierr);
+
 	for (dir=0; dir<2; dir++)
 	{
 		ierr = IGASetRuleType(igaExact,dir,IGA_RULE_LEGENDRE);CHKERRQ(ierr);
-		ierr = IGASetRuleSize(igaExact,dir,6);CHKERRQ(ierr);
+		ierr = IGASetRuleSize(igaExact,dir,4);CHKERRQ(ierr);
 	}
-	ierr = IGASetUp(igaExact);CHKERRQ(ierr);
-	
-	for (dir=0; dir<2; dir++) 
-	{
-		for (side=0; side<2; side++) 
-		{
-			//ierr = IGASetBoundaryValue(iga,dir,side,dof,0.0);CHKERRQ(ierr);    				// Dirichlet boundary conditions
-			//ierr = IGASetBoundaryForm(igaExact,dir,side,PETSC_TRUE);CHKERRQ(ierr);  				// Neumann boundary conditions
-		}
-	}
+	ierr = PetscPrintf(PETSC_COMM_WORLD,"Tension exacta paso 2 \n");CHKERRQ(ierr);
 
+	ierr = IGASetUp(igaExact);CHKERRQ(ierr);
+
+	ierr = PetscPrintf(PETSC_COMM_WORLD,"Tension exacta paso 3 \n");CHKERRQ(ierr);
 	Vec e0;
 	Mat Kl2e;
 	Vec Fl2e;
@@ -2804,14 +2692,18 @@ int main(int argc, char *argv[]) {
 	ierr = IGASetFormSystem(igaExact,L2ProjectionExactStress,&userL2);CHKERRQ(ierr);
 	ierr = IGAComputeSystem(igaExact,Kl2e,Fl2e);CHKERRQ(ierr);
 
+	ierr = PetscPrintf(PETSC_COMM_WORLD,"Fin de sistema de tension exacta \n");CHKERRQ(ierr);
+
 	//This parts set and calls KSP to solve the linear system
 	KSP kspl2e;
 	ierr = IGACreateKSP(igaExact,&kspl2e);CHKERRQ(ierr);										
 	ierr = KSPSetOperators(kspl2e,Kl2e,Kl2e);CHKERRQ(ierr); 								//This function creates the matrix for the system on the second parameter and uses the 3rd parameter as a preconditioner
-	ierr = KSPSetType(kspl2e,KSPCG);CHKERRQ(ierr);											//Using KSPCG (conjugated gradient) because the matrix is symmetric
-	//ierr = KSPSetOptionsPrefix(kspl2S,"l2pS_");CHKERRQ(ierr);
+	PC pcl2e;
+	ierr = KSPGetPC(kspl2e,&pcl2e); CHKERRQ(ierr);
+	ierr = PCSetType(pcl2e,PCSOR); CHKERRQ(ierr);
 	ierr = KSPSetFromOptions(kspl2e);CHKERRQ(ierr);
-	ierr = KSPSetTolerances(kspl2e,1.0e-30,1.0e-45,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	ierr = KSPSetType(kspl2e,KSPCG);CHKERRQ(ierr);
+	ierr = KSPSetTolerances(kspl2e,1.0e-12,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
 	ierr = KSPSolve(kspl2e,Fl2e,e0);CHKERRQ(ierr);										//This is a simple system, so it can be solved with just this command
 
 	ierr = KSPDestroy(&kspl2e);CHKERRQ(ierr);
@@ -2824,7 +2716,7 @@ int main(int argc, char *argv[]) {
 //
 
 //System for L2 projection of Peierls stress
-	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for L2 projection for exact stress starting \n\n");
+	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for L2 projection for Peierls stress starting \n\n");
 	T=time(NULL);
 	tm=*localtime(&T);
 	PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.tm_min,tm.tm_sec);
@@ -2868,7 +2760,7 @@ int main(int argc, char *argv[]) {
 	ierr = KSPSetType(kspl2p,KSPCG);CHKERRQ(ierr);											//Using KSPCG (conjugated gradient) because the matrix is symmetric
 	//ierr = KSPSetOptionsPrefix(kspl2S,"l2pS_");CHKERRQ(ierr);
 	ierr = KSPSetFromOptions(kspl2p);CHKERRQ(ierr);
-	ierr = KSPSetTolerances(kspl2p,1.0e-30,1.0e-45,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	ierr = KSPSetTolerances(kspl2p,1.0e-12,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
 	ierr = KSPSolve(kspl2p,Fl2p,stress_peierls);CHKERRQ(ierr);										//This is a simple system, so it can be solved with just this command
 
 	ierr = KSPDestroy(&kspl2p);CHKERRQ(ierr);
@@ -2879,6 +2771,7 @@ int main(int argc, char *argv[]) {
 	sprintf(pathP,"%s%s",direct,nameP);
 	ierr = IGAWriteVec(igaPeierls,stress_peierls,pathP);CHKERRQ(ierr);
 //
+*/
 
 //Destroy all objects not needed anymore (Better to do it here in case different codes call the same IGA, move if memory is a problem)
 	T=time(NULL);

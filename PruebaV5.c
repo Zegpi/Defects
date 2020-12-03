@@ -405,7 +405,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=mu/100.0;								//Choose later based on whatever Amit says :)
+		const PetscReal eps=0.0*mu/25.0;								//Choose later based on whatever Amit says :)
 
 		PetscReal Chi0[4];																	//Assign chi(t) to a vector
 		PetscReal dChi0[4][2];																//Same for partial derivatives
@@ -818,7 +818,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=mu/100.0;															//Choose later based on whatever Amit says :)
+		const PetscReal eps=0.0*mu/25.0;															//Choose later based on whatever Amit says :)
 
 		PetscReal chi0[4];																	//Array to contain the vector chi(0)
 		PetscReal d2_Chi0[4][2][2];															//Same for its Hessian
@@ -1056,7 +1056,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		//const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		//const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=mu/100.0;															//Choose later based on whatever Amit says :)
+		const PetscReal eps=0.0*mu/25.0;															//Choose later based on whatever Amit says :)
 
 		//Definition of alternating tensor
 		const PetscReal e[3][3][3]=
@@ -1155,7 +1155,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=mu/100.0;															//Choose later based on whatever Amit says :)
+		const PetscReal eps=0.0*mu/25.0;															//Choose later based on whatever Amit says :)
 
 		//Definition of alternating tensor
 		//const PetscReal e[3][3][3]=
@@ -1279,7 +1279,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=mu/100.0;														//Choose later based on whatever Amit says :)
+		const PetscReal eps=0.0*mu/25.0;														//Choose later based on whatever Amit says :)
 
 		PetscReal x[2];																		//Vector of reals, size equal to problem's dimension
 		IGAPointFormGeomMap(p,x);															//Fills x with the coordinates of p, Gauss's point
@@ -2108,7 +2108,7 @@ int main(int argc, char *argv[]) {
 	//ierr = PCFactorSetMatSolverType(pcchiS,MATSOLVERMUMPS); CHKERRQ(ierr);
 	ierr = KSPSetFromOptions(kspchiS);CHKERRQ(ierr);
 	ierr = KSPSetType(kspchiS,KSPCG);
-	ierr = KSPSetTolerances(kspchiS,1.0e-23,1.0e-29,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	ierr = KSPSetTolerances(kspchiS,1.0e-12,1.0e-20,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
 	ierr = KSPSolve(kspchiS,FchiS,chiS0);CHKERRQ(ierr);
 
 	ierr = KSPDestroy(&kspchiS);CHKERRQ(ierr);
@@ -2237,7 +2237,7 @@ int main(int argc, char *argv[]) {
 	ierr = KSPSetOperators(kspAlp,KAlp,KAlp);CHKERRQ(ierr);
 	ierr = KSPSetFromOptions(kspAlp);CHKERRQ(ierr);
 	ierr = KSPSetType(kspAlp,KSPGMRES);
-	ierr = KSPSetTolerances(kspAlp,1.0e-37,1.0e-28,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	ierr = KSPSetTolerances(kspAlp,1.0e-12,1.0e-20,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
 	ierr = KSPSolve(kspAlp,FAlp,alp0);CHKERRQ(ierr);
 
 	char nameAlInput1[]="/Input-Al-2d-0.dat";
@@ -2395,7 +2395,7 @@ int main(int argc, char *argv[]) {
 	//ierr = PCFactorSetMatSolverType(pcChiUp,MATSOLVERMUMPS); CHKERRQ(ierr);
 	ierr = KSPSetFromOptions(kspchiUp);CHKERRQ(ierr);
 	ierr = KSPSetType(kspchiUp,KSPCG);
-	ierr = KSPSetTolerances(kspchiUp,1.0e-25,1.0e-29,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	ierr = KSPSetTolerances(kspchiUp,1.0e-12,1.0e-20,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
 	ierr = KSPSolve(kspchiUp,FchiUp,chiUp0);CHKERRQ(ierr);
 
 	ierr = KSPDestroy(&kspchiUp);CHKERRQ(ierr);
@@ -2579,7 +2579,7 @@ int main(int argc, char *argv[]) {
 		//filas_z[2]=2*(nx+2)*(ny+2)-2;									//This is for z a 2nd order nurb
 		filas_z[2]=2*(nx+3)*(ny+3)-2;									//This is for z a 3rd order nurb
 
-		ierr = MatZeroRowsColumns(KZ0,gdl_to_fix,filas_z,1.0e30,0,0);CHKERRQ(ierr);
+		ierr = MatZeroRowsColumns(KZ0,gdl_to_fix,filas_z,1.0e45,0,0);CHKERRQ(ierr);
 
 		ierr = MatAssemblyBegin(KZ0,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
 		ierr = MatAssemblyEnd  (KZ0,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
@@ -2624,26 +2624,47 @@ int main(int argc, char *argv[]) {
 	ierr = KSPSetOperators(kspZ0,KZ0,KZ0);CHKERRQ(ierr);
 	PC pcZ0;
 	ierr = KSPGetPC(kspZ0,&pcZ0);CHKERRQ(ierr);
-	ierr = PCSetType(pcZ0,PCSOR);CHKERRQ(ierr);
-	ierr = PCSORSetIterations(pcZ0,3,2);CHKERRQ(ierr);
+	
+	//Uncomment this block for direct solver (LU + MUMPS)
+	//ierr = PCSetType(pcZ0,PCLU); CHKERRQ(ierr);
 	//ierr = PCFactorSetMatSolverType(pcZ0,MATSOLVERMUMPS); CHKERRQ(ierr);
+	//ierr = KSPSetFromOptions(kspZ0);CHKERRQ(ierr);
+	//ierr = KSPSolve(kspZ0,FZ0,Z0);CHKERRQ(ierr);
+	//
+
+	// Uncomment this block for iterative solver
+	ierr = PCSetType(pcZ0,PCSOR);CHKERRQ(ierr);
+	ierr = PCSORSetIterations(pcZ0,4,4);CHKERRQ(ierr);
 	ierr = KSPSetFromOptions(kspZ0);CHKERRQ(ierr);
 	ierr = KSPSetType(kspZ0,KSPGMRES);
-	ierr = KSPGMRESSetRestart(kspZ0,90);CHKERRQ(ierr);		//Default is 30
+	ierr = KSPGMRESSetRestart(kspZ0,270);CHKERRQ(ierr);		//Default is 30
 	ierr = KSPGMRESSetCGSRefinementType(kspZ0,KSP_GMRES_CGS_REFINE_ALWAYS);CHKERRQ(ierr);  //Default is never
-	//ierr = KSPSetInitialGuessNonzero(kspZ0,PETSC_TRUE);CHKERRQ(ierr);
-	//ierr = VecCopy(FZ0,Z0);CHKERRQ(ierr);
-	ierr = KSPSetTolerances(kspZ0,1e-27,PETSC_DEFAULT,PETSC_DEFAULT,1500);CHKERRQ(ierr);
+	ierr = KSPSetTolerances(kspZ0,1.0e-12,PETSC_DEFAULT,PETSC_DEFAULT,6000);CHKERRQ(ierr);
 	ierr = KSPSolve(kspZ0,FZ0,Z0);CHKERRQ(ierr);
+	//
 
-	//De aquí para abajo son puras weas
+	//For big meshes with eps>0.01 KSPGMRES hits a wall around RTOL=1.0e-4, here we switch to flexible conjugate gradient, which can, with some difficulty, climb said wall.
 	ierr = PCSetType(pcZ0,PCSOR);CHKERRQ(ierr);
+	ierr = PCSORSetIterations(pcZ0,3,3);CHKERRQ(ierr);
 	ierr = KSPSetInitialGuessNonzero(kspZ0,PETSC_TRUE);CHKERRQ(ierr);
-	ierr = KSPSetType(kspZ0,KSPBCGS);
-	ierr = KSPSetTolerances(kspZ0,1e-22,1e-25,PETSC_DEFAULT,15000);CHKERRQ(ierr);
+	ierr = KSPSetType(kspZ0,KSPFCG);
+	ierr = KSPSetTolerances(kspZ0,1e-12,1e-20,PETSC_DEFAULT,12000);CHKERRQ(ierr);
 	ierr = KSPSolve(kspZ0,FZ0,Z0);CHKERRQ(ierr);
-	//Hasta aqui
+	//End of second KSP
 
+	//Calculate true residual of linear system, to check solution quality
+	Vec resid_vec;
+	ierr = IGACreateVec(igaZ0,&resid_vec);CHKERRQ(ierr);
+	PetscReal res;
+
+	ierr = MatMult(KZ0,Z0,resid_vec);CHKERRQ(ierr);
+	ierr = VecAXPY(resid_vec,-1.0,FZ0);CHKERRQ(ierr);
+	ierr = VecNorm(resid_vec,NORM_2,&res);CHKERRQ(ierr);
+
+	ierr = PetscPrintf(PETSC_COMM_WORLD,"True residual is %.8e \n",res);CHKERRQ(ierr);
+	ierr = VecDestroy(&resid_vec);CHKERRQ(ierr);
+
+	//Destroy objects not needed anymore
 	ierr = KSPDestroy(&kspZ0);CHKERRQ(ierr);
 	ierr = MatDestroy(&KZ0);CHKERRQ(ierr);
 	ierr = VecDestroy(&FZ0);CHKERRQ(ierr);
@@ -2709,6 +2730,7 @@ int main(int argc, char *argv[]) {
 //
 */
 
+/*
 //System for L2 projection of stress
 	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for Stress starting \n\n");
 	T=time(NULL);
@@ -3005,7 +3027,7 @@ int main(int argc, char *argv[]) {
 	//ierr = PCSetType(pcStress,PCLU); CHKERRQ(ierr);
 	//ierr = PCFactorSetMatSolverType(pcStress,MATSOLVERMUMPS); CHKERRQ(ierr);
 	ierr = KSPSetFromOptions(kspClassicStress);CHKERRQ(ierr);
-	ierr = KSPSetTolerances(kspClassicStress,1.0e-16,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	ierr = KSPSetTolerances(kspClassicStress,1.0e-12,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
 	ierr = KSPSolve(kspClassicStress,FClassicStress,classicSigma0);CHKERRQ(ierr);
 
 	ierr = KSPDestroy(&kspClassicStress);CHKERRQ(ierr);
@@ -3157,7 +3179,7 @@ int main(int argc, char *argv[]) {
 	//ierr = PCSetType(pcCS,PCLU); CHKERRQ(ierr);
 	//ierr = PCFactorSetMatSolverType(pcCS,MATSOLVERMUMPS); CHKERRQ(ierr);
 	ierr = KSPSetFromOptions(kspCS);CHKERRQ(ierr);
-	ierr = KSPSetTolerances(kspCS,1e-24,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	ierr = KSPSetTolerances(kspCS,1.0e-12,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
 	ierr = KSPSolve(kspCS,FCStress,lambda0);CHKERRQ(ierr);
 
 	ierr = KSPDestroy(&kspCS);CHKERRQ(ierr);
@@ -3302,7 +3324,7 @@ int main(int argc, char *argv[]) {
 	ierr = PCSetType(pcED,PCLU); CHKERRQ(ierr);
 	ierr = PCFactorSetMatSolverType(pcED,MATSOLVERMUMPS); CHKERRQ(ierr);
 	//ierr = KSPSetFromOptions(kspStress);CHKERRQ(ierr);
-	//ierr = KSPSetTolerances(kspStress,1e-28,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	//ierr = KSPSetTolerances(kspStress,1e-12,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
 	ierr = KSPSolve(kspED,FED,ed0);CHKERRQ(ierr);
 
 	ierr = KSPDestroy(&kspED);CHKERRQ(ierr);
@@ -3314,7 +3336,9 @@ int main(int argc, char *argv[]) {
 	sprintf(pathED,"%s%s",direct,nameED);
 	ierr = IGAWriteVec(igaED,ed0,pathED);CHKERRQ(ierr);	
 //
+*/
 
+/*
 //System for L2 projection of V^{alpha}
 	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for V-alpha starting \n\n");
 	T=time(NULL);
@@ -3466,7 +3490,7 @@ int main(int argc, char *argv[]) {
 	//ierr = PCSetType(pcStress,PCLU); CHKERRQ(ierr);
 	//ierr = PCFactorSetMatSolverType(pcStress,MATSOLVERMUMPS); CHKERRQ(ierr);
 	ierr = KSPSetFromOptions(kspVa);CHKERRQ(ierr);
-	ierr = KSPSetTolerances(kspVa,1.0e-24,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	ierr = KSPSetTolerances(kspVa,1.0e-12,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
 	ierr = KSPSolve(kspVa,FVa,Va0);CHKERRQ(ierr);
 
 	//ierr = KSPDestroy(&kspVa);CHKERRQ(ierr);
@@ -3894,7 +3918,7 @@ int main(int argc, char *argv[]) {
 	//ierr = PCSetType(pcUe,PCLU); CHKERRQ(ierr);
 	//ierr = PCFactorSetMatSolverType(pcUe,MATSOLVERMUMPS); CHKERRQ(ierr);
 	ierr = KSPSetFromOptions(kspUe);CHKERRQ(ierr);
-	ierr = KSPSetTolerances(kspUe,1.0e-24,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	ierr = KSPSetTolerances(kspUe,1.0e-12,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
 	ierr = KSPSolve(kspUe,FUe,Ue);CHKERRQ(ierr);
 	ierr = KSPSolve(kspUe,FUeSkw,UeSkw);CHKERRQ(ierr);
 
@@ -4044,7 +4068,7 @@ int main(int argc, char *argv[]) {
 	ierr = KSPSetType(kspl2Grad,KSPCG);CHKERRQ(ierr);											//Using KSPCG (conjugated gradient) because the matrix is symmetric
 	//ierr = KSPSetOptionsPrefix(kspl2S,"l2pS_");CHKERRQ(ierr);
 	ierr = KSPSetFromOptions(kspl2Grad);CHKERRQ(ierr);
-	ierr = KSPSetTolerances(kspl2Grad,1.0e-16,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	ierr = KSPSetTolerances(kspl2Grad,1.0e-12,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
 	ierr = KSPSolve(kspl2Grad,Fl2Grad,gradZ0);CHKERRQ(ierr);										//This is a simple system, so it can be solved with just this command
 
 	ierr = KSPDestroy(&kspl2Grad);CHKERRQ(ierr);
@@ -4179,7 +4203,7 @@ int main(int argc, char *argv[]) {
 	//ierr = PCSetType(pcNormUeSkw,PCLU); CHKERRQ(ierr);
 	//ierr = PCFactorSetMatSolverType(pcNormUeSkw,MATSOLVERMUMPS); CHKERRQ(ierr);
 	ierr = KSPSetFromOptions(kspNormUeSkw);CHKERRQ(ierr);
-	ierr = KSPSetTolerances(kspNormUeSkw,1e-16,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	ierr = KSPSetTolerances(kspNormUeSkw,1.0e-12,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
 	ierr = KSPSolve(kspNormUeSkw,FNormUeSkw,NormUeSkw);CHKERRQ(ierr);
 
 	ierr = KSPDestroy(&kspNormUeSkw);CHKERRQ(ierr);
@@ -4237,7 +4261,7 @@ int main(int argc, char *argv[]) {
 	ierr = KSPSetType(kspl2e,KSPCG);CHKERRQ(ierr);											//Using KSPCG (conjugated gradient) because the matrix is symmetric
 	//ierr = KSPSetOptionsPrefix(kspl2S,"l2pS_");CHKERRQ(ierr);
 	ierr = KSPSetFromOptions(kspl2e);CHKERRQ(ierr);
-	ierr = KSPSetTolerances(kspl2e,1.0e-30,1.0e-45,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	ierr = KSPSetTolerances(kspl2e,1.0e-12,1.0e-20,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
 	ierr = KSPSolve(kspl2e,Fl2e,e0);CHKERRQ(ierr);										//This is a simple system, so it can be solved with just this command
 
 	ierr = KSPDestroy(&kspl2e);CHKERRQ(ierr);
@@ -4250,7 +4274,7 @@ int main(int argc, char *argv[]) {
 //
 
 //System for L2 projection of Peierls stress
-	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for L2 projection for exact stress starting \n\n");
+	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for L2 projection for Peierls stress starting \n\n");
 	T=time(NULL);
 	tm=*localtime(&T);
 	PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.tm_min,tm.tm_sec);
@@ -4294,7 +4318,7 @@ int main(int argc, char *argv[]) {
 	ierr = KSPSetType(kspl2p,KSPCG);CHKERRQ(ierr);											//Using KSPCG (conjugated gradient) because the matrix is symmetric
 	//ierr = KSPSetOptionsPrefix(kspl2S,"l2pS_");CHKERRQ(ierr);
 	ierr = KSPSetFromOptions(kspl2p);CHKERRQ(ierr);
-	ierr = KSPSetTolerances(kspl2p,1.0e-30,1.0e-45,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	ierr = KSPSetTolerances(kspl2p,1.0e-12,1.0e-20,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
 	ierr = KSPSolve(kspl2p,Fl2p,stress_peierls);CHKERRQ(ierr);										//This is a simple system, so it can be solved with just this command
 
 	ierr = KSPDestroy(&kspl2p);CHKERRQ(ierr);
@@ -4305,6 +4329,7 @@ int main(int argc, char *argv[]) {
 	sprintf(pathP,"%s%s",direct,nameP);
 	ierr = IGAWriteVec(igaPeierls,stress_peierls,pathP);CHKERRQ(ierr);
 //
+*/
 
 //Destroy all objects not needed anymore (Better to do it here in case different codes call the same IGA, move if memory is a problem)
 	T=time(NULL);
@@ -4313,7 +4338,7 @@ int main(int argc, char *argv[]) {
 	ierr = IGADestroy(&igaAl);CHKERRQ(ierr);
 	ierr = IGADestroy(&igachiS);CHKERRQ(ierr);
 	ierr = IGADestroy(&igachiUp);CHKERRQ(ierr);
-	ierr = IGADestroy(&igaExact);CHKERRQ(ierr);
+	//ierr = IGADestroy(&igaExact);CHKERRQ(ierr);
 //
 
 ierr = PetscFinalize();CHKERRQ(ierr);

@@ -31,7 +31,6 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 //Generate Mesh and copy cpp to result folder to save for reproduction (check that parameters are the same on file to run)
 
 	PetscInt b=1743;		//581 works, 621 doesn't	//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
-	//PetscInt b=401;
 	PetscReal Lx=80.0;
 	PetscReal Ly=80.0;
 	PetscInt  nx=b;
@@ -281,16 +280,33 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	//This is for Hirth's rectangular dislocation core
 	counter=0;
 	center=(nx+1)*ny/2-1;
-	for (int i=numEls-2; i<numEls+2; i++)		//normal core goes form i=0 to i<2*numEls, if a core twice as tall is desired, use i=-numEls to i<3 numEls and so on
+	for (int i=numEls-2; i<numEls+2; i++)		//This if for t=0.1
+	//for (int i=-5*numEls; i<7*numEls; i++)		//normal core goes form i=0 to i<2*numEls, if a core twice as tall is desired, use i=-numEls to i<3 numEls and so on
 												//modify the factor (1.0/x.0) so the integral remains 1 (if core is twice as tall, x=2 and so on)
 	{
 		for (int j=0; j<2*numEls; j++)			//If you wanted a wide core instead of tall, do same here.
 		{
-			pointsAl1[counter  ]=2*center+N*2*(nx+1)+M*2  -(numEls-i-1)*2*(nx+1)-(numEls-j-1)*2;			valoresAl1[counter  ]=11.0*(1.0/2.0)*e1/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
+			pointsAl1[counter  ]=2*center+N*2*(nx+1)+M*2  -(numEls-i-1)*2*(nx+1)-(numEls-j-1)*2;			valoresAl1[counter  ]=121.0/24.0*(1.0/1.0)*e1/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
 			pointsAl1[counter+1]=2*center+N*2*(nx+1)+M*2+1-(numEls-i-1)*2*(nx+1)-(numEls-j-1)*2;			valoresAl1[counter+1]=(1.0/1.0)*e2/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
 
 			counter=counter+2;					//Modify accodringly to hoy many gdl you are setting
 		}
+		for (int j=-2; j<0; j++)			//If you wanted a wide core instead of tall, do same here.
+		{
+			pointsAl1[counter  ]=2*center+N*2*(nx+1)+M*2  -(numEls-i-1)*2*(nx+1)-(numEls-j-1)*2;			valoresAl1[counter  ]=121.0/24.0*((j+3)/3.0)*e1/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
+			pointsAl1[counter+1]=2*center+N*2*(nx+1)+M*2+1-(numEls-i-1)*2*(nx+1)-(numEls-j-1)*2;			valoresAl1[counter+1]=(1.0/1.0)*e2/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
+
+			counter=counter+2;					//Modify accodringly to hoy many gdl you are setting
+		}
+		for (int j=2*numEls; j<2*numEls+2; j++)			//If you wanted a wide core instead of tall, do same here.
+		{
+			pointsAl1[counter  ]=2*center+N*2*(nx+1)+M*2  -(numEls-i-1)*2*(nx+1)-(numEls-j-1)*2;			valoresAl1[counter  ]=121.0/24.0*(1.0-(j-2*numEls+1)/3.0)*e1/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
+			pointsAl1[counter+1]=2*center+N*2*(nx+1)+M*2+1-(numEls-i-1)*2*(nx+1)-(numEls-j-1)*2;			valoresAl1[counter+1]=(1.0/1.0)*e2/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
+
+			counter=counter+2;					//Modify accodringly to hoy many gdl you are setting
+		}
+
+
 	}
 
 	//Here I build two dislocation cores with 2*dist_centro+1 elements between them, or 2*(dist_centro+1) center-to-center
