@@ -1,4 +1,4 @@
-These instructions work on Ubuntu, last checked at 2020-09-28
+These instructions work on Ubuntu, last checked at 2020-12-16
 
 
 Open a terminal 
@@ -14,7 +14,7 @@ export PETSC_ARCH="arch-linux2-c-debug"
 #export PETSC_ARCH="optimO3"
 export PETIGA_DIR="/**absolutepath**/PetIGA"
 
-**absolutepath** should be /home/eazegpi in my case
+**absolutepath** is, for example, /home/eazegpi in my case.
 
 *Do not forget to replace absolutepath*
 
@@ -37,7 +37,7 @@ sudo apt-get install git
 // Install Petsc !!
 open a terminal in home
 
-git clone -b maint https://bitbucket.org/petsc/petsc petsc
+git clone -b release https://gitlab.com/petsc/petsc.git petsc
 
 cd petsc
 unset PETSC_DIR

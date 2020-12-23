@@ -405,7 +405,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=0.0*mu/25.0;								//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/10.0;								//Choose later based on whatever Amit says :)
 
 		PetscReal Chi0[4];																	//Assign chi(t) to a vector
 		PetscReal dChi0[4][2];																//Same for partial derivatives
@@ -818,7 +818,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=0.0*mu/25.0;															//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/10.0;															//Choose later based on whatever Amit says :)
 
 		PetscReal chi0[4];																	//Array to contain the vector chi(0)
 		PetscReal d2_Chi0[4][2][2];															//Same for its Hessian
@@ -923,7 +923,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 							Fstress[a][i]+=C[m][n][k][l]*(-fulld_z[k][l]-fullChi[k][l])*v[m][n];
 						}
 
-						Fstress[a][i]+= +0.25*eps*(-fulld3_z[m][n][k][k]-fulld2_Chi[m][n][k][k]-fulld3_z[m][k][n][k]-fulld2_Chi[m][k][n][k]
+						Fstress[a][i]+= -0.25*eps*(-fulld3_z[m][n][k][k]-fulld2_Chi[m][n][k][k]-fulld3_z[m][k][n][k]-fulld2_Chi[m][k][n][k]
 							                       -fulld3_z[n][m][k][k]-fulld2_Chi[n][m][k][k]-fulld3_z[n][k][m][k]-fulld2_Chi[n][k][m][k])*v[m][n];
 
 					}
@@ -1056,7 +1056,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		//const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		//const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=0.0*mu/25.0;															//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/10.0;															//Choose later based on whatever Amit says :)
 
 		//Definition of alternating tensor
 		const PetscReal e[3][3][3]=
@@ -1155,7 +1155,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=0.0*mu/25.0;															//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/10.0;															//Choose later based on whatever Amit says :)
 
 		//Definition of alternating tensor
 		//const PetscReal e[3][3][3]=
@@ -1279,7 +1279,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=0.0*mu/25.0;														//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/10.0;														//Choose later based on whatever Amit says :)
 
 		PetscReal x[2];																		//Vector of reals, size equal to problem's dimension
 		IGAPointFormGeomMap(p,x);															//Fills x with the coordinates of p, Gauss's point
@@ -1888,7 +1888,7 @@ int main(int argc, char *argv[]) {
 
 //App context creation and some data
 	//Mesh parameters (to fix specific points in z0 system)
-	PetscInt b=1743;				//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
+	PetscInt b=581;				//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
 	PetscReal Lx=80.0;
 	PetscReal Ly=80.0;
 	PetscInt  nx=b;
@@ -2556,12 +2556,7 @@ int main(int argc, char *argv[]) {
 	ierr = IGARestoreLocalVecArray(igachiUp,chiUp0,&localChi0Z0,&arrayChi0Z0);CHKERRQ(ierr);
 
 	ierr = MatAssemblyBegin(KZ0,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
-	ierr = MatAssemblyEnd  (KZ0,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);	
-
-	if (fijaPunto==0)		//This shouldn't be here
-	{
-
-	}
+	ierr = MatAssemblyEnd  (KZ0,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
 
 	if (fijaPunto==1)
 	{
@@ -2626,31 +2621,61 @@ int main(int argc, char *argv[]) {
 	ierr = KSPGetPC(kspZ0,&pcZ0);CHKERRQ(ierr);
 	
 	//Uncomment this block for direct solver (LU + MUMPS)
-	//ierr = PCSetType(pcZ0,PCLU); CHKERRQ(ierr);
-	//ierr = PCFactorSetMatSolverType(pcZ0,MATSOLVERMUMPS); CHKERRQ(ierr);
-	//ierr = KSPSetFromOptions(kspZ0);CHKERRQ(ierr);
-	//ierr = KSPSolve(kspZ0,FZ0,Z0);CHKERRQ(ierr);
-	//
+	ierr = PCSetType(pcZ0,PCLU); CHKERRQ(ierr);
+	ierr = PCFactorSetMatSolverType(pcZ0,MATSOLVERMUMPS); CHKERRQ(ierr);
+	ierr = KSPSetFromOptions(kspZ0);CHKERRQ(ierr);
+	ierr = KSPSetTolerances(kspZ0,1.0e-14,PETSC_DEFAULT,PETSC_DEFAULT,2000);CHKERRQ(ierr);
+	ierr = KSPSolve(kspZ0,FZ0,Z0);CHKERRQ(ierr);
+	//End of direct solver part
 
+	/*
 	// Uncomment this block for iterative solver
+	T=time(NULL);
+	tm=*localtime(&T);
+	PetscPrintf(PETSC_COMM_WORLD,"Start of first solve, current time is %02d:%02d:%02d \n",tm.tm_hour,tm.tm_min,tm.tm_sec);
+
 	ierr = PCSetType(pcZ0,PCSOR);CHKERRQ(ierr);
-	ierr = PCSORSetIterations(pcZ0,4,4);CHKERRQ(ierr);
+	ierr = PCSORSetIterations(pcZ0,1,1);CHKERRQ(ierr);
 	ierr = KSPSetFromOptions(kspZ0);CHKERRQ(ierr);
 	ierr = KSPSetType(kspZ0,KSPGMRES);
-	ierr = KSPGMRESSetRestart(kspZ0,270);CHKERRQ(ierr);		//Default is 30
+	ierr = KSPGMRESSetRestart(kspZ0,30);CHKERRQ(ierr);		//Default is 30
 	ierr = KSPGMRESSetCGSRefinementType(kspZ0,KSP_GMRES_CGS_REFINE_ALWAYS);CHKERRQ(ierr);  //Default is never
-	ierr = KSPSetTolerances(kspZ0,1.0e-12,PETSC_DEFAULT,PETSC_DEFAULT,6000);CHKERRQ(ierr);
+	ierr = KSPSetTolerances(kspZ0,1.0e-15,PETSC_DEFAULT,PETSC_DEFAULT,2200);CHKERRQ(ierr);
 	ierr = KSPSolve(kspZ0,FZ0,Z0);CHKERRQ(ierr);
 	//
+	T=time(NULL);
+	tm=*localtime(&T);
+	PetscPrintf(PETSC_COMM_WORLD,"End of first solve, current time is %02d:%02d:%02d \n",tm.tm_hour,tm.tm_min,tm.tm_sec);
 
 	//For big meshes with eps>0.01 KSPGMRES hits a wall around RTOL=1.0e-4, here we switch to flexible conjugate gradient, which can, with some difficulty, climb said wall.
+	//We don't start with FCG because a bad starting point usually makes it diverge
+
+	T=time(NULL);
+	tm=*localtime(&T);
+	PetscPrintf(PETSC_COMM_WORLD,"Start of second solve, current time is %02d:%02d:%02d \n",tm.tm_hour,tm.tm_min,tm.tm_sec);
+
 	ierr = PCSetType(pcZ0,PCSOR);CHKERRQ(ierr);
-	ierr = PCSORSetIterations(pcZ0,3,3);CHKERRQ(ierr);
+	ierr = PCSORSetIterations(pcZ0,2,2);CHKERRQ(ierr);
 	ierr = KSPSetInitialGuessNonzero(kspZ0,PETSC_TRUE);CHKERRQ(ierr);
 	ierr = KSPSetType(kspZ0,KSPFCG);
-	ierr = KSPSetTolerances(kspZ0,1e-12,1e-20,PETSC_DEFAULT,12000);CHKERRQ(ierr);
+	
+	//Options to try and speed up things for FCG
+	//Number of search directions, default is 30
+	ierr = KSPFCGSetMmax(kspZ0,75);CHKERRQ(ierr);
+	//Number of search directions to preallocate, default is 10
+	ierr = KSPFCGSetNprealloc(kspZ0,25);CHKERRQ(ierr);
+	//Truncation strategy, values are either standard (KSP_FCD_TRUNC_TYPE_STANDARD) or Notay (KSP_FCD_TRUNC_TYPE_NOTAY), default is Notay.
+	//Standard uses all (up to Mmax) stored directions, Notay uses the last max(1,mod(i,Mmax)) stored directions at iteration i=0,1,.., mod is the remainder of dividing i/Mmax. 
+	ierr = KSPFCGSetTruncationType(kspZ0,KSP_FCD_TRUNC_TYPE_NOTAY);CHKERRQ(ierr);
+	//Up to here
+
+	ierr = KSPSetTolerances(kspZ0,1e-16,1e-20,PETSC_DEFAULT,20000);CHKERRQ(ierr);
 	ierr = KSPSolve(kspZ0,FZ0,Z0);CHKERRQ(ierr);
 	//End of second KSP
+
+	T=time(NULL);
+	tm=*localtime(&T);
+	PetscPrintf(PETSC_COMM_WORLD,"End of second solve, current time is %02d:%02d:%02d \n",tm.tm_hour,tm.tm_min,tm.tm_sec);
 
 	//Calculate true residual of linear system, to check solution quality
 	Vec resid_vec;
@@ -2661,8 +2686,10 @@ int main(int argc, char *argv[]) {
 	ierr = VecAXPY(resid_vec,-1.0,FZ0);CHKERRQ(ierr);
 	ierr = VecNorm(resid_vec,NORM_2,&res);CHKERRQ(ierr);
 
-	ierr = PetscPrintf(PETSC_COMM_WORLD,"True residual is %.8e \n",res);CHKERRQ(ierr);
+	ierr = PetscPrintf(PETSC_COMM_WORLD,"\n True residual is %.8e \n\n",res);CHKERRQ(ierr);
 	ierr = VecDestroy(&resid_vec);CHKERRQ(ierr);
+	//End of iterative solver part
+	*/
 
 	//Destroy objects not needed anymore
 	ierr = KSPDestroy(&kspZ0);CHKERRQ(ierr);
@@ -2885,7 +2912,9 @@ int main(int argc, char *argv[]) {
 	sprintf(pathStress,"%s%s",direct,nameStress);
 	ierr = IGAWriteVec(igaStress,sigma0,pathStress);CHKERRQ(ierr);	
 //
+*/
 
+/*
 //System for L2 projection of classic stress (C*Ue)
 	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for Classic Stress starting \n\n");
 	T=time(NULL);
@@ -4215,6 +4244,7 @@ int main(int argc, char *argv[]) {
 	sprintf(pathNormUeSkw,"%s%s",direct,nameNormUeSkw);
 	ierr = IGAWriteVec(igaNormUeSkw,NormUeSkw,pathNormUeSkw);CHKERRQ(ierr);	
 //
+*/
 
 //System for L2 projection of exact stress
 	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for L2 projection for exact stress starting \n\n");
@@ -4258,10 +4288,12 @@ int main(int argc, char *argv[]) {
 	KSP kspl2e;
 	ierr = IGACreateKSP(igaExact,&kspl2e);CHKERRQ(ierr);										
 	ierr = KSPSetOperators(kspl2e,Kl2e,Kl2e);CHKERRQ(ierr); 								//This function creates the matrix for the system on the second parameter and uses the 3rd parameter as a preconditioner
-	ierr = KSPSetType(kspl2e,KSPCG);CHKERRQ(ierr);											//Using KSPCG (conjugated gradient) because the matrix is symmetric
-	//ierr = KSPSetOptionsPrefix(kspl2S,"l2pS_");CHKERRQ(ierr);
+	PC pcExact;
+	ierr = KSPGetPC(kspl2e,&pcExact); CHKERRQ(ierr);
+	ierr = PCSetType(pcExact,PCSOR); CHKERRQ(ierr);
 	ierr = KSPSetFromOptions(kspl2e);CHKERRQ(ierr);
-	ierr = KSPSetTolerances(kspl2e,1.0e-12,1.0e-20,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	ierr = KSPSetType(kspl2e,KSPFCG);CHKERRQ(ierr);											//Using KSPCG (conjugated gradient) because the matrix is symmetric
+	ierr = KSPSetTolerances(kspl2e,1.0e-16,1.0e-20,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
 	ierr = KSPSolve(kspl2e,Fl2e,e0);CHKERRQ(ierr);										//This is a simple system, so it can be solved with just this command
 
 	ierr = KSPDestroy(&kspl2e);CHKERRQ(ierr);
@@ -4273,6 +4305,7 @@ int main(int argc, char *argv[]) {
 	ierr = IGAWriteVec(igaExact,e0,pathE);CHKERRQ(ierr);
 //
 
+/*
 //System for L2 projection of Peierls stress
 	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for L2 projection for Peierls stress starting \n\n");
 	T=time(NULL);

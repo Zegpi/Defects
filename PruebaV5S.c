@@ -4925,6 +4925,7 @@ int main(int argc, char *argv[]) {
 				{
 					IGAElementNextPoint(elemZ0,pointZ0);
 					IGAElementNextPoint(elemchiUp,pointchiUp);
+					IGAElementNextPoint(elemS,pointS);
 
 					ierr = IGAPointGetWorkMat(pointFullS,&KpointFullS);CHKERRQ(ierr);
 					ierr = IGAPointGetWorkVec(pointFullS,&FpointFullS);CHKERRQ(ierr);
