@@ -31,8 +31,8 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 //Generate Mesh and copy cpp to result folder to save for reproduction (check that parameters are the same on file to run)
 
 	PetscInt b=581;					//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
-	PetscReal Lx=20.0;
-	PetscReal Ly=20.0;
+	PetscReal Lx=80.0;
+	PetscReal Ly=80.0;
 	PetscInt  nx=b;
 	PetscInt  ny=b;
 
@@ -129,8 +129,8 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	numF=30;			//Number of node rows to assign, rows of elements will be one less
 	dist=0;				//Distance from center to eigenwall (Distance center to center is 2*dist [elements])
 	
-	ierr = PetscCalloc1(2097152,&pointsS);CHKERRQ(ierr);
-	ierr = PetscCalloc1(2097152,&valoresS);CHKERRQ(ierr);
+	ierr = PetscCalloc1(4194304,&pointsS);CHKERRQ(ierr);
+	ierr = PetscCalloc1(4194304,&valoresS);CHKERRQ(ierr);
 
 	ierr = VecAssemblyBegin(s0);CHKERRQ(ierr);
 	ierr = VecAssemblyEnd  (s0);CHKERRQ(ierr);
@@ -139,7 +139,8 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	t=Ly/ny;
 	l=t*(numF-1);
 
-	PetscReal alpha=0.0;																	//Alpha linearly interpolates between a pure twin (alpha=0.0) and a pure rotation grain boundary (alpha=1.0)
+	/*
+	PetscReal alpha=0.0;																		//Alpha linearly interpolates between a pure twin (alpha=0.0) and a pure rotation grain boundary (alpha=1.0)
 	
 	g[0]=0.0;
 	g[1]=alpha*(cos(85.0/180.0*ConstPi)-cos(90.0/180.0*ConstPi));								//S_112
@@ -169,6 +170,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 			}
 		}
 	}
+	*/
 
 
 	//Uncomment for 2 eigenwalls
@@ -247,6 +249,91 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 		}
 	}
 	*/
+
+	//This is for zero-stress eigenwall terrace configurations, see email Terraces on 2020-11-21
+	PetscInt ni,numL;
+
+	numF=8;							//Thickness of eigenwall, in rows, thickness in elements is numF-1
+	numL=8;							//Length (in nodes) for the linearly decaying part of the wall
+	PetscReal gH[8], gV[8];			//Array of values for horizontal and vertical parts
+	nc=300;							//Width of eigenwall HL
+	ni=200;							//Vertical offset for Eigenwall HL
+
+
+	gH[0]=0.0;				gV[0]=0.0;				//S_111
+	gH[1]=0.0;				gV[1]=0.0;				//S_112
+	gH[2]=0.0;				gV[2]=-1.0;				//S_121
+	gH[3]= 1.0;				gV[3]=0.0;				//S_122
+	gH[4]=0.0;				gV[4]= 1.0;				//S_211
+	gH[5]=-1.0;				gV[5]=0.0;				//S_212
+	gH[6]=0.0;				gV[6]=0.0;				//S_221
+	gH[7]=0.0;				gV[7]=0.0;				//S_222
+
+	counter=0;
+	//Settig values for HL, constant part
+	for (int i=0; i<nc-2; i++)
+	{
+		for (int j=0; j<numF; j++)
+		{
+			cord=8*(b+1)*ni+8*i;
+			for (int k=0; k<8; k++)
+			{
+				pointsS[counter]=cord+8*(b+1)*j;
+				valoresS[counter]=gH[k];
+				cord=cord+1;
+				counter=counter+1;
+			}
+		}
+	}
+	//Settig values for HL, linearly decaying part
+	for (int i=nc-2; i<nc+numL; i++)
+	{
+		for (int j=0; j<numF; j++)
+		{
+			cord=8*(b+1)*ni+8*i;
+			for (int k=0; k<8; k++)
+			{
+				pointsS[counter]=cord+8*(b+1)*j;
+				valoresS[counter]=(1.0-( (double) (i-(nc-2) ))/( (double) (numL+1) ) )*gH[k];
+				cord=cord+1;
+				counter=counter+1;
+			}
+		}
+	}
+
+	//Settig values for HV, constant part
+	for (int i=nc-1; i<nc-1+numL; i++)
+	{
+		for (int j=ni-1+numL; j<b+1; j++)
+		{
+			cord=8*(b+1)*(ni-1+numL)+8*i;
+			for (int k=0; k<8; k++)
+			{
+				pointsS[counter]=cord+8*(b+1)*(j-(ni-1+numL));
+				valoresS[counter]=gV[k];
+				cord=cord+1;
+				counter=counter+1;
+			}
+		}
+	}
+	//Settig values for HV, linearly increasing part
+	for (int i=nc-1; i<nc-1+numL; i++)
+	{
+		for (int j=ni-1; j<ni-1+numL; j++)
+		{
+			cord=8*(b+1)*(ni-1+numL)+8*i;
+			for (int k=0; k<8; k++)
+			{
+				pointsS[counter]=cord+8*(b+1)*(j-(ni-1+numL));
+				valoresS[counter]= ((double) (j-(ni-1)))/((double) numL) *gV[k];
+				cord=cord+1;
+				counter=counter+1;
+			}
+		}
+	}
+
+	PetscPrintf(PETSC_COMM_WORLD,"counter= %d, limite= %d \n",counter,8*nc*numF*4);
+
 
 	ierr = VecSetValues(s0,8*nc*numF*4,pointsS,valoresS,ADD_VALUES);	
 	ierr = VecAssemblyBegin(s0);CHKERRQ(ierr);

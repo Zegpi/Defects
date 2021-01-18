@@ -57,9 +57,14 @@ typedef struct
 		};
 
 		PetscReal a,b,c,s;
+		//a= 15.0;
+		//b=-12.0;
+		//c= 9.0;
+		//s= 1.0/3.0;
+
 		a= 15.0;
 		b=-12.0;
-		c= 9.0;
+		c=-12.0;
 		s= 1.0/3.0;
 
 		PetscReal factor=tan(5.0/180.0*ConstPi);
@@ -86,7 +91,7 @@ typedef struct
 				{
 					for(l=0;l<3;l++)
 					{
-						S[i][j][k]=S[i][j][k]+0.5*e[l][j][k]*V[l][i];
+						S[i][j][k]=S[i][j][k]+e[i][j][l]*V[l][k];
 					}
 				}
 			}
@@ -142,7 +147,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 
 //Generate Mesh and copy cpp to result folder to save for reproduction (check that parameters are the same on file to run)
 
-	PetscInt b=1201;					//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
+	PetscInt b=1743;					//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
 	PetscReal Lx=80.0;
 	PetscReal Ly=80.0;
 	PetscInt  nx=b;
@@ -251,9 +256,14 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	KSP ksp_L2_S;
 	ierr = IGACreateKSP(igaS,&ksp_L2_S);CHKERRQ(ierr);										
 	ierr = KSPSetOperators(ksp_L2_S,K_L2_8GDL,K_L2_8GDL);CHKERRQ(ierr); 						//This function creates the matrix for the system on the second parameter and uses the 3rd parameter as a preconditioner
-	ierr = KSPSetType(ksp_L2_S,KSPGMRES);CHKERRQ(ierr);
+	PC pcL2;
+	ierr = KSPGetPC(ksp_L2_S,&pcL2);CHKERRQ(ierr);
+	ierr = PCSetType(pcL2,PCSOR);CHKERRQ(ierr);
+	ierr = PCSORSetIterations(pcL2,2,1);CHKERRQ(ierr);
 	ierr = KSPSetFromOptions(ksp_L2_S);CHKERRQ(ierr);
-	ierr = KSPSetTolerances(ksp_L2_S,1.0e-29,2.5e-28,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	ierr = KSPSetType(ksp_L2_S,KSPFCG);CHKERRQ(ierr);
+
+	ierr = KSPSetTolerances(ksp_L2_S,1.0e-16,1.0e-20,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
 	ierr = KSPSolve(ksp_L2_S,F_L2_S,S0);CHKERRQ(ierr);											//This is a simple system, so it can be solved with just this command
 
 	ierr = KSPDestroy(&ksp_L2_S);CHKERRQ(ierr);

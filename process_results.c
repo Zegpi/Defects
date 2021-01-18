@@ -67,7 +67,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=mu/10.0;													//Choose later based on whatever Amit says :)
+		const PetscReal eps=0.0*mu/10.0;													//Choose later based on whatever Amit says :)
 
 		PetscReal chi0[4];																	//Array to contain the vector chi(0)
 		PetscReal d2_Chi0[4][2][2];															//Same for its Hessian
@@ -305,7 +305,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		//const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		//const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=mu/10.0;															//Choose later based on whatever Amit says :)
+		const PetscReal eps=0.0*mu/10.0;															//Choose later based on whatever Amit says :)
 
 		//Definition of alternating tensor
 		const PetscReal e[3][3][3]=
@@ -404,7 +404,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=mu/10.0;															//Choose later based on whatever Amit says :)
+		const PetscReal eps=0.0*mu/10.0;															//Choose later based on whatever Amit says :)
 
 		//Definition of alternating tensor
 		//const PetscReal e[3][3][3]=
@@ -527,7 +527,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=mu/10.0;															//Choose later based on whatever Amit says :)
+		const PetscReal eps=0.0*mu/10.0;															//Choose later based on whatever Amit says :)
 
 		PetscReal chi0[4];																	//Array to contain the vector chi(0)
 		PetscReal d2_Chi0[4][2][2];															//Same for its Hessian
@@ -659,7 +659,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=mu/10.0;														//Choose later based on whatever Amit says :)
+		const PetscReal eps=0.0*mu/10.0;														//Choose later based on whatever Amit says :)
 
 		PetscReal x[2];																		//Vector of reals, size equal to problem's dimension
 		IGAPointFormGeomMap(p,x);															//Fills x with the coordinates of p, Gauss's point
