@@ -3,6 +3,7 @@ Poisson1D Poisson2D Poisson3D \
 poisson2dmod \
 Prueba PruebaV2 PruebaV3 PruebaV4 PruebaV4S PruebaV4S_V2 PruebaV5 PruebaV5-1 PruebaV5I PruebaV5S PruebaTest PruebaV5S_NoPerp PruebaV5S_YesPerp Eq Energy generateInput generateInputS generateInput_tanh\
 PruebaV5S_NoPerp_Model1 PruebaV5S_NoPerp_Model2 PruebaV5S_NoPerp_Model3 PruebaV5S_YesPerp_Model1 PruebaV5S_YesPerp_Model2 PruebaV5S_YesPerp_Model3 process_results process_resultsS\
+process_resultsS_var PruebaV5S_varCons\
 PruebaPetsc\
 Prueba1D \
 L2Projection AdaptiveL2Projection \
@@ -98,6 +99,10 @@ PruebaV5S: PruebaV5S.o chkopts
 	$(CLINKER) -o $@ $< $(PETIGA_LIB)
 	$(RM) -f $<
 
+PruebaV5S_varCons: PruebaV5S_varCons.o chkopts
+	$(CLINKER) -o $@ $< $(PETIGA_LIB)
+	$(RM) -f $<
+
 PruebaTest: PruebaTest.o chkopts
 	$(CLINKER) -o $@ $< $(PETIGA_LIB)
 	$(RM) -f $<
@@ -147,6 +152,10 @@ process_results: process_results.o chkopts
 	$(RM) -f $<
 
 process_resultsS: process_resultsS.o chkopts
+	$(CLINKER) -o $@ $< $(PETIGA_LIB)
+	$(RM) -f $<
+
+process_resultsS_var: process_resultsS_var.o chkopts
 	$(CLINKER) -o $@ $< $(PETIGA_LIB)
 	$(RM) -f $<
 

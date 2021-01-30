@@ -892,16 +892,14 @@ PetscReal delta(PetscInt i, PetscInt j)
 						{
 							for (m=0;m<3;m++)
 							{
-								F1[a][i]+= 0.5*eps*e[i][k][l]*(-fulld3_z[k][l][m][m]-fulld2_Chi[k][l][m][m]+fulld2_Z[k][l][m][m]-fulld_S[k][l][m][m] 
-															   -fulld3_z[k][m][l][m]-fulld2_Chi[k][m][l][m]+fulld2_Z[k][m][l][m]-fulld_S[k][m][l][m])*v[i];
+								F1[a][i]+= 0.5*eps*e[i][k][l]*(-fulld3_z[k][l][m][m]-fulld2_Chi[k][l][m][m]+fulld2_Z[k][l][m][m]-fulld_S[k][l][m][m])*v[i];
 
 								for (n=0;n<3;n++)
 								{
 									F2[a][i]+= 0.5*e[i][k][l]*( C[k][l][m][n]*(-fulld_z[m][n]-fullChi[m][n]) + C[l][k][m][n]*(-fulld_z[m][n]-fullChi[m][n]) )*v[i];
 								}
 								
-								F2[a][i]+= -0.5*eps*e[i][k][l]*(-fulld3_z[k][l][m][m]-fulld2_Chi[k][l][m][m]+fulld2_Z[k][l][m][m]-fulld_S[k][l][m][m]
-																-fulld3_z[k][m][l][m]-fulld2_Chi[k][m][l][m]+fulld2_Z[k][m][l][m]-fulld_S[k][m][l][m])*v[i];
+								F2[a][i]+= -0.5*eps*e[i][k][l]*(-fulld3_z[k][l][m][m]-fulld2_Chi[k][l][m][m]+fulld2_Z[k][l][m][m]-fulld_S[k][l][m][m])*v[i];
 								
 								F2[a][i]+= 0.5*e[i][k][l]*(e[k][l][m]*M[m])*v[i];
 							}
@@ -1443,8 +1441,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 								{
 									//FVS[a][i]+=eps*(fulld_S[j][k][l][l]+fulld3_z[j][k][l][l]+fulld2_Chi[j][k][l][l]-fulld2_Z[j][k][l][l])*fullS[j][k][m]*v[m];
 									//This part is when considering dPsi/dS symmetrized on the last 2 indices
-									FVS[a][i]+=eps*0.5*((fulld_S[j][k][l][l]+fulld3_z[j][k][l][l]+fulld2_Chi[j][k][l][l]-fulld2_Z[j][k][l][l])
-													   +(fulld_S[j][l][k][l]+fulld3_z[j][l][k][l]+fulld2_Chi[j][l][k][l]-fulld2_Z[j][l][k][l]))*fullS[j][k][m]*v[m];
+									FVS[a][i]+=eps*0.5*(fulld_S[j][k][l][l]+fulld3_z[j][k][l][l]+fulld2_Chi[j][k][l][l]-fulld2_Z[j][k][l][l])*fullS[j][k][m]*v[m];
 								}
 							}
 						}
@@ -1582,9 +1579,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 					//Part for div(dPsi/dS)
 					for(l=0;l<3;l++)
 					{
-						//FProjDiv[a][i]+=eps*(fulld_S[m][n][l][l]+fulld3_z[m][n][l][l]+fulld2_Chi[m][n][l][l]-fulld2_Z[m][n][l][l])*v[m][n];
-						FProjDiv[a][i]+=eps*0.5*((fulld_S[m][n][l][l]+fulld3_z[m][n][l][l]+fulld2_Chi[m][n][l][l]-fulld2_Z[m][n][l][l])
-												+(fulld_S[m][l][n][l]+fulld3_z[m][l][n][l]+fulld2_Chi[m][l][n][l]-fulld2_Z[m][l][n][l]))*v[m][n];
+						FProjDiv[a][i]+=eps*0.5*(fulld_S[m][n][l][l]+fulld3_z[m][n][l][l]+fulld2_Chi[m][n][l][l]-fulld2_Z[m][n][l][l])*v[m][n];
 					}
 				}
 			}

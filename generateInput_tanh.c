@@ -57,15 +57,15 @@ typedef struct
 		};
 
 		PetscReal a,b,c,s;
-		//a= 15.0;
-		//b=-12.0;
-		//c= 9.0;
-		//s= 1.0/3.0;
-
 		a= 15.0;
 		b=-12.0;
-		c=-12.0;
+		c= 9.0;
 		s= 1.0/3.0;
+
+		//a= 15.0;
+		//b=-12.0;
+		//c=-12.0;
+		//s= 1.0/3.0;
 
 		PetscReal factor=tan(5.0/180.0*ConstPi);
 		PetscReal g[dof],V[3][3];
