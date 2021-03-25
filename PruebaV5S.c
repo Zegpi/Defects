@@ -733,7 +733,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=mu/1.0;								//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/100.0;								//Choose later based on whatever Amit says :)
 
 		PetscReal Chi0[4];																	//Assign chi to a vector
 		PetscReal dChi0[4][2];																//Same for partial derivatives
@@ -1155,7 +1155,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 	#undef  __FUNCT__
 	#define __FUNCT__ "Stress"
 	//PetscErrorCode Stress(IGAPoint p,IGAPoint pU, IGAPoint pHs,IGAPoint pChi,IGAPoint pZu,PetscReal *K,PetscReal *F,PetscReal *U,PetscReal *HS, PetscReal *Chi,PetscReal *Zu,void *ctx)		//When other fields like Pi or S (etc.) come into this, declare a IGAPoint pPi or pS and a new PescReal *UPi or *US for each
-	PetscErrorCode Stress(IGAPoint p,IGAPoint pChi,IGAPoint pZu,IGAPoint pS, PetscReal *K,PetscReal *F, PetscReal *Chi,PetscReal *Zu,PetscReal *S, void *ctx)		//When other fields like Pi or S (etc.) come into this, declare a IGAPoint pPi or pS and a new PestcReal *UPi or *US for each
+	PetscErrorCode Stress(IGAPoint p,IGAPoint pChi,IGAPoint pZu,IGAPoint pS, PetscReal *K,PetscReal *F, PetscReal *Chi,PetscReal *zu,PetscReal *S, void *ctx)		//When other fields like Pi or S (etc.) come into this, declare a IGAPoint pPi or pS and a new PestcReal *UPi or *US for each
 	{
 		//const PetscReal *N0,(*N1)[2],(*N2)[2][2];
 		//const PetscReal *N0,(*N1)[2];
@@ -1176,17 +1176,40 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=mu/1.0;														//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/100.0;														//Choose later based on whatever Amit says :)
 
 		PetscReal chi0[4];																	//Array to contain the vector chi(0)
 		PetscReal d2_Chi0[4][2][2];															//Same for its Hessian
 		IGAPointFormValue(pChi,Chi,&chi0[0]);												//Assign chi to its container
 		IGAPointFormHess (pChi,Chi,&d2_Chi0[0][0][0]);										//This should be the 3-rd order tensor Chi_{i,jk} (remember that we are storing Chi_{kl} as a column vector)
 
-		PetscReal d_Z0[2][2];																//Same for its gradient
-		PetscReal d3_Z0[2][2][2][2];														//Same for its 3rd order partial derivatives
-		IGAPointFormGrad (pZu,Zu,&d_Z0[0][0]);												//Same for the gradient
-		IGAPointFormDer3 (pZu,Zu,&d3_Z0[0][0][0][0]);										//Same for the thir derivatives
+		//The four non-zero components of Chi are stored as a vector, restore them to an array with the correct indexing for value and derivative
+		PetscReal fullChi[3][3]={0};
+		fullChi[0][0]=chi0[0]; 	fullChi[0][1]=chi0[1];
+		fullChi[1][0]=chi0[2]; 	fullChi[1][1]=chi0[3];
+
+		PetscReal fulld2_Chi[3][3][3][3]={0};
+		fulld2_Chi[0][0][0][0]=d2_Chi0[0][0][0]; fulld2_Chi[0][0][0][1]=d2_Chi0[0][0][1]; fulld2_Chi[0][0][1][0]=d2_Chi0[0][1][0]; fulld2_Chi[0][0][1][1]=d2_Chi0[0][1][1];
+		fulld2_Chi[0][1][0][0]=d2_Chi0[1][0][0]; fulld2_Chi[0][1][0][1]=d2_Chi0[1][0][1]; fulld2_Chi[0][1][1][0]=d2_Chi0[1][1][0]; fulld2_Chi[0][1][1][1]=d2_Chi0[1][1][1];
+		fulld2_Chi[1][0][0][0]=d2_Chi0[2][0][0]; fulld2_Chi[1][0][0][1]=d2_Chi0[2][0][1]; fulld2_Chi[1][0][1][0]=d2_Chi0[2][1][0]; fulld2_Chi[1][0][1][1]=d2_Chi0[2][1][1];
+		fulld2_Chi[1][1][0][0]=d2_Chi0[3][0][0]; fulld2_Chi[1][1][0][1]=d2_Chi0[3][0][1]; fulld2_Chi[1][1][1][0]=d2_Chi0[3][1][0]; fulld2_Chi[1][1][1][1]=d2_Chi0[3][1][1];
+
+		PetscReal d_z0[2][2];																//Same for its gradient
+		PetscReal d3_z0[2][2][2][2];														//Same for its 3rd order partial derivatives
+		IGAPointFormGrad (pZu,zu,&d_z0[0][0]);												//Same for the gradient
+		IGAPointFormDer3 (pZu,zu,&d3_z0[0][0][0][0]);										//Same for the thir derivatives
+
+		//Expanding z (and derivatives) to 3 components, more convenient for sums in for loops
+		PetscReal fulld_z[3][3]={0};
+		fulld_z[0][0]=d_z0[0][0]; fulld_z[0][1]=d_z0[0][1];
+		fulld_z[1][0]=d_z0[1][0]; fulld_z[1][1]=d_z0[1][1];
+
+		PetscReal fulld3_z[3][3][3][3]={0};
+		fulld3_z[0][0][0][0]=d3_z0[0][0][0][0]; fulld3_z[0][0][0][1]=d3_z0[0][0][0][1]; fulld3_z[0][0][1][0]=d3_z0[0][0][1][0]; fulld3_z[0][0][1][1]=d3_z0[0][0][1][1];
+		fulld3_z[0][1][0][0]=d3_z0[0][1][0][0]; fulld3_z[0][1][0][1]=d3_z0[0][1][0][1]; fulld3_z[0][1][1][0]=d3_z0[0][1][1][0]; fulld3_z[0][1][1][1]=d3_z0[0][1][1][1];
+		
+		fulld3_z[1][0][0][0]=d3_z0[1][0][0][0]; fulld3_z[1][0][0][1]=d3_z0[1][0][0][1]; fulld3_z[1][0][1][0]=d3_z0[1][0][1][0]; fulld3_z[1][0][1][1]=d3_z0[1][0][1][1]; 
+		fulld3_z[1][1][0][0]=d3_z0[1][1][0][0]; fulld3_z[1][1][0][1]=d3_z0[1][1][0][1]; fulld3_z[1][1][1][0]=d3_z0[1][1][1][0]; fulld3_z[1][1][1][1]=d3_z0[1][1][1][1];
 
 		PetscReal dS[8][2];																
 		IGAPointFormGrad (pS,S,&dS[0][0]);													//Same for the gradient
@@ -1200,29 +1223,6 @@ PetscReal delta(PetscInt i, PetscInt j)
 		fulld_S[1][0][1][0]=dS[5][0]; fulld_S[1][0][1][1]=dS[5][1]; 
 		fulld_S[1][1][0][0]=dS[6][0]; fulld_S[1][1][0][1]=dS[6][1]; 
 		fulld_S[1][1][1][0]=dS[7][0]; fulld_S[1][1][1][1]=dS[7][1];
-
-		//The four non-zero components of Chi are stored as a vector, restore them to an array with the correct indexing for value and derivative
-		PetscReal fullChi[3][3]={0};
-		fullChi[0][0]=chi0[0]; 	fullChi[0][1]=chi0[1];
-		fullChi[1][0]=chi0[2]; 	fullChi[1][1]=chi0[3];
-
-		PetscReal fulld2_Chi[3][3][3][3]={0};
-		fulld2_Chi[0][0][0][0]=d2_Chi0[0][0][0]; fulld2_Chi[0][0][0][1]=d2_Chi0[0][0][1]; fulld2_Chi[0][0][1][0]=d2_Chi0[0][1][0]; fulld2_Chi[0][0][1][1]=d2_Chi0[0][1][1];
-		fulld2_Chi[0][1][0][0]=d2_Chi0[1][0][0]; fulld2_Chi[0][1][0][1]=d2_Chi0[1][0][1]; fulld2_Chi[0][1][1][0]=d2_Chi0[1][1][0]; fulld2_Chi[0][1][1][1]=d2_Chi0[1][1][1];
-		fulld2_Chi[1][0][0][0]=d2_Chi0[2][0][0]; fulld2_Chi[1][0][0][1]=d2_Chi0[2][0][1]; fulld2_Chi[1][0][1][0]=d2_Chi0[2][1][0]; fulld2_Chi[1][0][1][1]=d2_Chi0[2][1][1];
-		fulld2_Chi[1][1][0][0]=d2_Chi0[3][0][0]; fulld2_Chi[1][1][0][1]=d2_Chi0[3][0][1]; fulld2_Chi[1][1][1][0]=d2_Chi0[3][1][0]; fulld2_Chi[1][1][1][1]=d2_Chi0[3][1][1];
-
-		//Expanding z (and derivatives) to 3 components, more convenient for sums in for loops
-		PetscReal fulld_z[3][3]={0};
-		fulld_z[0][0]=d_Z0[0][0]; fulld_z[0][1]=d_Z0[0][1];
-		fulld_z[1][0]=d_Z0[1][0]; fulld_z[1][1]=d_Z0[1][1];
-
-		PetscReal fulld3_z[3][3][3][3]={0};
-		fulld3_z[0][0][0][0]=d3_Z0[0][0][0][0]; fulld3_z[0][0][0][1]=d3_Z0[0][0][0][1]; fulld3_z[0][0][1][0]=d3_Z0[0][0][1][0]; fulld3_z[0][0][1][1]=d3_Z0[0][0][1][1];
-		fulld3_z[0][1][0][0]=d3_Z0[0][1][0][0]; fulld3_z[0][1][0][1]=d3_Z0[0][1][0][1]; fulld3_z[0][1][1][0]=d3_Z0[0][1][1][0]; fulld3_z[0][1][1][1]=d3_Z0[0][1][1][1];
-		
-		fulld3_z[1][0][0][0]=d3_Z0[1][0][0][0]; fulld3_z[1][0][0][1]=d3_Z0[1][0][0][1]; fulld3_z[1][0][1][0]=d3_Z0[1][0][1][0]; fulld3_z[1][0][1][1]=d3_Z0[1][0][1][1]; 
-		fulld3_z[1][1][0][0]=d3_Z0[1][1][0][0]; fulld3_z[1][1][0][1]=d3_Z0[1][1][0][1]; fulld3_z[1][1][1][0]=d3_Z0[1][1][1][0]; fulld3_z[1][1][1][1]=d3_Z0[1][1][1][1];
 
 		PetscReal (*Kstress)[dof][nen][dof] = (typeof(Kstress)) K;
 		PetscReal (*Fstress)[dof] = (PetscReal (*)[dof])F;
@@ -1431,7 +1431,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		//const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		//const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=mu/1.0;															//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/100.0;															//Choose later based on whatever Amit says :)
 
 		//Definition of alternating tensor
 		const PetscReal e[3][3][3]=
@@ -1540,7 +1540,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=mu/1.0;															//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/100.0;															//Choose later based on whatever Amit says :)
 
 		//Definition of alternating tensor
 		//const PetscReal e[3][3][3]=
@@ -1784,7 +1784,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 
 		//Change to consider G=1
 		const PetscReal mu=1.0;
-		const PetscReal eps=mu/1.0;															//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/100.0;															//Choose later based on whatever Amit says :)
 
 		PetscReal d_Chi0[4][2];																//Same for its gradient
 		IGAPointFormGrad(pChi,Chi,&d_Chi0[0][0]);											//Assign grad chi to its container
@@ -1873,7 +1873,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=mu/1.0;															//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/100.0;															//Choose later based on whatever Amit says :)
 
 		PetscReal chi0[4];																	//Array to contain the vector chi(0)
 		PetscReal d2_Chi0[4][2][2];															//Same for its Hessian
@@ -2019,7 +2019,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=mu/1.0;															//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/100.0;															//Choose later based on whatever Amit says :)
 
 		//Definition of alternating tensor
 		const PetscReal e[3][3][3]=
@@ -2176,7 +2176,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=mu/1.0;														//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/100.0;														//Choose later based on whatever Amit says :)
 
 		PetscReal C[3][3][3][3]={0};
 		//Creation of elasticity tensor
@@ -3101,7 +3101,7 @@ int main(int argc, char *argv[]) {
 	ierr = IGACreate(PETSC_COMM_WORLD,&igaZS);CHKERRQ(ierr);
 	ierr = IGASetDim(igaZS,2);CHKERRQ(ierr);														//Spatial dimension of the problem
 	ierr = IGASetDof(igaZS,4);CHKERRQ(ierr);														//Number of degrees of freedom, per node
-	ierr = IGASetOrder(igaZS,2);CHKERRQ(ierr);														//Number of spatial derivatives to calculate
+	ierr = IGASetOrder(igaZS,1);CHKERRQ(ierr);														//Number of spatial derivatives to calculate
 	ierr = IGASetFromOptions(igaZS);CHKERRQ(ierr);													//Note: The order (or degree) of the shape functions is given by the mesh!
 	ierr = IGARead(igaZS,"./geometry.dat");CHKERRQ(ierr);
 	
@@ -3842,6 +3842,7 @@ int main(int argc, char *argv[]) {
 	T=time(NULL);
 	tm=*localtime(&T);
 	PetscPrintf(PETSC_COMM_WORLD,"End of second solve, current time is %02d:%02d:%02d \n",tm.tm_hour,tm.tm_min,tm.tm_sec);
+	//End of iterative solver part
 
 	//Calculate true residual of linear system, to check solution quality
 	Vec resid_vec;
@@ -3854,7 +3855,7 @@ int main(int argc, char *argv[]) {
 
 	ierr = PetscPrintf(PETSC_COMM_WORLD,"\n True residual is %.8e \n\n",res);CHKERRQ(ierr);
 	ierr = VecDestroy(&resid_vec);CHKERRQ(ierr);
-	//End of iterative solver part
+	//End of residual calculation
 
 	ierr = KSPDestroy(&kspZ0);CHKERRQ(ierr);
 	ierr = MatDestroy(&KZ0);CHKERRQ(ierr);

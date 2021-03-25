@@ -49,6 +49,8 @@ geom = refine( geom, factor=(Nx, Ny) )
 #geom.unclamp(0)
 #geom.unclamp(1)
 
+print geom.__dict__
+
 #nds seems to be number of spatial dimensions
 PetIGA().write(fileName, geom, nsd=2)
 

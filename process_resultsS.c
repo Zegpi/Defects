@@ -923,21 +923,23 @@ PetscReal delta(PetscInt i, PetscInt j)
 		IGAPointGetShapeFuns(p,0,(const PetscReal**)&N0);									//Value of the shape functions
 		PetscInt a,b,i,k,m,n,nen=p->nen, dof=p->dof;
 
+		//Definition of alternating tensor
+		const PetscReal e[3][3][3]=
+		{
+			{{0.0,0.0,0.0},{0.0,0.0,1.0},{0.0,-1.0,0.0}},
+			{{0.0,0.0,-1.0},{0.0,0.0,0.0},{1.0,0.0,0.0}},
+			{{0.0,1.0,0.0},{-1.0,0.0,0.0},{0.0,0.0,0.0}}
+		};
+
 		//Change to consider G=1
 		const PetscReal mu=1.0;
 		const PetscReal eps=mu/100.0;														//Choose later based on whatever Amit says :)
 
+		PetscReal M[3];
+		M[0]=0.0; M[1]=0.0; M[2]=10.0;														//Modify this one for non-zero body couple
+
 		PetscReal d2_Chi0[4][2][2];															//Same for its Hessian
 		IGAPointFormHess (pChi,Chi,&d2_Chi0[0][0][0]);										//This should be the 3-rd order tensor Chi_{i,jk} (remember that we are storing Chi_{kl} as a column vector)
-
-		PetscReal d3_Z0[2][2][2][2];														//Same for its 3rd order partial derivatives
-		IGAPointFormDer3 (pZu,Zu,&d3_Z0[0][0][0][0]);										//Same for the thir derivatives
-
-		PetscReal dS[8][2];																
-		IGAPointFormGrad (pS,S,&dS[0][0]);													//Same for the gradient
-
-		PetscReal d2_ZS[4][2][2];
-		IGAPointFormHess (pZS,ZS,&d2_ZS[0][0][0]);											//This is the 3-rd order tensor Z_{i,kl} (remember that we are storing Z_{mn} as a column vector Z_{i})
 
 		//The four non-zero components of Chi are stored as a vector, restore them to an array with the correct indexing for value and derivative
 		PetscReal fulld2_Chi[3][3][3][3]={0};
@@ -946,6 +948,9 @@ PetscReal delta(PetscInt i, PetscInt j)
 		fulld2_Chi[1][0][0][0]=d2_Chi0[2][0][0]; fulld2_Chi[1][0][0][1]=d2_Chi0[2][0][1]; fulld2_Chi[1][0][1][0]=d2_Chi0[2][1][0]; fulld2_Chi[1][0][1][1]=d2_Chi0[2][1][1];
 		fulld2_Chi[1][1][0][0]=d2_Chi0[3][0][0]; fulld2_Chi[1][1][0][1]=d2_Chi0[3][0][1]; fulld2_Chi[1][1][1][0]=d2_Chi0[3][1][0]; fulld2_Chi[1][1][1][1]=d2_Chi0[3][1][1];
 
+		PetscReal d3_Z0[2][2][2][2];														//Same for its 3rd order partial derivatives
+		IGAPointFormDer3 (pZu,Zu,&d3_Z0[0][0][0][0]);										//Same for the thir derivatives
+
 		//Expanding z (and derivatives) to 3 components, more convenient for sums in for loops
 		PetscReal fulld3_z[3][3][3][3]={0};
 		fulld3_z[0][0][0][0]=d3_Z0[0][0][0][0]; fulld3_z[0][0][0][1]=d3_Z0[0][0][0][1]; fulld3_z[0][0][1][0]=d3_Z0[0][0][1][0]; fulld3_z[0][0][1][1]=d3_Z0[0][0][1][1];
@@ -953,6 +958,10 @@ PetscReal delta(PetscInt i, PetscInt j)
 		
 		fulld3_z[1][0][0][0]=d3_Z0[1][0][0][0]; fulld3_z[1][0][0][1]=d3_Z0[1][0][0][1]; fulld3_z[1][0][1][0]=d3_Z0[1][0][1][0]; fulld3_z[1][0][1][1]=d3_Z0[1][0][1][1]; 
 		fulld3_z[1][1][0][0]=d3_Z0[1][1][0][0]; fulld3_z[1][1][0][1]=d3_Z0[1][1][0][1]; fulld3_z[1][1][1][0]=d3_Z0[1][1][1][0]; fulld3_z[1][1][1][1]=d3_Z0[1][1][1][1];
+
+
+		PetscReal dS[8][2];																
+		IGAPointFormGrad (pS,S,&dS[0][0]);													//Same for the gradient
 
 		//Expand grad(S) to full tensor order form, only non-zero elements
 		PetscReal fulld_S[3][3][3][3]={0};
@@ -965,11 +974,14 @@ PetscReal delta(PetscInt i, PetscInt j)
 		fulld_S[1][1][0][0]=dS[6][0]; fulld_S[1][1][0][1]=dS[6][1]; 
 		fulld_S[1][1][1][0]=dS[7][0]; fulld_S[1][1][1][1]=dS[7][1];
 
-		PetscReal fulld_ZS[3][3][3][3]={0};
-		fulld_ZS[0][0][0][0]=d2_ZS[0][0][0]; fulld_ZS[0][0][0][1]=d2_ZS[0][0][1]; fulld_ZS[0][0][1][0]=d2_ZS[0][1][0]; fulld_ZS[0][0][1][1]=d2_ZS[0][1][1];
-		fulld_ZS[0][1][0][0]=d2_ZS[1][0][0]; fulld_ZS[0][1][0][1]=d2_ZS[1][0][1]; fulld_ZS[0][1][1][0]=d2_ZS[1][1][0]; fulld_ZS[0][1][1][1]=d2_ZS[1][1][1];
-		fulld_ZS[1][0][0][0]=d2_ZS[2][0][0]; fulld_ZS[1][0][0][1]=d2_ZS[2][0][1]; fulld_ZS[1][0][1][0]=d2_ZS[2][1][0]; fulld_ZS[1][0][1][1]=d2_ZS[2][1][1];
-		fulld_ZS[1][1][0][0]=d2_ZS[3][0][0]; fulld_ZS[1][1][0][1]=d2_ZS[3][0][1]; fulld_ZS[1][1][1][0]=d2_ZS[3][1][0]; fulld_ZS[1][1][1][1]=d2_ZS[3][1][1];
+		PetscReal d2_ZS[4][2][2];
+		IGAPointFormHess (pZS,ZS,&d2_ZS[0][0][0]);											//This is the 3-rd order tensor Z_{i,kl} (remember that we are storing Z_{mn} as a column vector Z_{i})
+
+		PetscReal fulld2_ZS[3][3][3][3]={0};
+		fulld2_ZS[0][0][0][0]=d2_ZS[0][0][0]; fulld2_ZS[0][0][0][1]=d2_ZS[0][0][1]; fulld2_ZS[0][0][1][0]=d2_ZS[0][1][0]; fulld2_ZS[0][0][1][1]=d2_ZS[0][1][1];
+		fulld2_ZS[0][1][0][0]=d2_ZS[1][0][0]; fulld2_ZS[0][1][0][1]=d2_ZS[1][0][1]; fulld2_ZS[0][1][1][0]=d2_ZS[1][1][0]; fulld2_ZS[0][1][1][1]=d2_ZS[1][1][1];
+		fulld2_ZS[1][0][0][0]=d2_ZS[2][0][0]; fulld2_ZS[1][0][0][1]=d2_ZS[2][0][1]; fulld2_ZS[1][0][1][0]=d2_ZS[2][1][0]; fulld2_ZS[1][0][1][1]=d2_ZS[2][1][1];
+		fulld2_ZS[1][1][0][0]=d2_ZS[3][0][0]; fulld2_ZS[1][1][0][1]=d2_ZS[3][0][1]; fulld2_ZS[1][1][1][0]=d2_ZS[3][1][0]; fulld2_ZS[1][1][1][1]=d2_ZS[3][1][1];
 
 		PetscReal (*Kskewstress)[dof][nen][dof] = (typeof(Kskewstress)) K;
 		PetscReal (*Fskewstress)[dof] = (PetscReal (*)[dof])F;
@@ -1025,11 +1037,13 @@ PetscReal delta(PetscInt i, PetscInt j)
 					Fskewstress[a][i]=0.0;
 					for (k=0;k<3;k++)
 					{
-						//Recall that psi=1/2*Ue_hat*C*Ue_hat+1/2*eps*(S-J)*(S-J) (no hat in J), J=grad(Ue) and Ue=Ue_hat+Z 
-						Fskewstress[a][i]+= 0.5*eps*(fulld_S[m][n][k][k]+fulld3_z[m][n][k][k]+fulld2_Chi[m][n][k][k]-fulld_ZS[m][n][k][k]
-													+fulld_S[m][k][n][k]+fulld3_z[m][k][n][k]+fulld2_Chi[m][k][n][k]-fulld_ZS[m][k][n][k]
-													-fulld_S[n][m][k][k]+fulld3_z[n][m][k][k]+fulld2_Chi[n][m][k][k]-fulld_ZS[n][m][k][k]
-													-fulld_S[n][k][m][k]+fulld3_z[n][k][m][k]+fulld2_Chi[n][k][m][k]-fulld_ZS[n][k][m][k])*v[m][n];
+						//Recall that psi=1/2*Ue_hat*C*Ue_hat+1/2*eps*(S-J)*(S-J) (no hat in J), J=grad(Ue) and Ue=Ue_hat+Z
+						//Also recall that \sigma_ij^skw=1/2*[(D_J^sym\psi)_jid,d-(D_J^sym\psi)_ijd,d]+1/2*e_aij*K_a
+						Fskewstress[a][i]+= 0.5*eps*(-fulld3_z[n][m][k][k]-fulld2_Chi[n][m][k][k]+fulld2_ZS[n][m][k][k]-fulld_S[n][m][k][k]
+													 //-fulld3_z[n][k][m][k]-fulld2_Chi[n][k][m][k]+fulld2_ZS[n][k][m][k]-fulld_S[n][k][m][k]
+													 +fulld3_z[m][n][k][k]+fulld2_Chi[m][n][k][k]-fulld2_ZS[m][n][k][k]+fulld_S[m][n][k][k]
+													 //+fulld3_z[m][k][n][k]+fulld2_Chi[m][k][n][k]-fulld2_ZS[m][k][n][k]+fulld_S[m][k][n][k]
+													)*v[m][n]+0.5*e[k][m][n]*M[k]*v[m][n];
 					}
 				}
 			}
@@ -3655,7 +3669,6 @@ int main(int argc, char *argv[]) {
 	ierr = IGADestroy(&iga_div_X);CHKERRQ(ierr);
 //
 
-// Not adapted yet
 //System for L2 projection of skew part of stress
 	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for Skew Stress starting \n\n");
 	T=time(NULL);
@@ -3756,6 +3769,8 @@ int main(int argc, char *argv[]) {
 				{
 					IGAElementNextPoint(elemZ0,pointZ0);
 					IGAElementNextPoint(elemchiUp,pointchiUp);
+					IGAElementNextPoint(elemZS,pointZS);
+					IGAElementNextPoint(elemS,pointS);
 
 					ierr = IGAPointGetWorkMat(pointSkewS,&KpointSkewS);CHKERRQ(ierr);
 					ierr = IGAPointGetWorkVec(pointSkewS,&FpointSkewS);CHKERRQ(ierr);
