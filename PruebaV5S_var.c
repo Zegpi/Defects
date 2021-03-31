@@ -951,18 +951,16 @@ PetscReal delta(PetscInt i, PetscInt j)
 								//Feq[a][i]+=g[j]*v[j];
 							}
 
-							/*
-							for (r=0; r<3; r++)
-							{
-								for (s=0; s<3; s++)
-								{
-									for (m=0; m<3; m++)
-									{
-										Feq[a][i]+=h[r]*0.5*e[r][s][m]*dv[m][s];
-									}
-								}
-							}
-							*/
+							//for (r=0; r<3; r++)
+							//{
+							//	for (s=0; s<3; s++)
+							//	{
+							//		for (m=0; m<3; m++)
+							//		{
+							//			Feq[a][i]+=h[r]*0.5*e[r][s][m]*dv[m][s];
+							//		}
+							//	}
+							//}
 						}
 					}
 				}
@@ -1151,8 +1149,8 @@ PetscReal delta(PetscInt i, PetscInt j)
 	}
 //
 
+/*
 //New formulation
-/*	
 //System for z(0)
 	#undef  __FUNCT__
 	#define __FUNCT__ "Z0sys"
@@ -1163,19 +1161,12 @@ PetscReal delta(PetscInt i, PetscInt j)
 		IGAPointGetShapeFuns(p,0,(const PetscReal**)&N0);									//Value of the shape functions
 		IGAPointGetShapeFuns(p,1,(const PetscReal**)&N1);									//Derivatives of the shape functions
 		IGAPointGetShapeFuns(p,2,(const PetscReal**)&N2);									//Second derivatives of the shape funcions
-		IGAPointGetShapeFuns(p,3,(const PetscReal**)&N3);									//Second derivatives of the shape funcions
+		IGAPointGetShapeFuns(p,3,(const PetscReal**)&N3);									//Third derivatives of the shape funcions
 		//After this command Na_xx=N2[a][0][0], Na_yy=N2[a][1][1], Na_xy=N2[a][0][1], Na_yx[a][1][0] (these last two are equal) (remember a is the index of the shape function)
 		PetscInt a,b,i,j,k,l,u,w,nen=p->nen, dof=p->dof;
 
 		PetscReal x[2];																		//Vector of reals, size equal to problem's dimension
 		IGAPointFormGeomMap(p,x);															//Fills x with the coordinates of p, Gauss's point
-
-		//E and nu should come from AppCtx in the future
-		//const PetscReal E=1.0; //2100000.0*9.81*10000.0;					//[Pa]
-		//const PetscReal nu=0.33;
-		//const PetscReal lambda=(E*nu)/((1.0+nu)*(1.0-2.0*nu));
-		//const PetscReal mu=E/(2.0*(1.0+nu));
-		//const PetscReal eps=0.0*E/1000.0;							//Choose later based on whatever Amit says :)
 
 		//Change for G=1
 		const PetscReal nu=0.33;
@@ -1249,26 +1240,6 @@ PetscReal delta(PetscInt i, PetscInt j)
 
 		//////////////Delete this parte later, loads should come from appCtx or be 0
 		PetscReal f[3]={0.0, 0.0, 0.0};			//Distributed load in body
-		//These loads are for the manufactured solutions
-		//PetscReal alpha=3.0;
-		//PetscReal Lx=20.0; PetscReal Lx2=Lx*Lx; PetscReal Lx3=Lx*Lx*Lx; PetscReal Lx4=Lx*Lx*Lx*Lx;
-		//PetscReal Ly=20.0; PetscReal Ly2=Ly*Ly; PetscReal Ly3=Ly*Ly*Ly; PetscReal Ly4=Ly*Ly*Ly*Ly;
-		//f[0]=16.0*alpha/(425.0*Lx4*Ly4)*
-		//	(425.0*Lx4*Ly2 -5100.0*Lx4*x[1]*x[1] +51.0*Lx4 +1675.0*Lx2*Ly4 -3400.0*Lx2*Ly2*x[0]*x[0] -13400.0*Lx2*Ly2*x[1]*x[1] +85.0*Lx2*Ly2 +40800.0*Lx2*x[0]*x[0]*x[1]*x[1]
-		//    -408.0*Lx2*x[0]*x[0] +26800.0*Lx2*x[1]*x[1]*x[1]*x[1] -1020.0*Lx2*x[1]*x[1] -20100.0*Ly4*x[0]*x[0] +102.0*Ly4 +6800.0*Ly2*x[0]*x[0]*x[0]*x[0] +160800*Ly2*x[0]*x[0]*x[1]*x[1] -1020.0*Ly2*x[0]*x[0]
-		//    -408.0*Ly2*x[0]*x[1] -816.0*Ly2*x[1]*x[1] -81600.0*x[0]*x[0]*x[0]*x[0]*x[1]*x[1] +816.0*x[0]*x[0]*x[0]*x[0] -321600.0*x[0]*x[0]*x[1]*x[1]*x[1]*x[1] +12240.0*x[0]*x[0]*x[1]*x[1] 
-		//    +1632.0*x[0]*x[1]*x[1]*x[1] +1632.0*x[1]*x[1]*x[1]*x[1]);
-		//f[1]=16.0*alpha/(425.0*Lx4*Ly4)*
-		//	(-20000.0*Lx2*Ly2*x[0]*x[1] +17.0*Lx2*Ly2 +80000.0*Lx2*x[0]*x[1]*x[1]*x[1] -408.0*Lx2*x[0]*x[1] -204.0*Lx2*x[1]*x[1] +80000.0*Ly2*x[0]*x[0]*x[0]*x[1] -204.0*Ly2*x[0]*x[0] -816.0*Ly2*x[0]*x[1]
-		//	-320000.0*x[0]*x[0]*x[0]*x[1]*x[1]*x[1] +1632.0*x[0]*x[0]*x[0]*x[1] +2448.0*x[0]*x[0]*x[1]*x[1] +3264.0*x[0]*x[1]*x[1]*x[1]);
-		//These loads are for the manufactured solutions when S=grad[0 -y^2;y^2 0] with u(0)=(x+Lx/2)*(Lx/2-x)*(y+Ly/2)*(Ly/2-y) *16*a/(Lx^2*Ly^2), u(1)=0.
-		//PetscReal ad,bd;
-		//ad=20.0/101.0;
-		//bd=0.01;
-		//f[0]=eps*(((tanh((ad+x[1])/bd))/(bd*bd*cosh((ad+x[1])/bd)*cosh((ad+x[1])/bd)))+((tanh((ad-x[1])/bd))/(bd*bd*cosh((ad-x[1])/bd)*cosh((ad-x[1])/bd))));
-		f[0]=0.0;
-		f[1]=0.0;
-		f[2]=0.0;
 		PetscReal g[3]={0.0, 0.0, 0.0};			//Boundary load (applied wherever is defined in the p->atboundary block)
 		PetscReal M[3]={0.0, 0.0, 10.0};			//Distributed moment in body
 		PetscReal h[3]={0.0, 0.0, 0.0};			//Boundary moment (applied wherever is defined in the p->atboundary block)
@@ -1307,141 +1278,6 @@ PetscReal delta(PetscInt i, PetscInt j)
 
 		if (p->atboundary)
 		{
-			PetscReal Sborde[3][3]={0};
-
-			//PetscReal Omega=tan(5.0/180.0*ConstPi);
-			//PetscReal rho=sqrt(x[0]*x[0]+x[1]*x[1]);
-			//const PetscReal burgers=1.0;
-
-			//Stress for single disclination
-			//Sborde[0][0]=mu*Omega/(2.0*ConstPi*(1.0-nu))*(log(rho)+(x[1]*x[1])/(rho*rho)+nu/(1.0-2.0*nu));
-			//Sborde[0][1]=-mu*Omega/(2.0*ConstPi*(1.0-nu))*x[0]*x[1]/(rho*rho);
-			//Sborde[1][0]=-mu*Omega/(2.0*ConstPi*(1.0-nu))*x[0]*x[1]/(rho*rho);
-			//Sborde[1][1]=mu*Omega/(2.0*ConstPi*(1.0-nu))*(log(rho)+(x[0]*x[0])/(rho*rho)+nu/(1.0-2.0*nu));
-			//Sborde[0][2]=0.0; Sborde[1][2]=0.0; Sborde[2][0]=0.0; Sborde[2][1]=0.0; Sborde[2][2]=0.0;
-
-			//Stress for single dislocation
-			//Sborde[0][0]=-mu*burgers/(ConstPi*(1.0-nu))/2.0*x[1]*(x[1]*x[1]+3*x[0]*x[0])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
-			//Sborde[0][1]=-mu*burgers/(ConstPi*(1.0-nu))/2.0*x[0]*(x[1]*x[1]-x[0]*x[0])  /((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
-			//Sborde[1][0]=-mu*burgers/(ConstPi*(1.0-nu))/2.0*x[0]*(x[1]*x[1]-x[0]*x[0])  /((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
-			//Sborde[1][1]=-mu*burgers/(ConstPi*(1.0-nu))/2.0*x[1]*(x[1]*x[1]-x[0]*x[0])  /((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
-			//Sborde[0][2]=0.0; Sborde[1][2]=0.0; Sborde[2][0]=0.0; Sborde[2][1]=0.0; Sborde[2][2]=0.0;
-
-			//When b in y axis
-			//Sborde[0][0]=-mu*burgers/(ConstPi*(1.0-nu))/2.0*-x[0]*(x[0]*x[0]+3.0*x[1]*x[1])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
-			//Sborde[0][1]=-mu*burgers/(ConstPi*(1.0-nu))/2.0*x[1]*(x[0]*x[0]-x[1]*x[1])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
-			//Sborde[1][0]=-mu*burgers/(ConstPi*(1.0-nu))/2.0*x[1]*(x[0]*x[0]-x[1]*x[1])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
-			//Sborde[1][1]=-mu*burgers/(ConstPi*(1.0-nu))/2.0*-x[0]*(x[0]*x[0]-x[1]*x[1])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
-			//Sborde[0][2]=0.0; Sborde[1][2]=0.0; Sborde[2][0]=0.0; Sborde[2][1]=0.0; Sborde[2][2]=0.0;
-
-			//General dislocation
-			//Sborde[0][0]=-mu*burgers[0]/(ConstPi*(1.0-nu))/2.0*x[1]*(x[1]*x[1]+3*x[0]*x[0])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]))
-			// 			 -mu*burgers[1]/(ConstPi*(1.0-nu))/2.0*-x[0]*(x[0]*x[0]+3.0*x[1]*x[1])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
-			//Sborde[0][1]=-mu*burgers[0]/(ConstPi*(1.0-nu))/2.0*x[0]*(x[1]*x[1]-x[0]*x[0])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]))
-			// 			 -mu*burgers[1]/(ConstPi*(1.0-nu))/2.0*x[1]*(x[0]*x[0]-x[1]*x[1])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
-			//Sborde[1][0]=-mu*burgers[0]/(ConstPi*(1.0-nu))/2.0*x[0]*(x[1]*x[1]-x[0]*x[0])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]))
-			// 			 -mu*burgers[1]/(ConstPi*(1.0-nu))/2.0*x[1]*(x[0]*x[0]-x[1]*x[1])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
-			//Sborde[1][1]=-mu*burgers[0]/(ConstPi*(1.0-nu))/2.0*x[1]*(x[1]*x[1]-x[0]*x[0])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]))
-			// 			 -mu*burgers[1]/(ConstPi*(1.0-nu))/2.0*-x[0]*(x[0]*x[0]-x[1]*x[1])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
-			//Sborde[0][2]=0.0; Sborde[1][2]=0.0; Sborde[2][0]=0.0; Sborde[2][1]=0.0; Sborde[2][2]=0.0;
-
-			//No stress in boundary
-			Sborde[0][0]=0.0;
-			Sborde[0][1]=0.0;
-			Sborde[1][0]=0.0;
-			Sborde[1][1]=0.0;
-			Sborde[0][2]=0.0; Sborde[1][2]=0.0; Sborde[2][0]=0.0; Sborde[2][1]=0.0; Sborde[2][2]=0.0;
-
-			PetscInt dir  = p->boundary_id / 2;
-			PetscInt side = p->boundary_id % 2;
-
-			for (a=0; a<nen; a++)
-			{
-				PetscReal Na   = N0[a];
-				PetscReal Na_x=N1[a][0];		PetscReal Na_y=N1[a][1];
-
-				for (i=0; i<dof; i++)
-				{
-					if(i==0)
-					{
-						v[0]=Na; v[1]=0.0; v[2]=0.0;
-						dv[0][0]=Na_x; dv[0][1]=Na_y; dv[0][2]=0.0;
-						dv[1][0]=0.0;  dv[1][1]=0.0;  dv[1][2]=0.0;
-						dv[2][0]=0.0;  dv[2][1]=0.0;  dv[2][2]=0.0;
-					}
-					if(i==1)
-					{
-						v[0]=0.0; v[1]=Na; v[2]=0.0;
-						dv[0][0]=0.0;  dv[0][1]=0.0;  dv[0][2]=0.0;
-						dv[1][0]=Na_x; dv[1][1]=Na_y; dv[1][2]=0.0;
-						dv[2][0]=0.0;  dv[2][1]=0.0;  dv[2][2]=0.0;
-					}
-
-					Feq[a][i] = 0.0;
-					if(dir==0)
-					{
-						if(side==0)
-						{
-							n[0]=-1.0; n[1]=0.0; n[2]=0.0;
-							for (j=0; j<3; j++)
-							{
-								for(k=0; k<3;k++)
-								{
-									Feq[a][i]+=Sborde[j][k]*n[k]*v[j];
-								}
-							}
-						}
-						if(side==1)
-						{
-							n[0]=1.0; n[1]=0.0; n[2]=0.0;
-							for (j=0; j<3; j++)
-							{
-								for(k=0; k<3;k++)
-								{
-									Feq[a][i]+=Sborde[j][k]*n[k]*v[j];
-								}
-							}
-						}
-					}
-					if(dir==1)
-					{
-						if(side==0)
-						{
-							n[0]=0.0; n[1]=-1.0; n[2]=0.0;
-							for (j=0; j<3; j++)
-							{
-								for(k=0; k<3;k++)
-								{
-									Feq[a][i]+=Sborde[j][k]*n[k]*v[j];
-								}
-							}
-						}
-						if(side==1)
-						{
-							n[0]=0.0; n[1]=1.0; n[2]=0.0;
-							for (j=0; j<3; j++)
-							{
-								for(k=0; k<3;k++)
-								{
-									Feq[a][i]+=Sborde[j][k]*n[k]*v[j];
-								}
-								//Feq[a][i]+=g[j]*v[j];
-							}
-
-							for (r=0; r<3; r++)
-							{
-								for (s=0; s<3; s++)
-								{
-									for (m=0; m<3; m++)
-									{
-										Feq[a][i]+=h[r]*0.5*e[r][s][m]*dv[m][s];
-									}
-								}
-							}
-						}
-					}
-				}
-			}
 			return 0;
 		}
 		else
@@ -1583,7 +1419,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 					Feq[a][i] = 0.0;
 					for(k=0; k<3; k++)
 					{
-						Feq[a][i]+=f[k]*v[k];
+						//Feq[a][i]+=f[k]*v[k];
 					}
 
 					for (k=0; k<3; k++)
@@ -1592,7 +1428,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 						{
 							for (u=0; u<3; u++)
 							{
-								Feq[a][i]+= -M[k]*e[k][l][u]*dv[u][l];
+								Feq[a][i]+= -0.5*M[k]*e[k][l][u]*dv[u][l];
 							}
 						}	
 					}
@@ -1605,7 +1441,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 							{
 								for (w=0; w<3; w++)
 								{
-									Feq[a][i]+=0.5*( C[k][l][u][w]*(fullChi[u][w])+C[l][k][u][w]*(fullChi[u][w]) )*dv[k][l];
+									Feq[a][i]+= -0.5*( C[k][l][u][w]*(-fullChi[u][w])+C[l][k][u][w]*(-fullChi[u][w]) )*dv[k][l];
 								}
 							}
 						}
@@ -1617,14 +1453,14 @@ PetscReal delta(PetscInt i, PetscInt j)
 						{
 							for (u=0; u<3; u++)
 							{
-								Feq[a][i]+=+0.5*eps*(fulld_Chi[k][l][u]+fulld_Chi[l][k][u])*d2v[k][l][u]
-										   +0.5*eps*(fulld2_Chi[k][l][u][u]-fulld2_Chi[l][k][u][u])*dv[k][l]
-										   //Next part is the contribution from having S in the energy function
-										   +0.5*eps*(-fullS[k][l][u]-fullS[l][k][u])*d2v[k][l][u]
-										   +0.5*eps*(-fulld_S[k][l][u][u]+fulld_S[l][k][u][u])*dv[k][l]
-										   //Next part is the contribution of adding grad(Z) from the energy function, to turn J_hat into J
-										   +0.5*eps*(fullGradZ[k][l][u]+fullGradZ[l][k][u])*d2v[k][l][u]
-										   +0.5*eps*(fulld2_Z[k][l][u][u]-fulld2_Z[l][k][u][u])*dv[k][l];
+								Feq[a][i]+=	+0.5*eps*(-fulld_Chi[k][l][u]-fulld_Chi[l][k][u])*d2v[k][l][u]
+										   	+0.5*eps*(-fulld2_Chi[k][l][u][u]+fulld2_Chi[l][k][u][u])*dv[k][l]
+										   	//Next part is the contribution from having S in the energy function
+										   	+0.5*eps*(-fullS[k][l][u]-fullS[l][k][u])*d2v[k][l][u]
+										   	+0.5*eps*(-fulld_S[k][l][u][u]+fulld_S[l][k][u][u])*dv[k][l]
+										   	//Next part is the contribution of adding grad(Z) from the energy function, to turn J_hat into J
+										   	+0.5*eps*(fullGradZ[k][l][u]+fullGradZ[l][k][u])*d2v[k][l][u]
+										   	+0.5*eps*(fulld2_Z[k][l][u][u]-fulld2_Z[l][k][u][u])*dv[k][l];
 							}
 						}
 					}
@@ -1636,7 +1472,6 @@ PetscReal delta(PetscInt i, PetscInt j)
 	}
 //
 */
-
 //System for L2 projection of stress (sym part)
 	#undef  __FUNCT__
 	#define __FUNCT__ "Stress"
@@ -3288,7 +3123,7 @@ int main(int argc, char *argv[]) {
 
 //App context creation and some data
 	//Mesh parameters (to fix specific points in z0 system)
-	PetscInt b=301;				//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
+	PetscInt b=601;				//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
 	PetscReal Lx=80.0;
 	PetscReal Ly=80.0;
 	PetscInt  nx=b;
@@ -4282,11 +4117,28 @@ int main(int argc, char *argv[]) {
 		}
 
 		//Fija la derivada du_2/dx en el borde izquierdo
-		//for(ind1=2*(nx+3);ind1<2*(nx+3)*(ny+2);ind1=ind1+2*(nx+3))
-		//{
-		//	filas_z[counter]=ind1;
-		//	counter++;	
-		//}
+		for(ind1=2*(nx+3);ind1<2*(nx+3)*(ny+2);ind1=ind1+2*(nx+3))
+		{
+			filas_z[counter]=ind1+3;
+			filas_z[counter+1]=ind1+5;
+			counter=counter+2;	
+		}
+
+		//Fija la derivada du_2/dx en el borde drecho
+		for(ind1=4*(nx+3)-2;ind1<2*(nx+3)*(ny+3);ind1=ind1+2*(nx+3))
+		{
+			filas_z[counter]=ind1-1;
+			filas_z[counter+1]=ind1-3;
+			counter=counter+2;	
+		}
+
+		//Fija el borde derecho
+		for(ind1=4*(nx+3)-2;ind1<2*(nx+3)*(ny+3);ind1=ind1+2*(nx+3))
+		{
+			filas_z[counter]=ind1;
+			filas_z[counter+1]=ind1+1;
+			counter=counter+2;	
+		}
 
 		ierr = PetscPrintf(PETSC_COMM_WORLD,"Counter llego a %d \n",counter);CHKERRQ(ierr);
 		ierr = PetscPrintf(PETSC_COMM_WORLD,"El ultimo valor en filas_z es %d \n",filas_z[counter-1]);CHKERRQ(ierr);
