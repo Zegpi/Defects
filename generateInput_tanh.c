@@ -56,7 +56,7 @@ typedef struct
 			{{0.0,1.0,0.0},{-1.0,0.0,0.0},{0.0,0.0,0.0}}
 		};
 
-		PetscReal a,b,c,s;
+		PetscReal a,b,c,s,x_ast1, x_ast2, y_ast1, y_ast2;;
 		a= 15.0;
 		b=-12.0;
 		c= 9.0;
@@ -68,10 +68,18 @@ typedef struct
 		//s= 1.0/3.0;
 
 		PetscReal factor=tan(5.0/180.0*ConstPi);
-		PetscReal g[dof],V[3][3];
 		PetscReal S[3][3][3]={0};
 
-		PetscReal dfx,dfy;
+		PetscReal g[dof];
+		
+
+		
+		/*
+		//														     ______
+		//This code is for the terraces that look like this:         |
+		//													   ______|
+		PetscReal V[3][3];
+		PetscReal dfx,dfy;	
 
 		dfx=-factor*0.25*( tanh( (x[1]-b)/s )+1.0 )*( 1.0/s *1.0/( cosh((a-x[0])/s)*cosh((a-x[0])/s ) ) )
 			+factor*0.25*( tanh( (x[1]-c)/s )+1.0 )*( 1.0/s *1.0/( cosh((a-x[0])/s)*cosh((a-x[0])/s ) ) );
@@ -96,15 +104,72 @@ typedef struct
 				}
 			}
 		}
+		*/
+			
+		//																	\
+		//This code is for the terminated eigenwall that looks like this:    \
+		//																	  \
+		//
+		//Note that this does NOT go to the boundaries, i.e. \Pi is NOT zero
 
-		g[0]=S[0][0][0];
-		g[1]=S[0][0][1];
-		g[2]=S[0][1][0];
-		g[3]=S[0][1][1];
-		g[4]=S[1][0][0];
-		g[5]=S[1][0][1];
-		g[6]=S[1][1][0];
-		g[7]=S[1][1][1];
+		PetscReal func,func2,inclin,normN;
+
+		a= 0.1;
+		b= 10.0;
+		s= 1.0/3.0;
+
+		inclin=0.22;					//Factor that changes the inclination of the eigenwall, inclin=1 is a 45° line, values less than one make it steeper, with 0.0 making it vertical.
+
+		func=factor	*(0.5*tanh((x[0]+inclin*x[1]+a)/s)-0.5*tanh((x[0]+inclin*x[1]-a)/s))
+					*(0.5*tanh((inclin*x[0]-x[1]+b)/s)-0.5*tanh((inclin*x[0]-x[1]-b)/s));
+
+		PetscReal n[3],W[3][3]={0};
+
+		normN=sqrt(1.0+inclin*inclin);
+		n[0]=1.0/normN; n[1]=inclin/normN; n[2]=0.0; 
+
+		W[0][0]=-func;
+		W[0][1]=-func;
+
+		for(i=0;i<3;i++)
+		{
+			for(j=0;j<3;j++)
+			{
+				for(k=0;k<3;k++)
+				{
+					S[i][j][k]=S[i][j][k]+W[i][j]*n[k];
+				}
+			}
+		}
+
+		//Recall that S has 8 components, in order S(1,1,1), S(1,1,2), S(1,2,1), S(1,2,2), S(2,1,1), S(2,1,2), S(2,2,1), S(2,2,2)
+
+		func=func/2.2419902995516;			//This factor depends on inclin and n (and probably other things). Must be recalculated for every run so the integral is equal to the factors
+											//being set up in the following section.
+
+		x_ast1=(-a+-inclin*b)/(inclin*inclin+1.0);
+		y_ast1=inclin*x_ast1+b;
+
+		x_ast2=(a+inclin*b)/(inclin*inclin+1.0);
+		y_ast2=inclin*x_ast2-b;
+
+		func2 = (0.5*tanh((x[1]-y_ast1+a)/s)-0.5*tanh((x[1]-y_ast1-a)/s))*(1.0-tanh((x[0]+inclin*x[1]+a)/s))/2.0
+			  + (0.5*tanh((x[1]-y_ast2+a)/s)-0.5*tanh((x[1]-y_ast2-a)/s))*(tanh((x[0]+inclin*x[1]-a)/s)+1.0)/2.0;
+
+		func2=factor*func2/2.2419902995516;			//This factor depends on inclin and n (and probably other things). Must be recalculated for every run so the integral is equal to the factors
+												//being set up in the following section.			  
+
+		func=1.35316947369629*func;
+		func2=1.35316947369629*func2;
+
+		g[0]=-0.5*func;
+		g[1]=-0.5*func-func2;
+		g[2]= 0.5*func;
+		g[3]= 0.5*func;
+		g[4]= 0.0;
+		g[5]= 0.0;
+		g[6]= 0.0;
+		g[7]= 0.0;
 
 		//Consider changing all this to just assigning S directly
 
@@ -147,7 +212,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 
 //Generate Mesh and copy cpp to result folder to save for reproduction (check that parameters are the same on file to run)
 
-	PetscInt b=601;//581;					//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
+	PetscInt b=601;//1743;//581;					//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
 	PetscReal Lx=80.0;
 	PetscReal Ly=80.0;
 	PetscInt  nx=b;
@@ -267,7 +332,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	ierr = KSPSetFromOptions(ksp_L2_S);CHKERRQ(ierr);
 	ierr = KSPSetType(ksp_L2_S,KSPFCG);CHKERRQ(ierr);
 
-	ierr = KSPSetTolerances(ksp_L2_S,1.0e-16,1.0e-20,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	ierr = KSPSetTolerances(ksp_L2_S,1.0e-11,1.0e-15,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
 	ierr = KSPSolve(ksp_L2_S,F_L2_S,S0);CHKERRQ(ierr);											//This is a simple system, so it can be solved with just this command
 
 	ierr = KSPDestroy(&ksp_L2_S);CHKERRQ(ierr);

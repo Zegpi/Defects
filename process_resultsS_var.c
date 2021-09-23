@@ -766,7 +766,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		}
 		else
 		{
-			M[0]=0.0; M[1]=0.0; M[2]=10.0;													//Modify this one (and flag) for non-zero body couple
+			M[0]=0.0; M[1]=0.0; M[2]=0.0;													//Modify this one (and flag) for non-zero body couple
 		}
 
 		PetscReal chi0[4];																	//Array to contain the vector chi(0)

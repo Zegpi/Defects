@@ -57,9 +57,9 @@ for infile in glob.glob(fileName):
 	#print(num)
 
 	# write a function to sample the nrbs object
-	uniform = lambda U: linspace(U[0], U[-1], 6*num-5)				#6 samples per element
+	#uniform = lambda U: linspace(U[0], U[-1], 6*num-5)				#6 samples per element
 	#uniform = lambda U: linspace(U[0], U[-1], 4*num-3)				#4 samples per element
-	#uniform = lambda U: linspace(U[0], U[-1], 2*num-1)				#2 samples per element
+	uniform = lambda U: linspace(U[0], U[-1], 2*num-1)				#2 samples per element
 	#uniform = lambda U: linspace(U[0], U[-1], num)					#1 sample  per element
 
 

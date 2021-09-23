@@ -567,7 +567,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 				{
 					for (l=0; l<3; l++)
 					{
-						SpX[i][j]=SpX[i][j]-fullSp[i][k][l]*e[j][k][l];  
+						SpX[i][j]=SpX[i][j]-fullSp[i][k][l]*e[k][l][j];
 					}
 				}
 			}
@@ -709,7 +709,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 //System for z(0)
 	#undef  __FUNCT__
 	#define __FUNCT__ "Z0sys"
-	PetscErrorCode Z0sys(IGAPoint p, IGAPoint pChi, IGAPoint pS, IGAPoint pGradZ, PetscReal *K, PetscReal *F, PetscReal *UChi, PetscReal *US, PetscReal *UgradZ, void *ctx)
+	PetscErrorCode Z0sys(IGAPoint p, IGAPoint pChi, IGAPoint pS, IGAPoint pGradZ, PetscReal *K, PetscReal *F, PetscReal *UChi, PetscReal *US, PetscReal *UgradZ, PetscInt add_S,void *ctx)
 	{
 		PetscReal C[3][3][3][3]={0};														//Initialization of elastic tensor
 		const PetscReal *N0,(*N1)[2],(*N2)[2][2];
@@ -759,8 +759,14 @@ PetscReal delta(PetscInt i, PetscInt j)
 		fullS[1][0][0]=S0[4]; fullS[1][0][1]=S0[5];
 		fullS[1][1][0]=S0[6]; fullS[1][1][1]=S0[7];
 
+		PetscReal Zs[4];
 		PetscReal dZ[4][2];																	//gradZ, grad part of S
+		IGAPointFormValue(pGradZ,UgradZ,&Zs[0]);
 		IGAPointFormGrad (pGradZ,UgradZ,&dZ[0][0]);
+
+		PetscReal fullZs[3][3]={0};
+		fullZs[0][0]=Zs[0];		fullZs[0][1]=Zs[1];
+		fullZs[1][0]=Zs[2];		fullZs[1][1]=Zs[3];
 
 		PetscReal fullGradZ[3][3][3]={0};
 		fullGradZ[0][0][0]=dZ[0][0];	fullGradZ[0][0][1]=dZ[0][1];
@@ -794,7 +800,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		f[1]=0.0;
 		f[2]=0.0;
 		PetscReal g[3]={0.0, 0.0, 0.0};			//Boundary load (applied wherever is defined in the p->atboundary block)
-		PetscReal M[3]={0.0, 0.0, 10.0};			//Distributed moment in body
+		PetscReal M[3]={0.0, 0.0, 0.0};			//Distributed moment in body
 		PetscReal h[3]={0.0, 0.0, 0.0};			//Boundary moment (applied wherever is defined in the p->atboundary block)
 		/////////////////////////////////////
 
@@ -1107,7 +1113,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 						{
 							for (u=0; u<3; u++)
 							{
-								Feq[a][i]+= -M[k]*e[k][l][u]*dv[u][l];
+								//Feq[a][i]+= -M[k]*e[k][l][u]*dv[u][l];
 							}
 						}	
 					}
@@ -1120,8 +1126,17 @@ PetscReal delta(PetscInt i, PetscInt j)
 							{
 								for (w=0; w<3; w++)
 								{
-									Feq[a][i]+=-0.5*(C[k][l][u][w]*(-fullChi[u][w])+C[l][k][u][w]*(-fullChi[u][w]))*0.5*(dv[k][l]+dv[l][k]);
-								}
+									if(add_S==0)
+									{
+										Feq[a][i]+=-0.5*(C[k][l][u][w]*(-fullChi[u][w])+C[l][k][u][w]*(-fullChi[u][w]))*0.5*(dv[k][l]+dv[l][k]);			//This line is for the model were sigma depends on C*Ue_hat
+										//Feq[a][i]+=-0.5*(C[k][l][u][w]*(-fullChi[u][w]+fullZs[u][w])+C[l][k][u][w]*(-fullChi[u][w]+fullZs[u][w]))*0.5*(dv[k][l]+dv[l][k]);		//This line is for the model were sigma depends on C*Ue
+									}
+									if(add_S==1)
+									{
+										//Feq[a][i]+=-0.5*(C[k][l][u][w]*(-fullChi[u][w])+C[l][k][u][w]*(-fullChi[u][w]))*0.5*(dv[k][l]+dv[l][k]);			//This line is for the model were sigma depends on C*Ue
+										//Feq[a][i]+=-0.5*(C[k][l][u][w]*(-fullChi[u][w]-fullZs[u][w])+C[l][k][u][w]*(-fullChi[u][w]-fullZs[u][w]))*0.5*(dv[k][l]+dv[l][k]);		//This line is for the model were sigma depends on C*Ue_hat
+									}	
+								}	
 							}
 						}
 					}
@@ -1155,7 +1170,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 	#undef  __FUNCT__
 	#define __FUNCT__ "Stress"
 	//PetscErrorCode Stress(IGAPoint p,IGAPoint pU, IGAPoint pHs,IGAPoint pChi,IGAPoint pZu,PetscReal *K,PetscReal *F,PetscReal *U,PetscReal *HS, PetscReal *Chi,PetscReal *Zu,void *ctx)		//When other fields like Pi or S (etc.) come into this, declare a IGAPoint pPi or pS and a new PescReal *UPi or *US for each
-	PetscErrorCode Stress(IGAPoint p,IGAPoint pChi,IGAPoint pZu,IGAPoint pS, PetscReal *K,PetscReal *F, PetscReal *Chi,PetscReal *zu,PetscReal *S, void *ctx)		//When other fields like Pi or S (etc.) come into this, declare a IGAPoint pPi or pS and a new PestcReal *UPi or *US for each
+	PetscErrorCode Stress(IGAPoint p,IGAPoint pChi,IGAPoint pZu,IGAPoint pS,IGAPoint pZS,PetscReal *K,PetscReal *F, PetscReal *Chi,PetscReal *zu,PetscReal *S,PetscReal *ZS,PetscInt add_S,void *ctx)		//When other fields like Pi or S (etc.) come into this, declare a IGAPoint pPi or pS and a new PestcReal *UPi or *US for each
 	{
 		//const PetscReal *N0,(*N1)[2],(*N2)[2][2];
 		//const PetscReal *N0,(*N1)[2];
@@ -1224,6 +1239,14 @@ PetscReal delta(PetscInt i, PetscInt j)
 		fulld_S[1][1][0][0]=dS[6][0]; fulld_S[1][1][0][1]=dS[6][1]; 
 		fulld_S[1][1][1][0]=dS[7][0]; fulld_S[1][1][1][1]=dS[7][1];
 
+		PetscReal ZS0[4];
+		IGAPointFormValue (pZS,ZS,&ZS0[0]);
+
+		PetscReal full_ZS[3][3]={0};
+		full_ZS[0][0]=ZS0[0];	full_ZS[0][1]=ZS0[1];	full_ZS[0][2]=0.0;
+		full_ZS[1][0]=ZS0[2];	full_ZS[1][1]=ZS0[3];	full_ZS[1][2]=0.0;
+		full_ZS[2][0]=0.0;		full_ZS[2][1]=0.0;		full_ZS[2][2]=0.0;
+
 		PetscReal (*Kstress)[dof][nen][dof] = (typeof(Kstress)) K;
 		PetscReal (*Fstress)[dof] = (PetscReal (*)[dof])F;
 
@@ -1291,13 +1314,26 @@ PetscReal delta(PetscInt i, PetscInt j)
 					{
 						for(l=0;l<3;l++)
 						{
-							Fstress[a][i]+=0.5*(C[m][n][k][l]*(-fulld_z[k][l]-fullChi[k][l])+C[n][m][k][l]*(-fulld_z[k][l]-fullChi[k][l]))*v[m][n];
+							if(add_S==0)
+							{
+								Fstress[a][i]+=0.5*(C[m][n][k][l]*(-fulld_z[k][l]-fullChi[k][l])+C[n][m][k][l]*(-fulld_z[k][l]-fullChi[k][l]))*v[m][n];
+								//Fstress[a][i]+=0.5*(C[m][n][k][l]*(-fulld_z[k][l]-fullChi[k][l]+full_ZS[k][l])+C[n][m][k][l]*(-fulld_z[k][l]-fullChi[k][l]+full_ZS[k][l]))*v[m][n];
+							}
+							if(add_S==1)
+							{
+								//Fstress[a][i]+=0.5*(C[m][n][k][l]*(-fulld_z[k][l]-fullChi[k][l])+C[n][m][k][l]*(-fulld_z[k][l]-fullChi[k][l]))*v[m][n];
+								//Fstress[a][i]+=0.5*(C[m][n][k][l]*(-fulld_z[k][l]-fullChi[k][l]-full_ZS[k][l])+C[n][m][k][l]*(-fulld_z[k][l]-fullChi[k][l]-full_ZS[k][l]))*v[m][n];
+							}
 						}
-
+						//Recall that psi=1/2*Ue_hat*C*Ue_hat+1/2*eps*(S-J)*(S-J) (no hat in J), J=grad(Ue) and Ue=Ue_hat+Z 
 						Fstress[a][i]+= -0.25*eps*(-fulld3_z[m][n][k][k]-fulld2_Chi[m][n][k][k]-fulld3_z[m][k][n][k]-fulld2_Chi[m][k][n][k]
 												   -fulld3_z[n][m][k][k]-fulld2_Chi[n][m][k][k]-fulld3_z[n][k][m][k]-fulld2_Chi[n][k][m][k])*v[m][n];
-
+						//Next part is the contribution from having S in the energy function
 						Fstress[a][i]+= -0.25*eps*(-fulld_S[m][n][k][k]-fulld_S[m][k][n][k]-fulld_S[n][m][k][k]-fulld_S[n][k][m][k])*v[m][n];
+						//Next part is the contribution of adding grad(Z) from the energy function, to turn J_hat into J
+						Fstress[a][i]+= -0.25*eps*(+fulld_GradZ[m][n][k][k]+fulld_GradZ[m][k][n][k]+fulld_GradZ[n][m][k][k]+fulld_GradZ [n][k][m][k])*v[m][n];
+
+
 					}
 				}
 			}
@@ -2802,7 +2838,7 @@ int main(int argc, char *argv[]) {
 
 //App context creation and some data
 	//Mesh parameters (to fix specific points in z0 system)
-	PetscInt b=581;				//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
+	PetscInt b=601;				//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
 	PetscReal Lx=80.0;
 	PetscReal Ly=80.0;
 	PetscInt  nx=b;
@@ -3078,7 +3114,7 @@ int main(int argc, char *argv[]) {
 	//ierr = PCFactorSetMatSolverType(pcchiS,MATSOLVERMUMPS); CHKERRQ(ierr);
 	ierr = KSPSetFromOptions(kspchiS);CHKERRQ(ierr);
 	ierr = KSPSetType(kspchiS,KSPCG);																	//This solver seems to work well for this equation
-	ierr = KSPSetTolerances(kspchiS,1.0e-23,1.0e-29,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	ierr = KSPSetTolerances(kspchiS,1.0e-20,1.0e-25,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
 	ierr = KSPSolve(kspchiS,FchiS,chiS0);CHKERRQ(ierr);
 
 	ierr = KSPDestroy(&kspchiS);CHKERRQ(ierr);
@@ -3292,7 +3328,7 @@ int main(int argc, char *argv[]) {
 		}
 	}
 	
-	PetscInt add_S=1;																			//If add_S=1, we form \tilde\alpha=\alpha-S:X
+	PetscInt add_S=0;																			//If add_S=1, we form \tilde\alpha=\alpha-S:X
 																								//If add_S=0, we form \hat\alpha=\alpha-S^perp:X
 
 	Mat KAlp;
@@ -3370,7 +3406,14 @@ int main(int argc, char *argv[]) {
 	ierr = IGAEndElement(igachiS,&elemSp);CHKERRQ(ierr);
 
 	// Restore local vectors s0 and arrays
-	ierr = IGARestoreLocalVecArray(igachiS,chiS0,&localSpAlp,&arraySpAlp);CHKERRQ(ierr);
+	if(add_S==0)
+	{
+		ierr = IGARestoreLocalVecArray(igachiS,chiS0,&localSpAlp,&arraySpAlp);CHKERRQ(ierr);
+	}
+	if(add_S==1)
+	{
+		ierr = IGARestoreLocalVecArray(igaS,s0,&localSpAlp,&arraySpAlp);CHKERRQ(ierr);
+	}
 
 	//Form system matrix and vector
 	ierr = MatAssemblyBegin(KAlp,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
@@ -3382,7 +3425,7 @@ int main(int argc, char *argv[]) {
 	ierr = KSPSetOperators(kspAlp,KAlp,KAlp);CHKERRQ(ierr);
 	ierr = KSPSetFromOptions(kspAlp);CHKERRQ(ierr);
 	ierr = KSPSetType(kspAlp,KSPGMRES);
-	ierr = KSPSetTolerances(kspAlp,1.0e-37,1.0e-28,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
+	ierr = KSPSetTolerances(kspAlp,1.0e-32,1.0e-25,PETSC_DEFAULT,PETSC_DEFAULT);CHKERRQ(ierr);
 	ierr = KSPSolve(kspAlp,FAlp,alp0);CHKERRQ(ierr);	
 
 	char nameAlInput[]="/Input-Al-2d-0.dat";
@@ -3563,7 +3606,7 @@ int main(int argc, char *argv[]) {
 	}
 	ierr = IGASetUp(igaZ0);CHKERRQ(ierr);
 
-	PetscInt fijaPunto=0;																		//Fix a single point (1) or a side (chosen in blocks below)
+	PetscInt fijaPunto=1;																		//Fix a single point (1) or a side (chosen in blocks below)
 
 	for (dir=0; dir<2; dir++) 
 	{
@@ -3651,7 +3694,7 @@ int main(int argc, char *argv[]) {
 					ierr = IGAPointGetWorkMat(pointZ0,&KpointZ0);CHKERRQ(ierr);
 					ierr = IGAPointGetWorkVec(pointZ0,&FpointZ0);CHKERRQ(ierr);
 					//	   Z0sys(IGAPoint p, IGAPoint pChi, IGAPoint pS, IGAPoint pGradZ, PetscReal *K, PetscReal *F, PetscReal *UChi, PetscReal *US, PetscReal *UgradZ, void *ctx)
-					ierr = Z0sys(pointZ0,pointchiUp,pointS,pointZS,KpointZ0,FpointZ0,Chi0Z0,SZ0,GradZ_Z0,NULL);CHKERRQ(ierr);
+					ierr = Z0sys(pointZ0,pointchiUp,pointS,pointZS,KpointZ0,FpointZ0,Chi0Z0,SZ0,GradZ_Z0,add_S,NULL);CHKERRQ(ierr);
 					ierr = IGAPointAddMat(pointZ0,KpointZ0,KlocZ0);CHKERRQ(ierr);
 					ierr = IGAPointAddVec(pointZ0,FpointZ0,FlocZ0);CHKERRQ(ierr);
 				}
@@ -3670,7 +3713,7 @@ int main(int argc, char *argv[]) {
 					ierr = IGAPointGetWorkMat(pointZ0,&KpointZ0);CHKERRQ(ierr);
 					ierr = IGAPointGetWorkVec(pointZ0,&FpointZ0);CHKERRQ(ierr);
 					//	   Z0sys(IGAPoint p, IGAPoint pChi, IGAPoint pS, IGAPoint pGradZ, PetscReal *K, PetscReal *F, PetscReal *UChi, PetscReal *US, PetscReal *UgradZ, void *ctx)
-					ierr = Z0sys(pointZ0,pointchiUp,pointS,pointZS,KpointZ0,FpointZ0,Chi0Z0,SZ0,GradZ_Z0,NULL);CHKERRQ(ierr);
+					ierr = Z0sys(pointZ0,pointchiUp,pointS,pointZS,KpointZ0,FpointZ0,Chi0Z0,SZ0,GradZ_Z0,add_S,NULL);CHKERRQ(ierr);
 					ierr = IGAPointAddMat(pointZ0,KpointZ0,KlocZ0);CHKERRQ(ierr);
 					ierr = IGAPointAddVec(pointZ0,FpointZ0,FlocZ0);CHKERRQ(ierr);
 				}
@@ -3867,7 +3910,6 @@ int main(int argc, char *argv[]) {
 	ierr = IGAWriteVec(igaZ0,Z0,pathZ0);CHKERRQ(ierr);	
 //
 
-/*
 //System for L2 projection of stress (sym part)
 	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for Stress starting \n\n");
 	T=time(NULL);
@@ -3908,9 +3950,9 @@ int main(int argc, char *argv[]) {
 	IGAElement		elemStress;																//element
 	PetscReal		*KlocStress,*FlocStress;												//AA y BB
 	PetscReal		*KpointStress,*FpointStress;											//KKK y FFF
-	const PetscReal	*arrayZ0Stress,*arrayChi0Stress, *arraySStress;			//arrayU
-	Vec				localZ0Stress,localChi0Stress, localSStress;				//localU
-	PetscReal		*Chi0Stress,*Z0Stress, *SStress;											//U
+	const PetscReal	*arrayZ0Stress,*arrayChi0Stress, *arraySStress, *arrayZSStress;			//arrayU
+	Vec				localZ0Stress,localChi0Stress,localSStress,localZSStress;				//localU
+	PetscReal		*Chi0Stress,*Z0Stress,*SStress,*ZSStress;								//U
 
   	IGAFormSystem	wtfStress;
  	void			*wtf2Stress;
@@ -3922,24 +3964,28 @@ int main(int argc, char *argv[]) {
 	ierr = IGAGetLocalVecArray(igachiUp,chiUp0,&localChi0Stress,&arrayChi0Stress);CHKERRQ(ierr);
 	ierr = IGAGetLocalVecArray(igaZ0,Z0,&localZ0Stress,&arrayZ0Stress);CHKERRQ(ierr);
 	ierr = IGAGetLocalVecArray(igaS,s0,&localSStress,&arraySStress);CHKERRQ(ierr);
+	ierr = IGAGetLocalVecArray(igaZS,ZS0,&localZSStress,&arrayZSStress);CHKERRQ(ierr);
 
 	// Element loop
 	ierr = IGABeginElement(igaStress,&elemStress);CHKERRQ(ierr);
 	ierr = IGABeginElement(igaZ0,&elemZ0);CHKERRQ(ierr);
 	ierr = IGABeginElement(igachiUp,&elemchiUp);CHKERRQ(ierr);
 	ierr = IGABeginElement(igaS,&elemS);CHKERRQ(ierr);
+	ierr = IGABeginElement(igaZS,&elemZS);CHKERRQ(ierr);
 
 	while (IGANextElement(igaStress,elemStress)) 
 	{
 		IGANextElement(igaZ0,elemZ0);
 		IGANextElement(igachiUp,elemchiUp);
 		IGANextElement(igaS,elemS);
+		IGANextElement(igaZS,elemZS);
 
 		ierr = IGAElementGetWorkMat(elemStress,&KlocStress);CHKERRQ(ierr);
 		ierr = IGAElementGetWorkVec(elemStress,&FlocStress);CHKERRQ(ierr);
 		ierr = IGAElementGetValues(elemZ0,arrayZ0Stress,&Z0Stress);CHKERRQ(ierr);
 		ierr = IGAElementGetValues(elemchiUp,arrayChi0Stress,&Chi0Stress);CHKERRQ(ierr);
 		ierr = IGAElementGetValues(elemS,arraySStress,&SStress);CHKERRQ(ierr);
+		ierr = IGAElementGetValues(elemZS,arrayZSStress,&ZSStress);CHKERRQ(ierr);
 
 		// FormSystem loop
 		while (IGAElementNextFormSystem(elemStress,&wtfStress,&wtf2Stress)) 
@@ -3949,6 +3995,7 @@ int main(int argc, char *argv[]) {
 			ierr = IGAElementBeginPoint(elemZ0,&pointZ0);CHKERRQ(ierr);
 			ierr = IGAElementBeginPoint(elemchiUp,&pointchiUp);CHKERRQ(ierr);
 			ierr = IGAElementBeginPoint(elemS,&pointS);CHKERRQ(ierr);
+			ierr = IGAElementBeginPoint(elemZS,&pointZS);CHKERRQ(ierr);
 
 			while (IGAElementNextPoint(elemStress,pointStress))
 			{
@@ -3968,11 +4015,12 @@ int main(int argc, char *argv[]) {
 					IGAElementNextPoint(elemZ0,pointZ0);
 					IGAElementNextPoint(elemchiUp,pointchiUp);
 					IGAElementNextPoint(elemS,pointS);
+					IGAElementNextPoint(elemZS,pointZS);
 
 					ierr = IGAPointGetWorkMat(pointStress,&KpointStress);CHKERRQ(ierr);
 					ierr = IGAPointGetWorkVec(pointStress,&FpointStress);CHKERRQ(ierr);
 					//	   Stress(IGAPoint p,IGAPoint pChi,IGAPoint pZu,IGAPoint pS, PetscReal *K,PetscReal *F, PetscReal *Chi,PetscReal *Zu,PetscReal *S, void *ctx)
-					ierr = Stress(pointStress,pointchiUp,pointZ0,pointS,KpointStress,FpointStress,Chi0Stress,Z0Stress,SStress,NULL);CHKERRQ(ierr);
+					ierr = Stress(pointStress,pointchiUp,pointZ0,pointS,pointZS,KpointStress,FpointStress,Chi0Stress,Z0Stress,SStress,ZSStress,add_S,NULL);CHKERRQ(ierr);
 					ierr = IGAPointAddMat(pointStress,KpointStress,KlocStress);CHKERRQ(ierr);
 					ierr = IGAPointAddVec(pointStress,FpointStress,FlocStress);CHKERRQ(ierr);
 				}
@@ -3989,11 +4037,16 @@ int main(int argc, char *argv[]) {
 			{
 				IGAElementNextPoint(elemS,pointS);
 			}
+			while (pointZS->index != -1)
+			{
+				IGAElementNextPoint(elemZS,pointZS);
+			}
 
 			ierr = IGAElementEndPoint(elemStress,&pointStress);CHKERRQ(ierr);
 			ierr = IGAElementEndPoint(elemZ0,&pointZ0);CHKERRQ(ierr);
 			ierr = IGAElementEndPoint(elemchiUp,&pointchiUp);CHKERRQ(ierr);
 			ierr = IGAElementEndPoint(elemS,&pointS);CHKERRQ(ierr);
+			ierr = IGAElementEndPoint(elemZS,&pointZS);CHKERRQ(ierr);
 		}
 
 		//ierr = IGAElementFixSystem(elemStress,KlocStress,FlocStress);CHKERRQ(ierr);					//This sets Dirichlet condition ¿? (Yes, this applies the conditions from IGASetBoundaryValue)
@@ -4003,16 +4056,19 @@ int main(int argc, char *argv[]) {
 	IGANextElement(igaZ0,elemZ0);
 	IGANextElement(igachiUp,elemchiUp);
 	IGANextElement(igaS,elemS);
+	IGANextElement(igaZS,elemZS);
 
 	ierr = IGAEndElement(igaStress,&elemStress);CHKERRQ(ierr);
 	ierr = IGAEndElement(igaZ0,&elemZ0);CHKERRQ(ierr);
 	ierr = IGAEndElement(igachiUp,&elemchiUp);CHKERRQ(ierr);
 	ierr = IGAEndElement(igaS,&elemS);CHKERRQ(ierr);
+	ierr = IGAEndElement(igaZS,&elemZS);CHKERRQ(ierr);
 
 	// Restore local vectors u, Z0, Chi0 and arrays
 	ierr = IGARestoreLocalVecArray(igaZ0,Z0,&localZ0Stress,&arrayZ0Stress);CHKERRQ(ierr);
 	ierr = IGARestoreLocalVecArray(igachiUp,chiUp0,&localChi0Stress,&arrayChi0Stress);CHKERRQ(ierr);
 	ierr = IGARestoreLocalVecArray(igaS,s0,&localSStress,&arraySStress);CHKERRQ(ierr);
+	ierr = IGARestoreLocalVecArray(igaZS,ZS0,&localZSStress,&arrayZSStress);CHKERRQ(ierr);
 
 	ierr = MatAssemblyBegin(KStress,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
 	ierr = MatAssemblyEnd  (KStress,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
@@ -4038,7 +4094,6 @@ int main(int argc, char *argv[]) {
 	sprintf(pathStress,"%s%s",direct,nameStress);
 	ierr = IGAWriteVec(igaStress,sigma0,pathStress);CHKERRQ(ierr);	
 //
-*/
 
 /*
 //System for L2 projection of classic stress (C*Ue)

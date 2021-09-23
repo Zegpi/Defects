@@ -2199,7 +2199,6 @@ int main(int argc, char *argv[]) {
 	ierr = IGADestroy(&igaFullS);CHKERRQ(ierr);
 //
 
-/*
 //System for L2 projection of V^{alpha}
 	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for V-alpha starting \n\n");
 	T=time(NULL);
@@ -2364,6 +2363,7 @@ int main(int argc, char *argv[]) {
 	ierr = IGAWriteVec(igaVa,Va0,pathVa);CHKERRQ(ierr);
 //
 
+/*
 //System for L2 proyection of smoothed V^{alpha}
 	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for Int(V-alpha) starting \n\n");
 	T=time(NULL);

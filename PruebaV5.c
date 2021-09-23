@@ -1888,7 +1888,7 @@ int main(int argc, char *argv[]) {
 
 //App context creation and some data
 	//Mesh parameters (to fix specific points in z0 system)
-	PetscInt b=581;				//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
+	PetscInt b=1743;				//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
 	PetscReal Lx=80.0;
 	PetscReal Ly=80.0;
 	PetscInt  nx=b;
@@ -2620,6 +2620,7 @@ int main(int argc, char *argv[]) {
 	PC pcZ0;
 	ierr = KSPGetPC(kspZ0,&pcZ0);CHKERRQ(ierr);
 	
+	/*
 	//Uncomment this block for direct solver (LU + MUMPS)
 	ierr = PCSetType(pcZ0,PCLU); CHKERRQ(ierr);
 	ierr = PCFactorSetMatSolverType(pcZ0,MATSOLVERMUMPS); CHKERRQ(ierr);
@@ -2627,8 +2628,8 @@ int main(int argc, char *argv[]) {
 	ierr = KSPSetTolerances(kspZ0,1.0e-14,PETSC_DEFAULT,PETSC_DEFAULT,2000);CHKERRQ(ierr);
 	ierr = KSPSolve(kspZ0,FZ0,Z0);CHKERRQ(ierr);
 	//End of direct solver part
+	*/
 
-	/*
 	// Uncomment this block for iterative solver
 	T=time(NULL);
 	tm=*localtime(&T);
@@ -2689,7 +2690,6 @@ int main(int argc, char *argv[]) {
 	ierr = PetscPrintf(PETSC_COMM_WORLD,"\n True residual is %.8e \n\n",res);CHKERRQ(ierr);
 	ierr = VecDestroy(&resid_vec);CHKERRQ(ierr);
 	//End of iterative solver part
-	*/
 
 	//Destroy objects not needed anymore
 	ierr = KSPDestroy(&kspZ0);CHKERRQ(ierr);

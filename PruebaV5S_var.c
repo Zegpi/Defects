@@ -794,8 +794,11 @@ PetscReal delta(PetscInt i, PetscInt j)
 		f[1]=0.0;
 		f[2]=0.0;
 		PetscReal g[3]={0.0, 0.0, 0.0};			//Boundary load (applied wherever is defined in the p->atboundary block)
-		PetscReal M[3]={0.0, 0.0, 0.1};			//Distributed moment in body
+		PetscReal M[3]={0.0, 0.0, 1.0};			//Distributed moment in body
 		PetscReal h[3]={0.0, 0.0, 0.0};			//Boundary moment (applied wherever is defined in the p->atboundary block)
+
+		PetscReal Lagrange=1.0;				//This one modifies the 4th order part
+		PetscReal Lagrange2=1.0;
 		/////////////////////////////////////
 
 		//Definition of alternating tensor
@@ -910,9 +913,21 @@ PetscReal delta(PetscInt i, PetscInt j)
 							{
 								for(k=0; k<3;k++)
 								{
-									Feq[a][i]+=Sborde[j][k]*n[k]*v[j];
+									//Feq[a][i]+=Sborde[j][k]*n[k]*v[j];
 								}
 							}
+
+							for (k=0; k<3; k++)
+							{
+								for (l=0; l<3; l++)
+								{
+									for (u=0; u<3; u++)
+									{
+										Feq[a][i]+=Lagrange*h[k]*0.5*e[k][l][u]*dv[u][l];
+									}
+								}
+							}
+
 						}
 						if(side==1)
 						{
@@ -921,7 +936,18 @@ PetscReal delta(PetscInt i, PetscInt j)
 							{
 								for(k=0; k<3;k++)
 								{
-									Feq[a][i]+=Sborde[j][k]*n[k]*v[j];
+									//Feq[a][i]+=Sborde[j][k]*n[k]*v[j];
+								}
+							}
+
+							for (k=0; k<3; k++)
+							{
+								for (l=0; l<3; l++)
+								{
+									for (u=0; u<3; u++)
+									{
+										Feq[a][i]+=Lagrange*h[k]*0.5*e[k][l][u]*dv[u][l];
+									}
 								}
 							}
 						}
@@ -951,16 +977,16 @@ PetscReal delta(PetscInt i, PetscInt j)
 								//Feq[a][i]+=g[j]*v[j];
 							}
 
-							//for (r=0; r<3; r++)
-							//{
-							//	for (s=0; s<3; s++)
-							//	{
-							//		for (m=0; m<3; m++)
-							//		{
-							//			Feq[a][i]+=h[r]*0.5*e[r][s][m]*dv[m][s];
-							//		}
-							//	}
-							//}
+							for (k=0; k<3; k++)
+							{
+								for (l=0; l<3; l++)
+								{
+									for (u=0; u<3; u++)
+									{
+										//Feq[a][i]+=Lagrange*h[k]*0.5*e[k][l][u]*dv[u][l];
+									}
+								}
+							}
 						}
 					}
 				}
@@ -1038,7 +1064,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 									{
 										for (w=0; w<3; w++)
 										{
-											Keq[a][i][b][j]+=0.5*(C[k][l][u][w]*(-dz[u][w])+C[l][k][u][w]*(-dz[u][w]))*0.5*(dv[k][l]+dv[l][k]);
+											Keq[a][i][b][j]+=Lagrange2*0.5*(C[k][l][u][w]*(-dz[u][w])+C[l][k][u][w]*(-dz[u][w]))*0.5*(dv[k][l]+dv[l][k]);
 										}
 									}
 								}
@@ -1050,8 +1076,8 @@ PetscReal delta(PetscInt i, PetscInt j)
 								{
 									for (u=0; u<3; u++)
 									{
-										Keq[a][i][b][j]+= 0.5*eps*(-d2z[k][l][u]-d2z[l][k][u])*0.5*(d2v[k][l][u]+d2v[l][k][u])
-														 +0.5*eps*(-d2z[k][l][u]+d2z[l][k][u])*d2v[k][l][u];
+										Keq[a][i][b][j]+= Lagrange2*0.5*eps*(-d2z[k][l][u]-d2z[l][k][u])*0.5*(d2v[k][l][u]+d2v[l][k][u])
+														 +Lagrange*0.5*eps*(-d2z[k][l][u]+d2z[l][k][u])*d2v[k][l][u];
 									}
 								}
 							}
@@ -1063,8 +1089,8 @@ PetscReal delta(PetscInt i, PetscInt j)
 
 			for(a=0;a<nen;a++)
 			{
-				PetscReal Na=N0[a];
-				PetscReal Na_x=N1[a][0];		PetscReal Na_y=N1[a][1];
+				PetscReal Na    =N0[a];
+				PetscReal Na_x  =N1[a][0];		PetscReal Na_y  =N1[a][1];
 				PetscReal Na_xx =N2[a][0][0];	PetscReal Na_yy =N2[a][1][1];
 				PetscReal Na_xy =N2[a][0][1];	PetscReal Na_yx =N2[a][1][0];
 
@@ -1105,7 +1131,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 						{
 							for (u=0; u<3; u++)
 							{
-								Feq[a][i]+= -M[k]*e[k][l][u]*dv[u][l];
+								Feq[a][i]+= -Lagrange*0.5*M[k]*e[k][l][u]*dv[u][l];
 							}
 						}	
 					}
@@ -1118,7 +1144,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 							{
 								for (w=0; w<3; w++)
 								{
-									Feq[a][i]+=-0.5*(C[k][l][u][w]*(-fullChi[u][w])+C[l][k][u][w]*(-fullChi[u][w]))*0.5*(dv[k][l]+dv[l][k]);
+									Feq[a][i]+=-Lagrange2*0.5*(C[k][l][u][w]*(-fullChi[u][w])+C[l][k][u][w]*(-fullChi[u][w]))*0.5*(dv[k][l]+dv[l][k]);
 								}
 							}
 						}
@@ -1130,14 +1156,14 @@ PetscReal delta(PetscInt i, PetscInt j)
 						{
 							for (u=0; u<3; u++)
 							{
-								Feq[a][i]+=-0.25*eps*(-full_dChi[k][l][u]-full_dChi[k][u][l]-full_dChi[l][k][u]-full_dChi[l][u][k])*0.5*(d2v[k][l][u]+d2v[l][k][u])
-										   -0.25*eps*(-full_dChi[k][l][u]-full_dChi[k][u][l]+full_dChi[l][k][u]+full_dChi[l][u][k])*d2v[k][l][u]
+								Feq[a][i]+=-Lagrange2*0.25*eps*(-full_dChi[k][l][u]-full_dChi[k][u][l]-full_dChi[l][k][u]-full_dChi[l][u][k])*0.5*(d2v[k][l][u]+d2v[l][k][u])
+										   -Lagrange*0.25*eps*(-full_dChi[k][l][u]-full_dChi[k][u][l]+full_dChi[l][k][u]+full_dChi[l][u][k])*d2v[k][l][u]
 										   //Next part is the contribution from having S in the energy function
-										   -0.25*eps*(-fullS[k][l][u]-fullS[k][u][l]-fullS[l][k][u]-fullS[l][u][k])*0.5*(d2v[k][l][u]+d2v[l][k][u])
-										   -0.25*eps*(-fullS[k][l][u]-fullS[k][u][l]+fullS[l][k][u]+fullS[l][u][k])*d2v[k][l][u]
+										   -Lagrange2*0.25*eps*(-fullS[k][l][u]-fullS[k][u][l]-fullS[l][k][u]-fullS[l][u][k])*0.5*(d2v[k][l][u]+d2v[l][k][u])
+										   -Lagrange*0.25*eps*(-fullS[k][l][u]-fullS[k][u][l]+fullS[l][k][u]+fullS[l][u][k])*d2v[k][l][u]
 										   //Next part is the contribution of adding grad(Z) from the energy function, to turn J_hat into J
-										   -0.25*eps*(+fullGradZ[k][l][u]+fullGradZ[k][u][l]+fullGradZ[l][k][u]+fullGradZ[l][u][k])*0.5*(d2v[k][l][u]+d2v[l][k][u])
-										   -0.25*eps*(+fullGradZ[k][l][u]+fullGradZ[k][u][l]-fullGradZ[l][k][u]-fullGradZ[l][u][k])*d2v[k][l][u];
+										   -Lagrange2*0.25*eps*(+fullGradZ[k][l][u]+fullGradZ[k][u][l]+fullGradZ[l][k][u]+fullGradZ[l][u][k])*0.5*(d2v[k][l][u]+d2v[l][k][u])
+										   -Lagrange*0.25*eps*(+fullGradZ[k][l][u]+fullGradZ[k][u][l]-fullGradZ[l][k][u]-fullGradZ[l][u][k])*d2v[k][l][u];
 							}
 						}
 					}
@@ -1472,6 +1498,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 	}
 //
 */
+
 //System for L2 projection of stress (sym part)
 	#undef  __FUNCT__
 	#define __FUNCT__ "Stress"
@@ -1497,7 +1524,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=mu/10.0;														//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/100.0;														//Choose later based on whatever Amit says :)
 
 		PetscReal chi0[4];																	//Array to contain the vector chi(0)
 		PetscReal d2_Chi0[4][2][2];															//Same for its Hessian
@@ -1752,7 +1779,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		//const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		//const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=mu/10.0;															//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/100.0;															//Choose later based on whatever Amit says :)
 
 		//Definition of alternating tensor
 		const PetscReal e[3][3][3]=
@@ -1861,7 +1888,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=mu/10.0;															//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/100.0;															//Choose later based on whatever Amit says :)
 
 		//Definition of alternating tensor
 		//const PetscReal e[3][3][3]=
@@ -2105,7 +2132,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 
 		//Change to consider G=1
 		const PetscReal mu=1.0;
-		const PetscReal eps=mu/10.0;															//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/100.0;															//Choose later based on whatever Amit says :)
 
 		PetscReal d_Chi0[4][2];																//Same for its gradient
 		IGAPointFormGrad(pChi,Chi,&d_Chi0[0][0]);											//Assign grad chi to its container
@@ -2194,7 +2221,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=mu/10.0;															//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/100.0;															//Choose later based on whatever Amit says :)
 
 		PetscReal chi0[4];																	//Array to contain the vector chi(0)
 		PetscReal d2_Chi0[4][2][2];															//Same for its Hessian
@@ -2340,7 +2367,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=mu/10.0;															//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/100.0;															//Choose later based on whatever Amit says :)
 
 		//Definition of alternating tensor
 		const PetscReal e[3][3][3]=
@@ -2497,7 +2524,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=mu/10.0;														//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/100.0;														//Choose later based on whatever Amit says :)
 
 		PetscReal C[3][3][3][3]={0};
 		//Creation of elasticity tensor
@@ -3236,9 +3263,9 @@ int main(int argc, char *argv[]) {
 	ierr = IGACreate(PETSC_COMM_WORLD,&igaS);CHKERRQ(ierr);
 	ierr = IGASetDim(igaS,2);CHKERRQ(ierr);														//Spatial dimension of the problem
 	ierr = IGASetDof(igaS,8);CHKERRQ(ierr);														//Number of degrees of freedom, per node
-	ierr = IGASetOrder(igaS,1);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
+	ierr = IGASetOrder(igaS,2);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
 	ierr = IGASetFromOptions(igaS);CHKERRQ(ierr);												//Note: The order (or degree) of the shape functions is given by the mesh!
-	ierr = IGARead(igaS,"./geometry.dat");CHKERRQ(ierr);
+	ierr = IGARead(igaS,"./geometry2.dat");CHKERRQ(ierr);
 	
 	for (dir=0; dir<2; dir++)
 	{
@@ -3266,9 +3293,9 @@ int main(int argc, char *argv[]) {
 	ierr = IGACreate(PETSC_COMM_WORLD,&igachiS);CHKERRQ(ierr);
 	ierr = IGASetDim(igachiS,2);CHKERRQ(ierr);														//Spatial dimension of the problem
 	ierr = IGASetDof(igachiS,8);CHKERRQ(ierr);														//Number of degrees of freedom, per node
-	ierr = IGASetOrder(igachiS,1);CHKERRQ(ierr);														//Number of spatial derivatives to calculate
+	ierr = IGASetOrder(igachiS,2);CHKERRQ(ierr);														//Number of spatial derivatives to calculate
 	ierr = IGASetFromOptions(igachiS);CHKERRQ(ierr);													//Note: The order (or degree) of the shape functions is given by the mesh!
-	ierr = IGARead(igachiS,"./geometry.dat");CHKERRQ(ierr);
+	ierr = IGARead(igachiS,"./geometry2.dat");CHKERRQ(ierr);
 	
 	for (dir=0; dir<2; dir++)
 	{
@@ -3422,9 +3449,9 @@ int main(int argc, char *argv[]) {
 	ierr = IGACreate(PETSC_COMM_WORLD,&igaZS);CHKERRQ(ierr);
 	ierr = IGASetDim(igaZS,2);CHKERRQ(ierr);														//Spatial dimension of the problem
 	ierr = IGASetDof(igaZS,4);CHKERRQ(ierr);														//Number of degrees of freedom, per node
-	ierr = IGASetOrder(igaZS,1);CHKERRQ(ierr);														//Number of spatial derivatives to calculate
+	ierr = IGASetOrder(igaZS,2);CHKERRQ(ierr);														//Number of spatial derivatives to calculate
 	ierr = IGASetFromOptions(igaZS);CHKERRQ(ierr);													//Note: The order (or degree) of the shape functions is given by the mesh!
-	ierr = IGARead(igaZS,"./geometry.dat");CHKERRQ(ierr);
+	ierr = IGARead(igaZS,"./geometry2.dat");CHKERRQ(ierr);
 	
 	for (dir=0; dir<2; dir++)
 	{
@@ -3592,9 +3619,9 @@ int main(int argc, char *argv[]) {
 	ierr = IGACreate(PETSC_COMM_WORLD,&igaAl);CHKERRQ(ierr);
 	ierr = IGASetDim(igaAl,2);CHKERRQ(ierr);														//Spatial dimension of the problem
 	ierr = IGASetDof(igaAl,2);CHKERRQ(ierr);														//Number of degrees of freedom, per node
-	ierr = IGASetOrder(igaAl,1);CHKERRQ(ierr);														//Number of spatial derivatives to calculate
+	ierr = IGASetOrder(igaAl,2);CHKERRQ(ierr);														//Number of spatial derivatives to calculate
 	ierr = IGASetFromOptions(igaAl);CHKERRQ(ierr);													//Note: The order (or degree) of the shape functions is given by the mesh!
-	ierr = IGARead(igaAl,"./geometry.dat");CHKERRQ(ierr);
+	ierr = IGARead(igaAl,"./geometry2.dat");CHKERRQ(ierr);
 	
 	for (dir=0; dir<2; dir++)
 	{
@@ -3738,9 +3765,9 @@ int main(int argc, char *argv[]) {
 	ierr = IGACreate(PETSC_COMM_WORLD,&igachiUp);CHKERRQ(ierr);
 	ierr = IGASetDim(igachiUp,2);CHKERRQ(ierr);														//Spatial dimension of the problem
 	ierr = IGASetDof(igachiUp,4);CHKERRQ(ierr);														//Number of degrees of freedom, per node
-	ierr = IGASetOrder(igachiUp,2);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
+	ierr = IGASetOrder(igachiUp,3);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
 	ierr = IGASetFromOptions(igachiUp);CHKERRQ(ierr);												//Note: The order (or degree) of the shape functions is given by the mesh!
-	ierr = IGARead(igachiUp,"./geometry2.dat");CHKERRQ(ierr);
+	ierr = IGARead(igachiUp,"./geometry3.dat");CHKERRQ(ierr);
 	
 	for (dir=0; dir<2; dir++)
 	{
@@ -3873,9 +3900,9 @@ int main(int argc, char *argv[]) {
 	ierr = IGACreate(PETSC_COMM_WORLD,&igaZ0);CHKERRQ(ierr);
 	ierr = IGASetDim(igaZ0,2);CHKERRQ(ierr);													//Spatial dimension of the problem
 	ierr = IGASetDof(igaZ0,2);CHKERRQ(ierr);													//Number of degrees of freedom, per node
-	ierr = IGASetOrder(igaZ0,3);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
+	ierr = IGASetOrder(igaZ0,4);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
 	ierr = IGASetFromOptions(igaZ0);CHKERRQ(ierr);												//Note: The order (or degree) of the shape functions is given by the mesh!
-	ierr = IGARead(igaZ0,"./geometry3.dat");CHKERRQ(ierr);
+	ierr = IGARead(igaZ0,"./geometry4.dat");CHKERRQ(ierr);
 	
 	for (dir=0; dir<2; dir++)
 	{
@@ -3884,7 +3911,7 @@ int main(int argc, char *argv[]) {
 	}
 	ierr = IGASetUp(igaZ0);CHKERRQ(ierr);
 
-	PetscInt fijaPunto=1;																		//Fix a single point (1) or a side (chosen in blocks below)
+	PetscInt fijaPunto=0;																		//Fix a single point (1) or a side (chosen in blocks below)
 
 	for (dir=0; dir<2; dir++) 
 	{
@@ -3900,15 +3927,15 @@ int main(int argc, char *argv[]) {
 		//If we are not fixing a single point, set dirichlet conditions here
 		//ierr = IGASetBoundaryValue(iga,dir,side,dof,value);CHKERRQ(ierr);					// Dirichlet boundary conditions
 		ierr = IGASetBoundaryValue(igaZ0,0,0,0,0.0);CHKERRQ(ierr);	//Left side, 1st dof = 0
-		ierr = IGASetBoundaryValue(igaZ0,0,0,1,0.0);CHKERRQ(ierr);	//Left side, 2nd dof = 0
+		//ierr = IGASetBoundaryValue(igaZ0,0,0,1,0.0);CHKERRQ(ierr);	//Left side, 2nd dof = 0
 
 		ierr = IGASetBoundaryValue(igaZ0,0,1,0,0.0);CHKERRQ(ierr);	//Right side, 1st dof=0
-		ierr = IGASetBoundaryValue(igaZ0,0,1,1,0.0);CHKERRQ(ierr);	//Right side, 2nd dof=0
+		//ierr = IGASetBoundaryValue(igaZ0,0,1,1,0.0);CHKERRQ(ierr);	//Right side, 2nd dof=0
 
-		ierr = IGASetBoundaryValue(igaZ0,1,0,0,0.0);CHKERRQ(ierr);	//Bottom side, 1st dof=0
+		//ierr = IGASetBoundaryValue(igaZ0,1,0,0,0.0);CHKERRQ(ierr);	//Bottom side, 1st dof=0
 		ierr = IGASetBoundaryValue(igaZ0,1,0,1,0.0);CHKERRQ(ierr);	//Bottom side, 2nd dof=0
 		
-		ierr = IGASetBoundaryValue(igaZ0,1,1,0,0.0);CHKERRQ(ierr);	//Top side, 1st dof=0
+		//ierr = IGASetBoundaryValue(igaZ0,1,1,0,0.0);CHKERRQ(ierr);	//Top side, 1st dof=0
 		ierr = IGASetBoundaryValue(igaZ0,1,1,1,0.0);CHKERRQ(ierr);	//Top side, 2nd dof=0
 	}
 
@@ -3979,7 +4006,7 @@ int main(int argc, char *argv[]) {
 
 				if(pointchiUp->atboundary==1)
 				{
-					PetscPrintf(PETSC_COMM_WORLD,"Hola");
+					PetscPrintf(PETSC_COMM_WORLD,"Hola\n");
 				}
 
 				if(pointZ0->atboundary==0 && pointchiUp->atboundary==0 && pointS->atboundary==0)
@@ -4083,23 +4110,7 @@ int main(int argc, char *argv[]) {
 		{
 			filas_z[counter]=counter;
 			counter++;
-		}
-
-		//Fija la derivada du_1/dy en el borde de abajo, para restringir el giro
-		filas_z[counter]=counter;
-		counter++;
-		for(ind1=0;ind1<2*(nx+3)-1;ind1++)
-		{
-			filas_z[counter]=filas_z[counter-1]+2;
-			counter++;
-		}
-
-		//Fija la derivada du_1/dy en el borde de arriga, para restringir el giro
-		for(ind1=2*(nx+3)*(ny+0);ind1<2*(nx+3)*(ny+2);ind1=ind1+2)
-		{
-			filas_z[counter]=ind1;
-			counter++;
-		}
+		}		
 
 		//Fija el desplazamiento en el borde de arriba
 		for(ind1=2*(nx+3)*(ny+2);ind1<2*(nx+3)*(ny+3);ind1++)
@@ -4116,22 +4127,6 @@ int main(int argc, char *argv[]) {
 			counter=counter+2;	
 		}
 
-		//Fija la derivada du_2/dx en el borde izquierdo
-		for(ind1=2*(nx+3);ind1<2*(nx+3)*(ny+2);ind1=ind1+2*(nx+3))
-		{
-			filas_z[counter]=ind1+3;
-			filas_z[counter+1]=ind1+5;
-			counter=counter+2;	
-		}
-
-		//Fija la derivada du_2/dx en el borde drecho
-		for(ind1=4*(nx+3)-2;ind1<2*(nx+3)*(ny+3);ind1=ind1+2*(nx+3))
-		{
-			filas_z[counter]=ind1-1;
-			filas_z[counter+1]=ind1-3;
-			counter=counter+2;	
-		}
-
 		//Fija el borde derecho
 		for(ind1=4*(nx+3)-2;ind1<2*(nx+3)*(ny+3);ind1=ind1+2*(nx+3))
 		{
@@ -4139,6 +4134,42 @@ int main(int argc, char *argv[]) {
 			filas_z[counter+1]=ind1+1;
 			counter=counter+2;	
 		}
+
+		/*
+		//Fija la derivada en el borde de abajo, para restringir el giro
+		for(ind1=2*(nx+3)+1;ind1<6*(nx+3);ind1++)
+		{
+			filas_z[counter]=ind1;
+			counter++;
+		}
+
+		//Fija la derivada en el borde de arriba, para restringir el giro
+		for(ind1=2*(nx+3)*(ny+0);ind1<2*(nx+3)*(ny+2);ind1++)
+		{
+			filas_z[counter]=ind1;
+			counter++;
+		}
+
+		//Fija la derivada en el borde izquierdo
+		for(ind1=2*(nx+3);ind1<2*(nx+3)*(ny+2);ind1=ind1+2*(nx+3))
+		{
+			filas_z[counter]=ind1+2;
+			filas_z[counter+1]=ind1+3;
+			filas_z[counter+2]=ind1+4;
+			filas_z[counter+3]=ind1+5;
+			counter=counter+4;	
+		}
+
+		//Fija la derivada en el borde derecho
+		for(ind1=4*(nx+3)-2;ind1<2*(nx+3)*(ny+3);ind1=ind1+2*(nx+3))
+		{
+			filas_z[counter]=ind1-1;
+			filas_z[counter+1]=ind1-2;
+			filas_z[counter+2]=ind1-3;
+			filas_z[counter+3]=ind1-4;
+			counter=counter+4;	
+		}
+		*/
 
 		ierr = PetscPrintf(PETSC_COMM_WORLD,"Counter llego a %d \n",counter);CHKERRQ(ierr);
 		ierr = PetscPrintf(PETSC_COMM_WORLD,"El ultimo valor en filas_z es %d \n",filas_z[counter-1]);CHKERRQ(ierr);
@@ -4202,7 +4233,7 @@ int main(int argc, char *argv[]) {
 	ierr = PCSetType(pcZ0,PCLU); CHKERRQ(ierr);
 	ierr = PCFactorSetMatSolverType(pcZ0,MATSOLVERMUMPS); CHKERRQ(ierr);
 	ierr = KSPSetFromOptions(kspZ0);CHKERRQ(ierr);
-	ierr = KSPSetTolerances(kspZ0,1.0e-18,PETSC_DEFAULT,PETSC_DEFAULT,2000);CHKERRQ(ierr);
+	ierr = KSPSetTolerances(kspZ0,1.0e-13,PETSC_DEFAULT,PETSC_DEFAULT,2000);CHKERRQ(ierr);
 	ierr = KSPSolve(kspZ0,FZ0,Z0);CHKERRQ(ierr);
 	//End of direct solver part
 
@@ -4264,6 +4295,20 @@ int main(int argc, char *argv[]) {
 	PetscReal res;
 
 	ierr = MatMult(KZ0,Z0,resid_vec);CHKERRQ(ierr);
+
+	//This writes KZ0*Z0 and FZ0 to a file, so we can see what it looks like
+	char nameAx[]="/Ax-2d-0.dat";
+	char pathAx[512];
+	sprintf(pathAx,"%s%s",direct,nameAx);
+	ierr = IGAWriteVec(igaZ0,resid_vec,pathAx);CHKERRQ(ierr);	
+
+	char name_b[]="/b-2d-0.dat";
+	char path_b[512];
+	sprintf(path_b,"%s%s",direct,name_b);
+	ierr = IGAWriteVec(igaZ0,FZ0,path_b);CHKERRQ(ierr);
+
+	//
+
 	ierr = VecAXPY(resid_vec,-1.0,FZ0);CHKERRQ(ierr);
 	ierr = VecNorm(resid_vec,NORM_2,&res);CHKERRQ(ierr);
 
