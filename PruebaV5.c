@@ -405,7 +405,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=0.0*mu/10.0;								//Choose later based on whatever Amit says :)
+		const PetscReal eps=mu/100.0;								//Choose later based on whatever Amit says :)
 
 		PetscReal Chi0[4];																	//Assign chi(t) to a vector
 		PetscReal dChi0[4][2];																//Same for partial derivatives
@@ -480,7 +480,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 			//PetscReal Omega=tan(5.0/180.0*ConstPi);
 			//PetscReal rho=sqrt(x[0]*x[0]+x[1]*x[1]);
 			//const PetscReal burgers[2]={1.0,0.0};
-			PetscReal burgers=1.0;
+			//PetscReal burgers=1.0/7.0;
 
 			//Stress for single disclination
 			//Sborde[0][0]=mu*Omega/(2.0*ConstPi*(1.0-nu))*(log(rho)+(x[1]*x[1])/(rho*rho)+nu/(1.0-2.0*nu));
@@ -490,11 +490,11 @@ PetscReal delta(PetscInt i, PetscInt j)
 			//Sborde[0][2]=0.0; Sborde[1][2]=0.0; Sborde[2][0]=0.0; Sborde[2][1]=0.0; Sborde[2][2]=0.0;
 
 			//Stress for single dislocation
-			Sborde[0][0]=-mu*burgers/(ConstPi*(1.0-nu))/2.0*x[1]*(x[1]*x[1]+3*x[0]*x[0])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
-			Sborde[0][1]=-mu*burgers/(ConstPi*(1.0-nu))/2.0*x[0]*(x[1]*x[1]-x[0]*x[0])  /((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
-			Sborde[1][0]=-mu*burgers/(ConstPi*(1.0-nu))/2.0*x[0]*(x[1]*x[1]-x[0]*x[0])  /((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
-			Sborde[1][1]=-mu*burgers/(ConstPi*(1.0-nu))/2.0*x[1]*(x[1]*x[1]-x[0]*x[0])  /((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
-			Sborde[0][2]=0.0; Sborde[1][2]=0.0; Sborde[2][0]=0.0; Sborde[2][1]=0.0; Sborde[2][2]=0.0;
+			//Sborde[0][0]=-mu*burgers/(ConstPi*(1.0-nu))/2.0*x[1]*(x[1]*x[1]+3*x[0]*x[0])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
+			//Sborde[0][1]=-mu*burgers/(ConstPi*(1.0-nu))/2.0*x[0]*(x[1]*x[1]-x[0]*x[0])  /((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
+			//Sborde[1][0]=-mu*burgers/(ConstPi*(1.0-nu))/2.0*x[0]*(x[1]*x[1]-x[0]*x[0])  /((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
+			//Sborde[1][1]=-mu*burgers/(ConstPi*(1.0-nu))/2.0*x[1]*(x[1]*x[1]-x[0]*x[0])  /((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
+			//Sborde[0][2]=0.0; Sborde[1][2]=0.0; Sborde[2][0]=0.0; Sborde[2][1]=0.0; Sborde[2][2]=0.0;
 
 			//When b in y axis
 			//Sborde[0][0]=-mu*burgers/(ConstPi*(1.0-nu))/2.0*-x[0]*(x[0]*x[0]+3.0*x[1]*x[1])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
@@ -504,22 +504,47 @@ PetscReal delta(PetscInt i, PetscInt j)
 			//Sborde[0][2]=0.0; Sborde[1][2]=0.0; Sborde[2][0]=0.0; Sborde[2][1]=0.0; Sborde[2][2]=0.0;
 
 			//General dislocation
-			//Sborde[0][0]=-mu*burgers[0]/(ConstPi*(1.0-nu))/2.0*x[1]*(x[1]*x[1]+3*x[0]*x[0])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]))
-			// 			 -mu*burgers[1]/(ConstPi*(1.0-nu))/2.0*-x[0]*(x[0]*x[0]+3.0*x[1]*x[1])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
-			//Sborde[0][1]=-mu*burgers[0]/(ConstPi*(1.0-nu))/2.0*x[0]*(x[1]*x[1]-x[0]*x[0])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]))
-			// 			 -mu*burgers[1]/(ConstPi*(1.0-nu))/2.0*x[1]*(x[0]*x[0]-x[1]*x[1])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
-			//Sborde[1][0]=-mu*burgers[0]/(ConstPi*(1.0-nu))/2.0*x[0]*(x[1]*x[1]-x[0]*x[0])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]))
-			// 			 -mu*burgers[1]/(ConstPi*(1.0-nu))/2.0*x[1]*(x[0]*x[0]-x[1]*x[1])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
-			//Sborde[1][1]=-mu*burgers[0]/(ConstPi*(1.0-nu))/2.0*x[1]*(x[1]*x[1]-x[0]*x[0])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]))
-			// 			 -mu*burgers[1]/(ConstPi*(1.0-nu))/2.0*-x[0]*(x[0]*x[0]-x[1]*x[1])/((x[0]*x[0]+x[1]*x[1])*(x[0]*x[0]+x[1]*x[1]));
-			//Sborde[0][2]=0.0; Sborde[1][2]=0.0; Sborde[2][0]=0.0; Sborde[2][1]=0.0; Sborde[2][2]=0.0;
+			/*
+			PetscInt M=-35;
+			PetscReal dist_small_core=(double)M*80.0/1743.0;
+
+			Sborde[0][0]=-mu*burgers/(ConstPi*(1.0-nu))/2.0*(x[1]-0.5)*((x[1]-0.5)*(x[1]-0.5)+3*x[0]*x[0])/((x[0]*x[0]+(x[1]-0.5)*(x[1]-0.5))*(x[0]*x[0]+(x[1]-0.5)*(x[1]-0.5)))
+						 -mu*burgers/(ConstPi*(1.0-nu))/2.0*(x[1]-1.5)*((x[1]-1.0)*(x[1]-1.0)+3*x[0]*x[0])/((x[0]*x[0]+(x[1]-1.0)*(x[1]-1.0))*(x[0]*x[0]+(x[1]-1.0)*(x[1]-1.0)))
+						 -mu*burgers/(ConstPi*(1.0-nu))/2.0*(x[1]-2.5)*((x[1]-1.5)*(x[1]-1.5)+3*x[0]*x[0])/((x[0]*x[0]+(x[1]-1.5)*(x[1]-1.5))*(x[0]*x[0]+(x[1]-1.5)*(x[1]-1.5)))
+						 -mu*burgers/(ConstPi*(1.0-nu))/2.0*(x[1]+0.5)*((x[1]+0.5)*(x[1]+0.5)+3*x[0]*x[0])/((x[0]*x[0]+(x[1]+0.5)*(x[1]+0.5))*(x[0]*x[0]+(x[1]+0.5)*(x[1]+0.5)))
+						 -mu*burgers/(ConstPi*(1.0-nu))/2.0*(x[1]+1.5)*((x[1]+1.0)*(x[1]+1.0)+3*x[0]*x[0])/((x[0]*x[0]+(x[1]+1.0)*(x[1]+1.0))*(x[0]*x[0]+(x[1]+1.0)*(x[1]+1.0)))
+						 -mu*burgers/(ConstPi*(1.0-nu))/2.0*(x[1]+2.5)*((x[1]+1.5)*(x[1]+1.5)+3*x[0]*x[0])/((x[0]*x[0]+(x[1]+1.5)*(x[1]+1.5))*(x[0]*x[0]+(x[1]+1.5)*(x[1]+1.5)))
+						 -mu*burgers/(ConstPi*(1.0-nu))/2.0*(x[1]+3.5)*((x[1]+3.5)*(x[1]+3.5)+3*(x[0]+dist_small_core)*(x[0]+dist_small_core))/(((x[0]+dist_small_core)*(x[0]+dist_small_core)+(x[1]+3.5)*(x[1]+3.5))*((x[0]+dist_small_core)*(x[0]+dist_small_core)+(x[1]+3.5)*(x[1]+3.5)));		//Este es el núcleo solitario
+			Sborde[0][1]=-mu*burgers/(ConstPi*(1.0-nu))/2.0*x[0]*((x[1]-0.5)*(x[1]-0.5)-x[0]*x[0])  /((x[0]*x[0]+(x[1]-0.5)*(x[1]-0.5))*(x[0]*x[0]+(x[1]-0.5)*(x[1]-0.5)))
+						 -mu*burgers/(ConstPi*(1.0-nu))/2.0*x[0]*((x[1]-1.5)*(x[1]-1.5)-x[0]*x[0])  /((x[0]*x[0]+(x[1]-1.5)*(x[1]-1.5))*(x[0]*x[0]+(x[1]-1.5)*(x[1]-1.5)))
+						 -mu*burgers/(ConstPi*(1.0-nu))/2.0*x[0]*((x[1]-2.5)*(x[1]-2.5)-x[0]*x[0])  /((x[0]*x[0]+(x[1]-2.5)*(x[1]-2.5))*(x[0]*x[0]+(x[1]-2.5)*(x[1]-2.5)))
+						 -mu*burgers/(ConstPi*(1.0-nu))/2.0*x[0]*((x[1]+0.5)*(x[1]+0.5)-x[0]*x[0])  /((x[0]*x[0]+(x[1]+0.5)*(x[1]+0.5))*(x[0]*x[0]+(x[1]+0.5)*(x[1]+0.5)))
+						 -mu*burgers/(ConstPi*(1.0-nu))/2.0*x[0]*((x[1]+1.5)*(x[1]+1.5)-x[0]*x[0])  /((x[0]*x[0]+(x[1]+1.5)*(x[1]+1.5))*(x[0]*x[0]+(x[1]+1.5)*(x[1]+1.5)))
+						 -mu*burgers/(ConstPi*(1.0-nu))/2.0*x[0]*((x[1]+2.5)*(x[1]+2.5)-x[0]*x[0])  /((x[0]*x[0]+(x[1]+2.5)*(x[1]+2.5))*(x[0]*x[0]+(x[1]+2.5)*(x[1]+2.5)))
+						 -mu*burgers/(ConstPi*(1.0-nu))/2.0*(x[0]+dist_small_core)*((x[1]+3.5)*(x[1]+3.5)-(x[0]+dist_small_core)*(x[0]+dist_small_core))  /(((x[0]+dist_small_core)*(x[0]+dist_small_core)+(x[1]+3.5)*(x[1]+3.5))*((x[0]+dist_small_core)*(x[0]+dist_small_core)+(x[1]+3.5)*(x[1]+3.5)));
+			Sborde[1][0]=-mu*burgers/(ConstPi*(1.0-nu))/2.0*x[0]*((x[1]-0.5)*(x[1]-0.5)-x[0]*x[0])  /((x[0]*x[0]+(x[1]-0.5)*(x[1]-0.5))*(x[0]*x[0]+(x[1]-0.5)*(x[1]-0.5)))
+						 -mu*burgers/(ConstPi*(1.0-nu))/2.0*x[0]*((x[1]-1.5)*(x[1]-1.5)-x[0]*x[0])  /((x[0]*x[0]+(x[1]-1.5)*(x[1]-1.5))*(x[0]*x[0]+(x[1]-1.5)*(x[1]-1.5)))
+						 -mu*burgers/(ConstPi*(1.0-nu))/2.0*x[0]*((x[1]-2.5)*(x[1]-2.5)-x[0]*x[0])  /((x[0]*x[0]+(x[1]-2.5)*(x[1]-2.5))*(x[0]*x[0]+(x[1]-2.5)*(x[1]-2.5)))
+						 -mu*burgers/(ConstPi*(1.0-nu))/2.0*x[0]*((x[1]+0.5)*(x[1]+0.5)-x[0]*x[0])  /((x[0]*x[0]+(x[1]+0.5)*(x[1]+0.5))*(x[0]*x[0]+(x[1]+0.5)*(x[1]+0.5)))
+						 -mu*burgers/(ConstPi*(1.0-nu))/2.0*x[0]*((x[1]+1.5)*(x[1]+1.5)-x[0]*x[0])  /((x[0]*x[0]+(x[1]+1.5)*(x[1]+1.5))*(x[0]*x[0]+(x[1]+1.5)*(x[1]+1.5)))
+						 -mu*burgers/(ConstPi*(1.0-nu))/2.0*x[0]*((x[1]+2.5)*(x[1]+2.5)-x[0]*x[0])  /((x[0]*x[0]+(x[1]+2.5)*(x[1]+2.5))*(x[0]*x[0]+(x[1]+2.5)*(x[1]+2.5)))
+						 -mu*burgers/(ConstPi*(1.0-nu))/2.0*(x[0]+dist_small_core)*((x[1]+3.5)*(x[1]+3.5)-(x[0]+dist_small_core)*(x[0]+dist_small_core))  /(((x[0]+dist_small_core)*(x[0]+dist_small_core)+(x[1]+3.5)*(x[1]+3.5))*((x[0]+dist_small_core)*(x[0]+dist_small_core)+(x[1]+3.5)*(x[1]+3.5)));;
+			Sborde[1][1]=-mu*burgers/(ConstPi*(1.0-nu))/2.0*(x[1]-0.5)*((x[1]-0.5)*(x[1]-0.5)-x[0]*x[0])  /((x[0]*x[0]+(x[1]-0.5)*(x[1]-0.5))*(x[0]*x[0]+(x[1]-0.5)*(x[1]-0.5)))
+						 -mu*burgers/(ConstPi*(1.0-nu))/2.0*(x[1]-1.5)*((x[1]-1.5)*(x[1]-1.5)-x[0]*x[0])  /((x[0]*x[0]+(x[1]-1.5)*(x[1]-1.5))*(x[0]*x[0]+(x[1]-1.5)*(x[1]-1.5)))
+						 -mu*burgers/(ConstPi*(1.0-nu))/2.0*(x[1]-2.5)*((x[1]-2.5)*(x[1]-2.5)-x[0]*x[0])  /((x[0]*x[0]+(x[1]-2.5)*(x[1]-2.5))*(x[0]*x[0]+(x[1]-2.5)*(x[1]-2.5)))
+						 -mu*burgers/(ConstPi*(1.0-nu))/2.0*(x[1]+0.5)*((x[1]+0.5)*(x[1]+0.5)-x[0]*x[0])  /((x[0]*x[0]+(x[1]+0.5)*(x[1]+0.5))*(x[0]*x[0]+(x[1]+0.5)*(x[1]+0.5)))
+						 -mu*burgers/(ConstPi*(1.0-nu))/2.0*(x[1]+1.5)*((x[1]+1.5)*(x[1]+1.5)-x[0]*x[0])  /((x[0]*x[0]+(x[1]+1.5)*(x[1]+1.5))*(x[0]*x[0]+(x[1]+1.5)*(x[1]+1.5)))
+						 -mu*burgers/(ConstPi*(1.0-nu))/2.0*(x[1]+2.5)*((x[1]+2.5)*(x[1]+2.5)-x[0]*x[0])  /((x[0]*x[0]+(x[1]+2.5)*(x[1]+2.5))*(x[0]*x[0]+(x[1]+2.5)*(x[1]+2.5)))
+						 -mu*burgers/(ConstPi*(1.0-nu))/2.0*(x[1]+3.5)*((x[1]+3.5)*(x[1]+3.5)-(x[0]+dist_small_core)*(x[0]+dist_small_core))  /(((x[0]+dist_small_core)*(x[0]+dist_small_core)+(x[1]+3.5)*(x[1]+3.5))*((x[0]+dist_small_core)*(x[0]+dist_small_core)+(x[1]+3.5)*(x[1]+3.5)));
+			Sborde[0][2]=0.0; Sborde[1][2]=0.0; Sborde[2][0]=0.0; Sborde[2][1]=0.0; Sborde[2][2]=0.0;
+			*/
 
 			//No stress in boundary
-			//Sborde[0][0]=0.0;
-			//Sborde[0][1]=0.0;
-			//Sborde[1][0]=0.0;
-			//Sborde[1][1]=0.0;
-			//Sborde[0][2]=0.0; Sborde[1][2]=0.0; Sborde[2][0]=0.0; Sborde[2][1]=0.0; Sborde[2][2]=0.0;
+			Sborde[0][0]=0.0;
+			Sborde[0][1]=0.0;
+			Sborde[1][0]=0.0;
+			Sborde[1][1]=0.0;
+			Sborde[0][2]=0.0; Sborde[1][2]=0.0; Sborde[2][0]=0.0; Sborde[2][1]=0.0; Sborde[2][2]=0.0;
 
 			PetscInt dir  = p->boundary_id / 2;
 			PetscInt side = p->boundary_id % 2;
@@ -785,7 +810,6 @@ PetscReal delta(PetscInt i, PetscInt j)
 							}
 						}
 					}
-
 				}
 			}
 		}
@@ -1888,7 +1912,7 @@ int main(int argc, char *argv[]) {
 
 //App context creation and some data
 	//Mesh parameters (to fix specific points in z0 system)
-	PetscInt b=1743;				//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
+	PetscInt b=301;				//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
 	PetscReal Lx=80.0;
 	PetscReal Ly=80.0;
 	PetscInt  nx=b;

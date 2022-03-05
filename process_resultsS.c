@@ -110,15 +110,15 @@ PetscReal delta(PetscInt i, PetscInt j)
 		IGAPointFormValue(pGradZ,UgradZ,&Zs[0]);
 		IGAPointFormHess (pGradZ,UgradZ,&d2_GradZ[0][0][0]);								//This is the 3-rd order tensor Z_{i,kl} (remember that we are storing Z_{mn} as a column vector Z_{i})
 
-		PetscReal fullZs[3][3]={0};
-		fullZs[0][0]=Zs[0];		fullZs[0][1]=Zs[1];
-		fullZs[1][0]=Zs[2];		fullZs[1][1]=Zs[3];
+		PetscReal full_ZS[3][3]={0};
+		full_ZS[0][0]=Zs[0];		full_ZS[0][1]=Zs[1];
+		full_ZS[1][0]=Zs[2];		full_ZS[1][1]=Zs[3];
 
-		PetscReal fulld_GradZ[3][3][3][3]={0};
-		fulld_GradZ[0][0][0][0]=d2_GradZ[0][0][0]; fulld_GradZ[0][0][0][1]=d2_GradZ[0][0][1]; fulld_GradZ[0][0][1][0]=d2_GradZ[0][1][0]; fulld_GradZ[0][0][1][1]=d2_GradZ[0][1][1];
-		fulld_GradZ[0][1][0][0]=d2_GradZ[1][0][0]; fulld_GradZ[0][1][0][1]=d2_GradZ[1][0][1]; fulld_GradZ[0][1][1][0]=d2_GradZ[1][1][0]; fulld_GradZ[0][1][1][1]=d2_GradZ[1][1][1];
-		fulld_GradZ[1][0][0][0]=d2_GradZ[2][0][0]; fulld_GradZ[1][0][0][1]=d2_GradZ[2][0][1]; fulld_GradZ[1][0][1][0]=d2_GradZ[2][1][0]; fulld_GradZ[1][0][1][1]=d2_GradZ[2][1][1];
-		fulld_GradZ[1][1][0][0]=d2_GradZ[3][0][0]; fulld_GradZ[1][1][0][1]=d2_GradZ[3][0][1]; fulld_GradZ[1][1][1][0]=d2_GradZ[3][1][0]; fulld_GradZ[1][1][1][1]=d2_GradZ[3][1][1];
+		PetscReal fulld_ZS[3][3][3][3]={0};
+		fulld_ZS[0][0][0][0]=d2_GradZ[0][0][0]; fulld_ZS[0][0][0][1]=d2_GradZ[0][0][1]; fulld_ZS[0][0][1][0]=d2_GradZ[0][1][0]; fulld_ZS[0][0][1][1]=d2_GradZ[0][1][1];
+		fulld_ZS[0][1][0][0]=d2_GradZ[1][0][0]; fulld_ZS[0][1][0][1]=d2_GradZ[1][0][1]; fulld_ZS[0][1][1][0]=d2_GradZ[1][1][0]; fulld_ZS[0][1][1][1]=d2_GradZ[1][1][1];
+		fulld_ZS[1][0][0][0]=d2_GradZ[2][0][0]; fulld_ZS[1][0][0][1]=d2_GradZ[2][0][1]; fulld_ZS[1][0][1][0]=d2_GradZ[2][1][0]; fulld_ZS[1][0][1][1]=d2_GradZ[2][1][1];
+		fulld_ZS[1][1][0][0]=d2_GradZ[3][0][0]; fulld_ZS[1][1][0][1]=d2_GradZ[3][0][1]; fulld_ZS[1][1][1][0]=d2_GradZ[3][1][0]; fulld_ZS[1][1][1][1]=d2_GradZ[3][1][1];
 
 		PetscReal (*Kstress)[dof][nen][dof] = (typeof(Kstress)) K;
 		PetscReal (*Fstress)[dof] = (PetscReal (*)[dof])F;
@@ -187,18 +187,17 @@ PetscReal delta(PetscInt i, PetscInt j)
 					{
 						for(l=0;l<3;l++)
 						{
+							//Chi y z ya consideran si viene S o S^perp. así que (al menos para la parte sin couple-stress) no hay cambios en la formulación, ver si vale la pena arreglarlo
 							if(add_S==0)
 							{
-								//Fstress[a][i]+=0.5*(C[m][n][k][l]*(-fulld_z[k][l]-fullChi[k][l])+C[n][m][k][l]*(-fulld_z[k][l]-fullChi[k][l]))*v[m][n];								//This is for Ue_hat
-								//Fstress[a][i]+=0.5*(C[m][n][k][l]*(-fulld_z[k][l]-fullChi[k][l]+fullZs[k][l])+C[n][m][k][l]*(-fulld_z[k][l]-fullChi[k][l]+fullZs[k][l]))*v[m][n];		//This is for Ue
+								Fstress[a][i]+=0.5*(C[m][n][k][l]*(-fulld_z[k][l]-fullChi[k][l])+C[n][m][k][l]*(-fulld_z[k][l]-fullChi[k][l]))*v[m][n];
+								//Fstress[a][i]+=0.5*(C[m][n][k][l]*(-fulld_z[k][l]-fullChi[k][l]+full_ZS[k][l])+C[n][m][k][l]*(-fulld_z[k][l]-fullChi[k][l]+full_ZS[k][l]))*v[m][n];
 							}
 							if(add_S==1)
 							{
-								//Fstress[a][i]+=0.5*(C[m][n][k][l]*(-fulld_z[k][l]-fullChi[k][l])+C[n][m][k][l]*(-fulld_z[k][l]-fullChi[k][l]))*v[m][n];								//This is for Ue
-								Fstress[a][i]+=0.5*(C[m][n][k][l]*(-fulld_z[k][l]-fullChi[k][l]+fullZs[k][l])+C[n][m][k][l]*(-fulld_z[k][l]-fullChi[k][l]+fullZs[k][l]))*v[m][n];		//This is for Ue_hat
+								Fstress[a][i]+=0.5*(C[m][n][k][l]*(-fulld_z[k][l]-fullChi[k][l])+C[n][m][k][l]*(-fulld_z[k][l]-fullChi[k][l]))*v[m][n];
+								//Fstress[a][i]+=0.5*(C[m][n][k][l]*(-fulld_z[k][l]-fullChi[k][l]-full_ZS[k][l])+C[n][m][k][l]*(-fulld_z[k][l]-fullChi[k][l]-full_ZS[k][l]))*v[m][n];
 							}
-
-							
 						}
 						//Recall that psi=1/2*Ue_hat*C*Ue_hat+1/2*eps*(S-J)*(S-J) (no hat in J), J=grad(Ue) and Ue=Ue_hat+Z 
 						Fstress[a][i]+= -0.25*eps*(-fulld3_z[m][n][k][k]-fulld2_Chi[m][n][k][k]-fulld3_z[m][k][n][k]-fulld2_Chi[m][k][n][k]
@@ -206,8 +205,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 						//Next part is the contribution from having S in the energy function
 						Fstress[a][i]+= -0.25*eps*(-fulld_S[m][n][k][k]-fulld_S[m][k][n][k]-fulld_S[n][m][k][k]-fulld_S[n][k][m][k])*v[m][n];
 						//Next part is the contribution of adding grad(Z) from the energy function, to turn J_hat into J
-						//Fstress[a][i]+= -0.25*eps*(+fulld_GradZ[m][n][k][k]+fulld_GradZ[m][k][n][k]+fulld_GradZ[n][m][k][k]+fulld_GradZ [n][k][m][k])*v[m][n];
-
+						Fstress[a][i]+= -0.25*eps*(+fulld_ZS[m][n][k][k]+fulld_ZS[m][k][n][k]+fulld_ZS[n][m][k][k]+fulld_ZS[n][k][m][k])*v[m][n];
 					}
 				}
 			}
@@ -458,7 +456,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=mu/100.0;															//Choose later based on whatever Amit says :)
+		const PetscReal eps=0.0*mu/100.0;															//Choose later based on whatever Amit says :)
 
 		PetscReal C[3][3][3][3]={0};
 		for (i=0; i<3; i++)
@@ -2429,7 +2427,7 @@ int main(int argc, char *argv[]) {
 	ierr = IGACreate(PETSC_COMM_WORLD,&igachiUp);CHKERRQ(ierr);
 	ierr = IGASetDim(igachiUp,2);CHKERRQ(ierr);														//Spatial dimension of the problem
 	ierr = IGASetDof(igachiUp,4);CHKERRQ(ierr);														//Number of degrees of freedom, per node
-	ierr = IGASetOrder(igachiUp,3);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
+	ierr = IGASetOrder(igachiUp,2);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
 	ierr = IGASetFromOptions(igachiUp);CHKERRQ(ierr);												//Note: The order (or degree) of the shape functions is given by the mesh!
 	ierr = IGARead(igachiUp,"./geometry2.dat");CHKERRQ(ierr);
 	
@@ -2452,7 +2450,7 @@ int main(int argc, char *argv[]) {
 	ierr = IGACreate(PETSC_COMM_WORLD,&igaZ0);CHKERRQ(ierr);
 	ierr = IGASetDim(igaZ0,2);CHKERRQ(ierr);													//Spatial dimension of the problem
 	ierr = IGASetDof(igaZ0,2);CHKERRQ(ierr);													//Number of degrees of freedom, per node
-	ierr = IGASetOrder(igaZ0,4);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
+	ierr = IGASetOrder(igaZ0,3);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
 	ierr = IGASetFromOptions(igaZ0);CHKERRQ(ierr);												//Note: The order (or degree) of the shape functions is given by the mesh!
 	ierr = IGARead(igaZ0,"./geometry3.dat");CHKERRQ(ierr);
 	
@@ -2475,7 +2473,7 @@ int main(int argc, char *argv[]) {
 	ierr = IGACreate(PETSC_COMM_WORLD,&igaAl);CHKERRQ(ierr);
 	ierr = IGASetDim(igaAl,2);CHKERRQ(ierr);														//Spatial dimension of the problem
 	ierr = IGASetDof(igaAl,2);CHKERRQ(ierr);														//Number of degrees of freedom, per node
-	ierr = IGASetOrder(igaAl,2);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
+	ierr = IGASetOrder(igaAl,1);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
 	ierr = IGASetFromOptions(igaAl);CHKERRQ(ierr);												//Note: The order (or degree) of the shape functions is given by the mesh!
 	ierr = IGARead(igaAl,"./geometry.dat");CHKERRQ(ierr);
 	
@@ -2507,7 +2505,7 @@ int main(int argc, char *argv[]) {
 	ierr = IGACreate(PETSC_COMM_WORLD,&igaS);CHKERRQ(ierr);
 	ierr = IGASetDim(igaS,2);CHKERRQ(ierr);														//Spatial dimension of the problem
 	ierr = IGASetDof(igaS,8);CHKERRQ(ierr);														//Number of degrees of freedom, per node
-	ierr = IGASetOrder(igaS,2);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
+	ierr = IGASetOrder(igaS,1);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
 	ierr = IGASetFromOptions(igaS);CHKERRQ(ierr);												//Note: The order (or degree) of the shape functions is given by the mesh!
 	ierr = IGARead(igaS,"./geometry.dat");CHKERRQ(ierr);
 	
@@ -2530,7 +2528,7 @@ int main(int argc, char *argv[]) {
 	ierr = IGACreate(PETSC_COMM_WORLD,&igaZS);CHKERRQ(ierr);
 	ierr = IGASetDim(igaZS,2);CHKERRQ(ierr);														//Spatial dimension of the problem
 	ierr = IGASetDof(igaZS,4);CHKERRQ(ierr);														//Number of degrees of freedom, per node
-	ierr = IGASetOrder(igaZS,2);CHKERRQ(ierr);														//Number of spatial derivatives to calculate
+	ierr = IGASetOrder(igaZS,1);CHKERRQ(ierr);														//Number of spatial derivatives to calculate
 	ierr = IGASetFromOptions(igaZS);CHKERRQ(ierr);													//Note: The order (or degree) of the shape functions is given by the mesh!
 	ierr = IGARead(igaZS,"./geometry.dat");CHKERRQ(ierr);
 	
@@ -2553,7 +2551,7 @@ int main(int argc, char *argv[]) {
 	ierr = IGACreate(PETSC_COMM_WORLD,&igaChiS);CHKERRQ(ierr);
 	ierr = IGASetDim(igaChiS,2);CHKERRQ(ierr);													//Spatial dimension of the problem
 	ierr = IGASetDof(igaChiS,8);CHKERRQ(ierr);													//Number of degrees of freedom, per node
-	ierr = IGASetOrder(igaChiS,2);CHKERRQ(ierr);												//Number of spatial derivatives to calculate
+	ierr = IGASetOrder(igaChiS,1);CHKERRQ(ierr);												//Number of spatial derivatives to calculate
 	ierr = IGASetFromOptions(igaChiS);CHKERRQ(ierr);											//Note: The order (or degree) of the shape functions is given by the mesh!
 	ierr = IGARead(igaChiS,"./geometry.dat");CHKERRQ(ierr);
 	
@@ -2763,6 +2761,7 @@ int main(int argc, char *argv[]) {
 	ierr = IGAWriteVec(igaStress,sigma0,pathStress);CHKERRQ(ierr);	
 //
 
+/*
 //System for L2 projection of V^{S}
 	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for V-S starting \n\n");
 	T=time(NULL);
@@ -2942,7 +2941,9 @@ int main(int argc, char *argv[]) {
 	sprintf(pathVs,"%s%s",direct,nameVs);
 	ierr = IGAWriteVec(igaVs,Vs0,pathVs);CHKERRQ(ierr);	
 //
+*/
 
+/*
 //System for L2 projection of div(\partial_S\psi)
 	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for Reconstructed S\n\n");
 	T=time(NULL);
@@ -3102,6 +3103,7 @@ int main(int argc, char *argv[]) {
 	sprintf(path_RS,"%s%s",direct,name_RS);
 	ierr = IGAWriteVec(iga_RS,RS,path_RS);CHKERRQ(ierr);	
 //
+*/
 
 /*
 //System for L2 projection of div(stress (sym part)) from matrix product
@@ -3269,6 +3271,7 @@ int main(int argc, char *argv[]) {
 //
 */
 
+/*
 //System for L2 projection of div(stress (sym part))
 	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for div(Stress) starting \n\n");
 	T=time(NULL);
@@ -3447,7 +3450,9 @@ int main(int argc, char *argv[]) {
 	sprintf(pathdivStress,"%s%s",direct,namedivStress);
 	ierr = IGAWriteVec(igadivStress,divsigma0,pathdivStress);CHKERRQ(ierr);	
 //
+*/
 
+/*
 //System for L2 projection of classic stress (C*Ue)
 	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for Classic Stress starting \n\n");
 	T=time(NULL);
@@ -3604,7 +3609,9 @@ int main(int argc, char *argv[]) {
 	ierr = VecDestroy(&classicSigma0);CHKERRQ(ierr);
 	ierr = IGADestroy(&igaClassicStress);CHKERRQ(ierr);
 //
+*/
 
+/*
 // Adapted, but not debugged
 //System for L2 projection of couple stress
 	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for CoupleStress starting \n\n");
@@ -3792,6 +3799,7 @@ int main(int argc, char *argv[]) {
 	ierr = VecDestroy(&lambda0);CHKERRQ(ierr);
 	ierr = IGADestroy(&igaCS);CHKERRQ(ierr);
 //
+*/
 
 // Adapted but not debugged
 //System for L2 projection of Energy Density
@@ -3968,6 +3976,7 @@ int main(int argc, char *argv[]) {
 	ierr = IGAWriteVec(igaED,ed0,pathED);CHKERRQ(ierr);	
 //
 
+/*
 //System for L2 projection of full stress    //Adapting to include Z and flag for applied body couple
 	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for full Stress starting \n\n");
 	T=time(NULL);
@@ -4176,7 +4185,9 @@ int main(int argc, char *argv[]) {
 	ierr = VecDestroy(&Fs0);CHKERRQ(ierr);
 	ierr = IGADestroy(&igaFullS);CHKERRQ(ierr);
 //
+*/
 
+/*
 //System for L2 projection of div(\Lambda) and X:fullStress    //Adapting to include Z and flag for applied body couple
 	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for div(Lambda) and X:fullStress starting \n\n");
 	T=time(NULL);
@@ -4403,7 +4414,9 @@ int main(int argc, char *argv[]) {
 
 	ierr = IGADestroy(&iga_div_X);CHKERRQ(ierr);
 //
+*/
 
+/*
 //System for L2 projection of skew part of stress
 	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for Skew Stress starting \n\n");
 	T=time(NULL);
@@ -4592,6 +4605,7 @@ int main(int argc, char *argv[]) {
 	ierr = VecDestroy(&Fss0);CHKERRQ(ierr);
 	ierr = IGADestroy(&igaSkewS);CHKERRQ(ierr);
 //
+*/
 
 /*
 //System for L2 projection of V^{alpha}

@@ -31,7 +31,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 //Generate Mesh and copy cpp to result folder to save for reproduction (check that parameters are the same on file to run)
 
 	//PetscInt b=1743;					//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
-	PetscInt b=601;
+	PetscInt b=1201;
 	PetscReal Lx=80.0;
 	PetscReal Ly=80.0;
 	PetscInt  nx=b;
@@ -119,16 +119,15 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	Vec s0;
 	ierr = IGACreateVec(igaS,&s0);CHKERRQ(ierr);
 
-	PetscInt nf,nc,numF,cord,counter, *pointsS, dist;
-	PetscReal *valoresS,c,t,l,g[8];
+	PetscInt nf,nc,numF,numH,num_gdl,cord,counter, *pointsS, dist, factor_desplazamiento;
+	PetscReal *valoresS,c,factor_correccion,t,l,g[8];
 
-	
-	//nf=(b-1)/2; 		//For odd values of b 
-	nf=(b-2)/2;			//For even values of b 
+	num_gdl=8;			//Number of degrees of freedom per node
+	nf=(b-1)/2-1; 		//For odd values of b 
+	//nf=(b-2)/2;			//For even values of b 
 	nc=(b+1)/2;			//Half the length of the body, for a disclination on the center
-	//nc=b+1;				//Full length of the body, for something like a through twin
-	numF=16;			//Number of node rows to assign, rows of elements will be one less
-	numF=7;			//Number of node rows to assign, rows of elements will be one less
+	//nc=b+1;			//Full length of the body, for something like a through twin
+	numF=14;			//Number of node rows to assign, rows of elements will be one less 
 	dist=0;				//Distance from center to eigenwall (Distance center to center is 2*dist [elements])
 	
 	ierr = PetscCalloc1(4194304,&pointsS);CHKERRQ(ierr);
@@ -139,39 +138,53 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 
 	c=Lx/nx;
 	t=Ly/ny;
-	l=t*(numF-1)*3.8348526809069;
-
-	PetscReal alpha=1.0;																		//Alpha linearly interpolates between a pure twin (alpha=0.0) and a pure rotation grain boundary (alpha=1.0)
+	l=t*(numF-1);
 	
-	g[0]=0.0;
-	g[1]=-alpha*(cos(85.0/180.0*ConstPi)-cos(90.0/180.0*ConstPi));									//S_112
-	g[2]=0.0;
-	g[3]=0.0*alpha*(-sin(85.0/180.0*ConstPi)+sin(90.0/180.0*ConstPi))+(1.0-alpha)*1.0;				//S_122
-	g[4]=0.0;
-	g[5]=0.0*alpha*(sin(85.0/180.0*ConstPi)-sin(90.0/180.0*ConstPi));								//S_212
-	g[6]=0.0;
-	g[7]=0.0*alpha*(cos(85.0/180.0*ConstPi)-cos(90.0/180.0*ConstPi));								//S_222
+	g[0]=0.0;								//S_111
+	g[1]=0.0;								//S_112
+	g[2]=0.0;								//S_121
+	g[3]=0.0*-tan(5.0/180.0*ConstPi);			//S_122
+	g[4]=0.0;								//S_211
+	g[5]=0.0*tan(5.0/180.0*ConstPi);			//S_212
+	g[6]=0.0;								//S_221
+	g[7]=0.0;								//S_222
 
-	//nf=nf-(numF-2)/2;		//For odd values of b
-	nf=nf-(numF-3)/2;		//For even values of b
+	PetscReal alpha=1.0;													//Alpha linearly interpolates between a pure twin (alpha=0.0) and a pure rotation grain boundary (alpha=1.0)
+
+	//g[0]=0.0;
+	//g[1]=-alpha*0.0;														//S_112
+	//g[2]=0.0;
+	//g[3]=-alpha*(-tan(5.0/180.0*ConstPi))+(1.0-alpha)*1.0;				//S_122
+	//g[4]=0.0;
+	//g[5]=alpha*(-tan(5.0/180.0*ConstPi));									//S_212
+	//g[6]=0.0;
+	//g[7]=alpha*0.0;														//S_222
+
+	nf=nf-(numF-2)/2+1;		//For odd values of b
+	//nf=nf-(numF-3)/2;		//For even values of b
 	counter=0;
+
+	numH=numF;
+	factor_correccion=1.0/-3.771880432;
+	factor_desplazamiento=7;
+
 	for (int i=nf; i<nf+numF; i++)
 	{
-		cord=(nx+1)*i*8+8*(b+1)/2;
-		for (int j=0; j<nc; j++)
+		cord=(nx+1)*i*num_gdl+num_gdl*(b-1)/2-num_gdl*factor_desplazamiento;	//Corregir el valor final según resultados
+		for (int j=0; j<nc+factor_desplazamiento+1; j++)
 		{
-			for (int k=0; k<8; k++)
+			for (int k=0; k<num_gdl; k++)
 			{
-				pointsS[counter]=cord-8*(nx+1)*dist;
+				pointsS[counter]=cord-num_gdl*(nx+1)*dist;
 				//pointsS[counter+1]=cord-8*(nx+1)*dist;
 				
-				if(j<11)
+				if(j<numH)
 				{
-					valoresS[counter]=((double)j)/(11.0) *  g[k]/l;	
+					valoresS[counter]=((double)j)/(numH)*g[k]/l*factor_correccion;	
 				}
 				else
 				{
-					valoresS[counter]=g[k]/l;		
+					valoresS[counter]=g[k]/l*factor_correccion;		
 				}
 
 				

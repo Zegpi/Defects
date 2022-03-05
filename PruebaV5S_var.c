@@ -733,7 +733,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=mu/100.0;								//Choose later based on whatever Amit says :)
+		const PetscReal eps=0.0*mu/100.0;								//Choose later based on whatever Amit says :)
 
 		PetscReal Chi0[4];																	//Assign chi to a vector
 		PetscReal dChi0[4][2];																//Same for partial derivatives
@@ -794,7 +794,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		f[1]=0.0;
 		f[2]=0.0;
 		PetscReal g[3]={0.0, 0.0, 0.0};			//Boundary load (applied wherever is defined in the p->atboundary block)
-		PetscReal M[3]={0.0, 0.0, 1.0};			//Distributed moment in body
+		PetscReal M[3]={0.0, 0.0, 0.0};			//Distributed moment in body
 		PetscReal h[3]={0.0, 0.0, 0.0};			//Boundary moment (applied wherever is defined in the p->atboundary block)
 
 		PetscReal Lagrange=1.0;				//This one modifies the 4th order part
@@ -3150,7 +3150,7 @@ int main(int argc, char *argv[]) {
 
 //App context creation and some data
 	//Mesh parameters (to fix specific points in z0 system)
-	PetscInt b=601;				//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
+	PetscInt b=1201;				//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
 	PetscReal Lx=80.0;
 	PetscReal Ly=80.0;
 	PetscInt  nx=b;
@@ -3263,9 +3263,9 @@ int main(int argc, char *argv[]) {
 	ierr = IGACreate(PETSC_COMM_WORLD,&igaS);CHKERRQ(ierr);
 	ierr = IGASetDim(igaS,2);CHKERRQ(ierr);														//Spatial dimension of the problem
 	ierr = IGASetDof(igaS,8);CHKERRQ(ierr);														//Number of degrees of freedom, per node
-	ierr = IGASetOrder(igaS,2);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
+	ierr = IGASetOrder(igaS,1);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
 	ierr = IGASetFromOptions(igaS);CHKERRQ(ierr);												//Note: The order (or degree) of the shape functions is given by the mesh!
-	ierr = IGARead(igaS,"./geometry2.dat");CHKERRQ(ierr);
+	ierr = IGARead(igaS,"./geometry.dat");CHKERRQ(ierr);
 	
 	for (dir=0; dir<2; dir++)
 	{
@@ -3293,9 +3293,9 @@ int main(int argc, char *argv[]) {
 	ierr = IGACreate(PETSC_COMM_WORLD,&igachiS);CHKERRQ(ierr);
 	ierr = IGASetDim(igachiS,2);CHKERRQ(ierr);														//Spatial dimension of the problem
 	ierr = IGASetDof(igachiS,8);CHKERRQ(ierr);														//Number of degrees of freedom, per node
-	ierr = IGASetOrder(igachiS,2);CHKERRQ(ierr);														//Number of spatial derivatives to calculate
+	ierr = IGASetOrder(igachiS,1);CHKERRQ(ierr);														//Number of spatial derivatives to calculate
 	ierr = IGASetFromOptions(igachiS);CHKERRQ(ierr);													//Note: The order (or degree) of the shape functions is given by the mesh!
-	ierr = IGARead(igachiS,"./geometry2.dat");CHKERRQ(ierr);
+	ierr = IGARead(igachiS,"./geometry.dat");CHKERRQ(ierr);
 	
 	for (dir=0; dir<2; dir++)
 	{
@@ -3449,9 +3449,9 @@ int main(int argc, char *argv[]) {
 	ierr = IGACreate(PETSC_COMM_WORLD,&igaZS);CHKERRQ(ierr);
 	ierr = IGASetDim(igaZS,2);CHKERRQ(ierr);														//Spatial dimension of the problem
 	ierr = IGASetDof(igaZS,4);CHKERRQ(ierr);														//Number of degrees of freedom, per node
-	ierr = IGASetOrder(igaZS,2);CHKERRQ(ierr);														//Number of spatial derivatives to calculate
+	ierr = IGASetOrder(igaZS,1);CHKERRQ(ierr);														//Number of spatial derivatives to calculate
 	ierr = IGASetFromOptions(igaZS);CHKERRQ(ierr);													//Note: The order (or degree) of the shape functions is given by the mesh!
-	ierr = IGARead(igaZS,"./geometry2.dat");CHKERRQ(ierr);
+	ierr = IGARead(igaZS,"./geometry.dat");CHKERRQ(ierr);
 	
 	for (dir=0; dir<2; dir++)
 	{
@@ -3619,9 +3619,9 @@ int main(int argc, char *argv[]) {
 	ierr = IGACreate(PETSC_COMM_WORLD,&igaAl);CHKERRQ(ierr);
 	ierr = IGASetDim(igaAl,2);CHKERRQ(ierr);														//Spatial dimension of the problem
 	ierr = IGASetDof(igaAl,2);CHKERRQ(ierr);														//Number of degrees of freedom, per node
-	ierr = IGASetOrder(igaAl,2);CHKERRQ(ierr);														//Number of spatial derivatives to calculate
+	ierr = IGASetOrder(igaAl,1);CHKERRQ(ierr);														//Number of spatial derivatives to calculate
 	ierr = IGASetFromOptions(igaAl);CHKERRQ(ierr);													//Note: The order (or degree) of the shape functions is given by the mesh!
-	ierr = IGARead(igaAl,"./geometry2.dat");CHKERRQ(ierr);
+	ierr = IGARead(igaAl,"./geometry.dat");CHKERRQ(ierr);
 	
 	for (dir=0; dir<2; dir++)
 	{
@@ -3640,8 +3640,8 @@ int main(int argc, char *argv[]) {
 		}
 	}
 	
-	PetscInt add_S=1;																			//If add_S=1, we form \tilde\alpha=\alpha-S:X
-																								//If add_S=0, we form \hat\alpha=\alpha-S^perp:X
+	PetscInt add_S=1;																			//If add_S=1, we form \tilde\alpha=\alpha-S:X (MODEL A)
+																								//If add_S=0, we form \hat\alpha=\alpha-S^perp:X (MODEL B)
 
 	Mat KAlp;
 	Vec alp0,alInput,FAlp;
@@ -3765,9 +3765,9 @@ int main(int argc, char *argv[]) {
 	ierr = IGACreate(PETSC_COMM_WORLD,&igachiUp);CHKERRQ(ierr);
 	ierr = IGASetDim(igachiUp,2);CHKERRQ(ierr);														//Spatial dimension of the problem
 	ierr = IGASetDof(igachiUp,4);CHKERRQ(ierr);														//Number of degrees of freedom, per node
-	ierr = IGASetOrder(igachiUp,3);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
+	ierr = IGASetOrder(igachiUp,2);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
 	ierr = IGASetFromOptions(igachiUp);CHKERRQ(ierr);												//Note: The order (or degree) of the shape functions is given by the mesh!
-	ierr = IGARead(igachiUp,"./geometry3.dat");CHKERRQ(ierr);
+	ierr = IGARead(igachiUp,"./geometry2.dat");CHKERRQ(ierr);
 	
 	for (dir=0; dir<2; dir++)
 	{
@@ -3900,9 +3900,9 @@ int main(int argc, char *argv[]) {
 	ierr = IGACreate(PETSC_COMM_WORLD,&igaZ0);CHKERRQ(ierr);
 	ierr = IGASetDim(igaZ0,2);CHKERRQ(ierr);													//Spatial dimension of the problem
 	ierr = IGASetDof(igaZ0,2);CHKERRQ(ierr);													//Number of degrees of freedom, per node
-	ierr = IGASetOrder(igaZ0,4);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
+	ierr = IGASetOrder(igaZ0,3);CHKERRQ(ierr);													//Number of spatial derivatives to calculate
 	ierr = IGASetFromOptions(igaZ0);CHKERRQ(ierr);												//Note: The order (or degree) of the shape functions is given by the mesh!
-	ierr = IGARead(igaZ0,"./geometry4.dat");CHKERRQ(ierr);
+	ierr = IGARead(igaZ0,"./geometry3.dat");CHKERRQ(ierr);
 	
 	for (dir=0; dir<2; dir++)
 	{
@@ -3911,7 +3911,7 @@ int main(int argc, char *argv[]) {
 	}
 	ierr = IGASetUp(igaZ0);CHKERRQ(ierr);
 
-	PetscInt fijaPunto=0;																		//Fix a single point (1) or a side (chosen in blocks below)
+	PetscInt fijaPunto=1;																		//Fix a single point (1) or a side (chosen in blocks below)
 
 	for (dir=0; dir<2; dir++) 
 	{
@@ -3956,6 +3956,7 @@ int main(int argc, char *argv[]) {
 
   	IGAFormSystem	wtfZ0;
  	void			*wtf2Z0;
+
 
  	KSP kspZ0;
 	ierr = IGACreateKSP(igaZ0,&kspZ0);CHKERRQ(ierr);
@@ -4023,6 +4024,7 @@ int main(int argc, char *argv[]) {
 					ierr = IGAPointAddVec(pointZ0,FpointZ0,FlocZ0);CHKERRQ(ierr);
 				}
 			}
+
 			while (pointchiUp->index != -1)
 			{
 				IGAElementNextPoint(elemchiUp,pointchiUp);
@@ -4076,7 +4078,6 @@ int main(int argc, char *argv[]) {
 		//		Upper Right corner is gdl's 2*(nx+2)*(ny+2)-2 and 2*(nx+2)*(ny+2)-1
 		//All of these for when z is a 2nd order nurbs
 
-		/*
 	//
 		PetscInt *filas_z;
 		gdl_to_fix=3;
@@ -4094,8 +4095,8 @@ int main(int argc, char *argv[]) {
 		ierr = MatAssemblyBegin(KZ0,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
 		ierr = MatAssemblyEnd  (KZ0,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
 	//
-		*/
 
+		/*
 		PetscInt *filas_z,counter,ind1,tam1,tam2;
 		gdl_to_fix=2*(nx+3)*(ny+3);
 
@@ -4134,6 +4135,7 @@ int main(int argc, char *argv[]) {
 			filas_z[counter+1]=ind1+1;
 			counter=counter+2;	
 		}
+		*/
 
 		/*
 		//Fija la derivada en el borde de abajo, para restringir el giro
@@ -4169,7 +4171,6 @@ int main(int argc, char *argv[]) {
 			filas_z[counter+3]=ind1-4;
 			counter=counter+4;	
 		}
-		*/
 
 		ierr = PetscPrintf(PETSC_COMM_WORLD,"Counter llego a %d \n",counter);CHKERRQ(ierr);
 		ierr = PetscPrintf(PETSC_COMM_WORLD,"El ultimo valor en filas_z es %d \n",filas_z[counter-1]);CHKERRQ(ierr);
@@ -4179,6 +4180,7 @@ int main(int argc, char *argv[]) {
 
 		ierr = MatAssemblyBegin(KZ0,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
 		ierr = MatAssemblyEnd  (KZ0,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
+		*/
 
 		//Here we set values to the vector directly (to impose Dirichlet condition in a single point)
 		//Note: Lower Left corner is gdl's  0 and 1,
@@ -4192,14 +4194,15 @@ int main(int argc, char *argv[]) {
 		PetscInt rows;
 		PetscReal val;
 
+		/*
 		for(ind1=0;ind1<counter;ind1++)
 		{
 			rows=filas_z[ind1];
 			val=0.0;
 			ierr = VecSetValue(FZ0,rows,val,INSERT_VALUES);CHKERRQ(ierr);
 		}
+		*/
 
-		/*
 		rows=0;
 		val=0.0;
 		ierr = VecSetValue(FZ0,rows,val,INSERT_VALUES);CHKERRQ(ierr);
@@ -4219,7 +4222,6 @@ int main(int argc, char *argv[]) {
 		//rows=2*(nx+1)*(ny-1)-2;										//This is for when z is a 3rd order nurb
 		val=0.0;
 		ierr = VecSetValue(FZ0,rows,val,INSERT_VALUES);CHKERRQ(ierr);
-		*/
 	}
 
 	ierr = VecAssemblyBegin(FZ0);CHKERRQ(ierr);
@@ -4229,6 +4231,7 @@ int main(int argc, char *argv[]) {
 	PC pcZ0;
 	ierr = KSPGetPC(kspZ0,&pcZ0);CHKERRQ(ierr);
 
+	/*
 	//Uncomment this block for direct solver (LU + MUMPS)
 	ierr = PCSetType(pcZ0,PCLU); CHKERRQ(ierr);
 	ierr = PCFactorSetMatSolverType(pcZ0,MATSOLVERMUMPS); CHKERRQ(ierr);
@@ -4236,8 +4239,8 @@ int main(int argc, char *argv[]) {
 	ierr = KSPSetTolerances(kspZ0,1.0e-13,PETSC_DEFAULT,PETSC_DEFAULT,2000);CHKERRQ(ierr);
 	ierr = KSPSolve(kspZ0,FZ0,Z0);CHKERRQ(ierr);
 	//End of direct solver part
+	*/
 
-	/*
 	// Uncomment this block for iterative solver
 	T=time(NULL);
 	tm=*localtime(&T);
@@ -4287,7 +4290,6 @@ int main(int argc, char *argv[]) {
 	PetscPrintf(PETSC_COMM_WORLD,"End of second solve, current time is %02d:%02d:%02d \n",tm.tm_hour,tm.tm_min,tm.tm_sec);
 
 	//End of iterative solver part
-	*/
 
 	//Calculate true residual of linear system, to check solution quality
 	Vec resid_vec;

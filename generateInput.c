@@ -30,7 +30,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 
 //Generate Mesh and copy cpp to result folder to save for reproduction (check that parameters are the same on file to run)
 
-	PetscInt b=1743;		//581 works, 621 doesn't	//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
+	PetscInt b=1201;		//581 works, 621 doesn't	//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
 	PetscReal Lx=80.0;
 	PetscReal Ly=80.0;
 	PetscInt  nx=b;
@@ -100,7 +100,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 
 //General parameters
 	PetscInt N,M, numEls;
-	N=0;	M=0;	numEls=11;
+	N=0;	M=0;	numEls=7;
 //
 
 //Creation of Initialization of Pi
@@ -139,7 +139,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	PetscReal normdr2=dr*dr;
 	PetscReal gamma=0.0/normdr2*dr/(c*t);
 	//PetscReal tanTh=-0.0/normdr2*dr/(c*t);
-	PetscReal tanTh=0.0*tan(5.0/180.0*ConstPi)/(c*t);
+	PetscReal tanTh=tan(5.0/180.0*ConstPi)/(c*t);
 
 	//Borrar esto, es solo para lo que pidio el profesor Hirth
 	//tanTh=tanTh/(N/13.0);
@@ -223,7 +223,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	//PetscReal e1=(0.0-a)/(c*t);
 	//PetscReal e2=0.0*(a-0.100211061)/(c*t);
 
-	PetscReal e1=(1.0)/(c*t);
+	PetscReal e1=(0.0)/(c*t);
 	PetscReal e2=(0.0)/(c*t);
 
 	PetscInt *pointsAl1,*pointsAl2 ;
@@ -285,10 +285,10 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	{
 		for (int j=0;j<2*numEls;j++)			//If you wanted a wide core instead of tall, do same here.
 		{
-			pointsAl1[counter  ]=2*center+N*2*(nx+1)+M*2  -(numEls-i-1)*2*(nx+1)-(numEls-j-1)*2;			valoresAl1[counter  ]=1.0/1.0*(1.0/7.0)*e1/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
-			pointsAl1[counter+1]=2*center+N*2*(nx+1)+M*2+1-(numEls-i-1)*2*(nx+1)-(numEls-j-1)*2;			valoresAl1[counter+1]=(1.0/1.0)*e2/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
+		//	pointsAl1[counter  ]=2*center+N*2*(nx+1)+M*2  -(numEls-i-1)*2*(nx+1)-(numEls-j-1)*2;			valoresAl1[counter  ]=1.0/1.0*(1.0/6.0)*e1/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
+		//	pointsAl1[counter+1]=2*center+N*2*(nx+1)+M*2+1-(numEls-i-1)*2*(nx+1)-(numEls-j-1)*2;			valoresAl1[counter+1]=(1.0/1.0)*e2/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
 
-			counter=counter+2;					//Modify accodringly to hoy many gdl you are setting
+		//	counter=counter+2;					//Modify accodringly to hoy many gdl you are setting
 		}
 		/*
 		//Linear rise in the left-right direction
@@ -310,15 +310,15 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 		*/
 	}
 
-	M=-600;
+	M=-35;
 	for (int i=-7*numEls;i<-5*numEls;i++)
 	{
 		for (int j=0;j<2*numEls;j++)
 		{
-			pointsAl1[counter  ]=2*center+N*2*(nx+1)+M*2  -(numEls-i-1)*2*(nx+1)-(numEls-j-1)*2;			valoresAl1[counter  ]=1.0/1.0*(1.0/7.0)*e1/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
-			pointsAl1[counter+1]=2*center+N*2*(nx+1)+M*2+1-(numEls-i-1)*2*(nx+1)-(numEls-j-1)*2;			valoresAl1[counter+1]=(1.0/1.0)*e2/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
+		//	pointsAl1[counter  ]=2*center+N*2*(nx+1)+M*2  -(numEls-i-1)*2*(nx+1)-(numEls-j-1)*2;			valoresAl1[counter  ]=1.0/1.0*(1.0/6.0)*e1/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
+		//	pointsAl1[counter+1]=2*center+N*2*(nx+1)+M*2+1-(numEls-i-1)*2*(nx+1)-(numEls-j-1)*2;			valoresAl1[counter+1]=(1.0/1.0)*e2/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
 
-			counter=counter+2;					//Modify accodringly to hoy many gdl you are setting
+		//	counter=counter+2;					//Modify accodringly to hoy many gdl you are setting
 		}
 	}
 

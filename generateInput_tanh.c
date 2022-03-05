@@ -57,8 +57,8 @@ typedef struct
 		};
 
 		PetscReal a,b,c,s,x_ast1, x_ast2, y_ast1, y_ast2;;
-		a= 15.0;
-		b=-12.0;
+		a= 25.0;
+		b= 0.0;
 		c= 9.0;
 		s= 1.0/3.0;
 
@@ -69,10 +69,7 @@ typedef struct
 
 		PetscReal factor=tan(5.0/180.0*ConstPi);
 		PetscReal S[3][3][3]={0};
-
 		PetscReal g[dof];
-		
-
 		
 		/*
 		//														     ______
@@ -105,7 +102,9 @@ typedef struct
 			}
 		}
 		*/
-			
+		
+		/*
+
 		//																	\
 		//This code is for the terminated eigenwall that looks like this:    \
 		//																	  \
@@ -115,10 +114,10 @@ typedef struct
 		PetscReal func,func2,inclin,normN;
 
 		a= 0.1;
-		b= 10.0;
-		s= 1.0/3.0;
+		b= 20.0;					
+		s= 1.0/3.0;					//Factor that controls how steep the wall is
 
-		inclin=0.22;					//Factor that changes the inclination of the eigenwall, inclin=1 is a 45° line, values less than one make it steeper, with 0.0 making it vertical.
+		inclin=1.0/sqrt(3.0);		//Factor that changes the inclination of the eigenwall, inclin=1 is a 45° line, smaller values make it steeper, with 0.0 making it vertical.
 
 		func=factor	*(0.5*tanh((x[0]+inclin*x[1]+a)/s)-0.5*tanh((x[0]+inclin*x[1]-a)/s))
 					*(0.5*tanh((inclin*x[0]-x[1]+b)/s)-0.5*tanh((inclin*x[0]-x[1]-b)/s));
@@ -128,6 +127,7 @@ typedef struct
 		normN=sqrt(1.0+inclin*inclin);
 		n[0]=1.0/normN; n[1]=inclin/normN; n[2]=0.0; 
 
+		/*
 		W[0][0]=-func;
 		W[0][1]=-func;
 
@@ -141,11 +141,78 @@ typedef struct
 				}
 			}
 		}
+		*/
 
-		//Recall that S has 8 components, in order S(1,1,1), S(1,1,2), S(1,2,1), S(1,2,2), S(2,1,1), S(2,1,2), S(2,2,1), S(2,2,2)
+		//														     ___
+		//This code is for the eigenwall that looks like this:      /
+		//														___/
+		//
+		//The intersection of the walls is determined by intersecting 2 horizontals and one slanted straight lines. Then the curve is smoothed by replacing the central line with a 5th
+		//degree polynomial, which matches the intersections and has 0 derivative there (4 conditions), it crosses 0 at the midlength point of the vertical part and the derivative
+		//of the polynomial is chosen so the central part is as straight as possible without affecting the shape at the intersection (2 conditions).
+		PetscReal pend,C1,C2,C3,C4,C5,C6,comb,comb_x,dfx,dfy;
+		PetscReal V[3][3];
+		//Coefficients that determine the polynomial, determined in maatlab by
+		/*
+		A=[	inter1^5    inter1^4   inter1^3   inter1^2 inter1  1
+   			5*inter1^4  4*inter1^3 3*inter1^2 2*inter1 1       0
+   			b^5         b^4        b^3        b^2      b       1
+   			5*b^4       4*b^3      3*b^2      2*b      1       0
+   			inter2^5    inter2^4   inter2^3   inter2^2 inter2  1
+   			5*inter2^4  4*inter2^3 3*inter2^2 2*inter2 1       0];
 
-		func=func/2.2419902995516;			//This factor depends on inclin and n (and probably other things). Must be recalculated for every run so the integral is equal to the factors
+		b=[-a 0 0 1.5*pend a 0]';
+		C=A\b;
+		*/
+		pend=1;
+		C1=-4.54813964267942e-22; C2=-4.44089209850063e-21; C3=-0.0008;		//Estos valores deben ser recalculados
+		C4= 2.77555756156289e-18; C5= 1.5;					C6= 0.0;		//para distintos valores de pend.
+
+		//Los puntos de interección de las rectas son
+		x_ast1=b-a/pend;	//x-coordinate of lower intersection
+		x_ast2=b+a/pend;	//x-coordinate of upper intersection
+
+		comb=-a*(x[0]<=x_ast1)+(C1*x[0]*x[0]*x[0]*x[0]*x[0]+C2*x[0]*x[0]*x[0]*x[0]+C3*x[0]*x[0]*x[0]+C4*x[0]*x[0]+C5*x[0]+C6)*(x[0]>x_ast1)*(x[0]<=x_ast2)+a*(x[0]>x_ast2);
+		comb_x=(5*C1*x[0]*x[0]*x[0]*x[0]+4.0*C2*x[0]*x[0]*x[0]+3.0*C3*x[0]*x[0]+2.0*C4*x[0]+C5)*(x[0]>x_ast1)*(x[0]<=x_ast2);
+
+		dfx=-factor*0.5*comb_x/( s*cosh((x[1]-comb)/s )*cosh( (x[1]-comb)/s ) );
+
+		dfy= factor*0.5/( s*cosh((x[1]-comb)/s )*cosh( (x[1]-comb)/s ) );
+
+		V[0][0]=0.0; V[0][1]=0.0; V[0][2]=0.0;
+		V[1][0]=0.0; V[1][1]=0.0; V[1][2]=0.0;
+		V[2][0]=dfx; V[2][1]=dfy; V[2][2]=0.0;
+
+		for(i=0;i<3;i++)
+		{
+			for(j=0;j<3;j++)
+			{
+				for(k=0;k<3;k++)
+				{
+					for(l=0;l<3;l++)
+					{
+						S[i][j][k]=S[i][j][k]+e[i][j][l]*V[l][k];
+					}
+				}
+			}
+		}
+
+		g[0]= S[0][0][0];
+		g[1]= S[0][0][1];
+		g[2]= S[0][1][0];
+		g[3]= S[0][1][1];
+		g[4]= S[1][0][0];
+		g[5]= S[1][0][1];
+		g[6]= S[1][1][0];
+		g[7]= S[1][1][1];
+
+		/*
+		//Recall that in 2D S has 8 components, in order S(1,1,1), S(1,1,2), S(1,2,1), S(1,2,2), S(2,1,1), S(2,1,2), S(2,2,1), S(2,2,2)
+
+		//func=func/2.2419902995516;		//This divisor depends on inclin and n (and probably other things). Must be recalculated for every run so the integral is equal to the factors
 											//being set up in the following section.
+
+		func=func/0.0254973;
 
 		x_ast1=(-a+-inclin*b)/(inclin*inclin+1.0);
 		y_ast1=inclin*x_ast1+b;
@@ -156,23 +223,35 @@ typedef struct
 		func2 = (0.5*tanh((x[1]-y_ast1+a)/s)-0.5*tanh((x[1]-y_ast1-a)/s))*(1.0-tanh((x[0]+inclin*x[1]+a)/s))/2.0
 			  + (0.5*tanh((x[1]-y_ast2+a)/s)-0.5*tanh((x[1]-y_ast2-a)/s))*(tanh((x[0]+inclin*x[1]-a)/s)+1.0)/2.0;
 
-		func2=factor*func2/2.2419902995516;			//This factor depends on inclin and n (and probably other things). Must be recalculated for every run so the integral is equal to the factors
-												//being set up in the following section.			  
+		//func2=factor*func2/2.2419902995516;	//This divisor depends on inclin and n (and probably other things). Must be recalculated for every run so the integral is equal to the
+												//factors being set up in the following section.		
 
-		func=1.35316947369629*func;
-		func2=1.35316947369629*func2;
+		func2=factor*func2/0.0254973;
 
-		g[0]=-0.5*func;
-		g[1]=-0.5*func-func2;
-		g[2]= 0.5*func;
-		g[3]= 0.5*func;
-		g[4]= 0.0;
-		g[5]= 0.0;
-		g[6]= 0.0;
+		func=1.00*func;
+		func2=1.00*func2;
+
+		//g[0]=-0.5*func;
+		//g[1]=-0.5*func-func2;
+		//g[2]= 0.5*func;
+		//g[3]= 0.5*func;
+		//g[4]= 0.0;
+		//g[5]= 0.0;
+		//g[6]= 0.0;
+		//g[7]= 0.0;
+
+		g[0]= 0.0;
+		g[1]= func*n[0];			// A4
+		g[2]= func*n[0]; 			// A1
+		g[3]= func*n[1]+func2; 		// A2
+		g[4]=-func*n[0]; 			//-A1
+		g[5]=-func*n[1]-func2; 		//-A2
+		g[6]=-func*n[1]+func;		// A3
 		g[7]= 0.0;
 
-		//Consider changing all this to just assigning S directly
+		*/
 
+		//Consider changing all this to just assigning S directly
 		const PetscReal (*N) = (typeof(N)) p->shape[0];
 		PetscReal (*FF)[dof] = (PetscReal (*)[dof])F;
 		PetscReal (*KK)[dof][nen][dof] = (PetscReal (*)[dof][nen][dof])K;
@@ -212,7 +291,8 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 
 //Generate Mesh and copy cpp to result folder to save for reproduction (check that parameters are the same on file to run)
 
-	PetscInt b=601;//1743;//581;					//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
+	PetscInt b=1743;//1201;//601;//581;					//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units 
+														//in each direction
 	PetscReal Lx=80.0;
 	PetscReal Ly=80.0;
 	PetscInt  nx=b;
@@ -324,7 +404,8 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	//This parts set and calls KSP to solve the linear system
 	KSP ksp_L2_S;
 	ierr = IGACreateKSP(igaS,&ksp_L2_S);CHKERRQ(ierr);										
-	ierr = KSPSetOperators(ksp_L2_S,K_L2_8GDL,K_L2_8GDL);CHKERRQ(ierr); 						//This function creates the matrix for the system on the second parameter and uses the 3rd parameter as a preconditioner
+	ierr = KSPSetOperators(ksp_L2_S,K_L2_8GDL,K_L2_8GDL);CHKERRQ(ierr); 						//This function creates the matrix for the system on the second parameter and uses the
+																								//3rd parameter as a preconditioner
 	PC pcL2;
 	ierr = KSPGetPC(ksp_L2_S,&pcL2);CHKERRQ(ierr);
 	ierr = PCSetType(pcL2,PCSOR);CHKERRQ(ierr);

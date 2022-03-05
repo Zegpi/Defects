@@ -733,7 +733,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=mu/100.0;								//Choose later based on whatever Amit says :)
+		const PetscReal eps=0.0*mu/100.0;								//Choose later based on whatever Amit says :)
 
 		PetscReal Chi0[4];																	//Assign chi to a vector
 		PetscReal dChi0[4][2];																//Same for partial derivatives
@@ -1133,7 +1133,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 									}
 									if(add_S==1)
 									{
-										//Feq[a][i]+=-0.5*(C[k][l][u][w]*(-fullChi[u][w])+C[l][k][u][w]*(-fullChi[u][w]))*0.5*(dv[k][l]+dv[l][k]);			//This line is for the model were sigma depends on C*Ue
+										Feq[a][i]+=-0.5*(C[k][l][u][w]*(-fullChi[u][w])+C[l][k][u][w]*(-fullChi[u][w]))*0.5*(dv[k][l]+dv[l][k]);			//This line is for the model were sigma depends on C*Ue
 										//Feq[a][i]+=-0.5*(C[k][l][u][w]*(-fullChi[u][w]-fullZs[u][w])+C[l][k][u][w]*(-fullChi[u][w]-fullZs[u][w]))*0.5*(dv[k][l]+dv[l][k]);		//This line is for the model were sigma depends on C*Ue_hat
 									}	
 								}	
@@ -1151,10 +1151,10 @@ PetscReal delta(PetscInt i, PetscInt j)
 										   -0.25*eps*(-full_dChi[k][l][u]-full_dChi[k][u][l]+full_dChi[l][k][u]+full_dChi[l][u][k])*d2v[k][l][u]
 										   //Next part is the contribution from having S in the energy function
 										   -0.25*eps*(-fullS[k][l][u]-fullS[k][u][l]-fullS[l][k][u]-fullS[l][u][k])*0.5*(d2v[k][l][u]+d2v[l][k][u])
-										   -0.25*eps*(-fullS[k][l][u]-fullS[k][u][l]+fullS[l][k][u]+fullS[l][u][k])*d2v[k][l][u]
+										   -0.25*eps*(-fullS[k][l][u]-fullS[k][u][l]+fullS[l][k][u]+fullS[l][u][k])*d2v[k][l][u];
 										   //Next part is the contribution of adding grad(Z) from the energy function, to turn J_hat into J
-										   -0.25*eps*(+fullGradZ[k][l][u]+fullGradZ[k][u][l]+fullGradZ[l][k][u]+fullGradZ[l][u][k])*0.5*(d2v[k][l][u]+d2v[l][k][u])
-										   -0.25*eps*(+fullGradZ[k][l][u]+fullGradZ[k][u][l]-fullGradZ[l][k][u]-fullGradZ[l][u][k])*d2v[k][l][u];
+										   //-0.25*eps*(+fullGradZ[k][l][u]+fullGradZ[k][u][l]+fullGradZ[l][k][u]+fullGradZ[l][u][k])*0.5*(d2v[k][l][u]+d2v[l][k][u])
+										   //-0.25*eps*(+fullGradZ[k][l][u]+fullGradZ[k][u][l]-fullGradZ[l][k][u]-fullGradZ[l][u][k])*d2v[k][l][u];
 							}
 						}
 					}
@@ -1191,7 +1191,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=mu/100.0;														//Choose later based on whatever Amit says :)
+		const PetscReal eps=0.0*mu/100.0;														//Choose later based on whatever Amit says :)
 
 		PetscReal chi0[4];																	//Array to contain the vector chi(0)
 		PetscReal d2_Chi0[4][2][2];															//Same for its Hessian
@@ -1240,12 +1240,20 @@ PetscReal delta(PetscInt i, PetscInt j)
 		fulld_S[1][1][1][0]=dS[7][0]; fulld_S[1][1][1][1]=dS[7][1];
 
 		PetscReal ZS0[4];
+		PetscReal d2_ZS0[4][2][2];
 		IGAPointFormValue (pZS,ZS,&ZS0[0]);
+		IGAPointFormHess (pZS,ZS,&d2_ZS0[0][0][0]);
 
 		PetscReal full_ZS[3][3]={0};
 		full_ZS[0][0]=ZS0[0];	full_ZS[0][1]=ZS0[1];	full_ZS[0][2]=0.0;
 		full_ZS[1][0]=ZS0[2];	full_ZS[1][1]=ZS0[3];	full_ZS[1][2]=0.0;
 		full_ZS[2][0]=0.0;		full_ZS[2][1]=0.0;		full_ZS[2][2]=0.0;
+
+		PetscReal fulld_ZS[3][3][3][3]={0};
+		fulld_ZS[0][0][0][0]=d2_ZS0[0][0][0]; fulld_ZS[0][0][0][1]=d2_ZS0[0][0][1]; fulld_ZS[0][0][1][0]=d2_ZS0[0][1][0]; fulld_ZS[0][0][1][1]=d2_ZS0[0][1][1];
+		fulld_ZS[0][1][0][0]=d2_ZS0[1][0][0]; fulld_ZS[0][1][0][1]=d2_ZS0[1][0][1]; fulld_ZS[0][1][1][0]=d2_ZS0[1][1][0]; fulld_ZS[0][1][1][1]=d2_ZS0[1][1][1];
+		fulld_ZS[1][0][0][0]=d2_ZS0[2][0][0]; fulld_ZS[1][0][0][1]=d2_ZS0[2][0][1]; fulld_ZS[1][0][1][0]=d2_ZS0[2][1][0]; fulld_ZS[1][0][1][1]=d2_ZS0[2][1][1];
+		fulld_ZS[1][1][0][0]=d2_ZS0[3][0][0]; fulld_ZS[1][1][0][1]=d2_ZS0[3][0][1]; fulld_ZS[1][1][1][0]=d2_ZS0[3][1][0]; fulld_ZS[1][1][1][1]=d2_ZS0[3][1][1];
 
 		PetscReal (*Kstress)[dof][nen][dof] = (typeof(Kstress)) K;
 		PetscReal (*Fstress)[dof] = (PetscReal (*)[dof])F;
@@ -1321,7 +1329,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 							}
 							if(add_S==1)
 							{
-								//Fstress[a][i]+=0.5*(C[m][n][k][l]*(-fulld_z[k][l]-fullChi[k][l])+C[n][m][k][l]*(-fulld_z[k][l]-fullChi[k][l]))*v[m][n];
+								Fstress[a][i]+=0.5*(C[m][n][k][l]*(-fulld_z[k][l]-fullChi[k][l])+C[n][m][k][l]*(-fulld_z[k][l]-fullChi[k][l]))*v[m][n];
 								//Fstress[a][i]+=0.5*(C[m][n][k][l]*(-fulld_z[k][l]-fullChi[k][l]-full_ZS[k][l])+C[n][m][k][l]*(-fulld_z[k][l]-fullChi[k][l]-full_ZS[k][l]))*v[m][n];
 							}
 						}
@@ -1331,9 +1339,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 						//Next part is the contribution from having S in the energy function
 						Fstress[a][i]+= -0.25*eps*(-fulld_S[m][n][k][k]-fulld_S[m][k][n][k]-fulld_S[n][m][k][k]-fulld_S[n][k][m][k])*v[m][n];
 						//Next part is the contribution of adding grad(Z) from the energy function, to turn J_hat into J
-						Fstress[a][i]+= -0.25*eps*(+fulld_GradZ[m][n][k][k]+fulld_GradZ[m][k][n][k]+fulld_GradZ[n][m][k][k]+fulld_GradZ [n][k][m][k])*v[m][n];
-
-
+						//Fstress[a][i]+= -0.25*eps*(+fulld_ZS[m][n][k][k]+fulld_ZS[m][k][n][k]+fulld_ZS[n][m][k][k]+fulld_ZS[n][k][m][k])*v[m][n];
 					}
 				}
 			}
@@ -2838,7 +2844,7 @@ int main(int argc, char *argv[]) {
 
 //App context creation and some data
 	//Mesh parameters (to fix specific points in z0 system)
-	PetscInt b=601;				//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
+	PetscInt b=1743;				//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
 	PetscReal Lx=80.0;
 	PetscReal Ly=80.0;
 	PetscInt  nx=b;
@@ -3328,7 +3334,7 @@ int main(int argc, char *argv[]) {
 		}
 	}
 	
-	PetscInt add_S=0;																			//If add_S=1, we form \tilde\alpha=\alpha-S:X
+	PetscInt add_S=1;																			//If add_S=1, we form \tilde\alpha=\alpha-S:X
 																								//If add_S=0, we form \hat\alpha=\alpha-S^perp:X
 
 	Mat KAlp;
@@ -4251,7 +4257,6 @@ int main(int argc, char *argv[]) {
 //
 */
 
-/*
 //System for L2 projection of couple stress
 	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for CoupleStress starting \n\n");
 	T=time(NULL);
@@ -4418,9 +4423,7 @@ int main(int argc, char *argv[]) {
 	sprintf(pathCStress,"%s%s",direct,nameCStress);
 	ierr = IGAWriteVec(igaCS,lambda0,pathCStress);CHKERRQ(ierr);	
 //
-*/
 
-/*
 //System for L2 projection of Energy Density
 	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for Energy Density starting \n\n");
 	T=time(NULL);
@@ -4579,7 +4582,6 @@ int main(int argc, char *argv[]) {
 	sprintf(pathED,"%s%s",direct,nameED);
 	ierr = IGAWriteVec(igaED,ed0,pathED);CHKERRQ(ierr);	
 //
-*/
 
 /*
 //System for L2 projection of Elastic Energy Density
