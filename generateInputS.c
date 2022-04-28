@@ -30,8 +30,8 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 
 //Generate Mesh and copy cpp to result folder to save for reproduction (check that parameters are the same on file to run)
 
-	//PetscInt b=1743;					//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
-	PetscInt b=1201;
+	PetscInt b=1743;					//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
+	//PetscInt b=1201;
 	PetscReal Lx=80.0;
 	PetscReal Ly=80.0;
 	PetscInt  nx=b;
@@ -102,7 +102,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 
 //General parameters
 	PetscInt N,M, numEls; 	
-	N=0;	M=0;	numEls=1;
+	N=44;	M=0;	numEls=1;
 //
 
 //Creation of Initialization of S
@@ -127,7 +127,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	//nf=(b-2)/2;			//For even values of b 
 	nc=(b+1)/2;			//Half the length of the body, for a disclination on the center
 	//nc=b+1;			//Full length of the body, for something like a through twin
-	numF=14;			//Number of node rows to assign, rows of elements will be one less 
+	numF=22;			//Number of node rows to assign, rows of elements will be one less 
 	dist=0;				//Distance from center to eigenwall (Distance center to center is 2*dist [elements])
 	
 	ierr = PetscCalloc1(4194304,&pointsS);CHKERRQ(ierr);
@@ -141,18 +141,18 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	l=t*(numF-1);
 	
 	g[0]=0.0;								//S_111
-	g[1]=0.0;								//S_112
+	g[1]=tan(5.0/180.0*ConstPi);			//S_112
 	g[2]=0.0;								//S_121
-	g[3]=0.0*-tan(5.0/180.0*ConstPi);			//S_122
+	g[3]=0.0*-tan(5.0/180.0*ConstPi);		//S_122
 	g[4]=0.0;								//S_211
-	g[5]=0.0*tan(5.0/180.0*ConstPi);			//S_212
+	g[5]=0.0*tan(5.0/180.0*ConstPi);		//S_212
 	g[6]=0.0;								//S_221
 	g[7]=0.0;								//S_222
 
 	PetscReal alpha=1.0;													//Alpha linearly interpolates between a pure twin (alpha=0.0) and a pure rotation grain boundary (alpha=1.0)
 
 	//g[0]=0.0;
-	//g[1]=-alpha*0.0;														//S_112
+	//g[1]=-alpha*1.0;														//S_112
 	//g[2]=0.0;
 	//g[3]=-alpha*(-tan(5.0/180.0*ConstPi))+(1.0-alpha)*1.0;				//S_122
 	//g[4]=0.0;
@@ -165,12 +165,12 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	counter=0;
 
 	numH=numF;
-	factor_correccion=1.0/-3.771880432;
-	factor_desplazamiento=7;
+	factor_correccion=1.0;
+	factor_desplazamiento=11;
 
 	for (int i=nf; i<nf+numF; i++)
 	{
-		cord=(nx+1)*i*num_gdl+num_gdl*(b-1)/2-num_gdl*factor_desplazamiento;	//Corregir el valor final según resultados
+		cord=num_gdl*(nx+1)*N+(nx+1)*i*num_gdl+num_gdl*(b-1)/2-num_gdl*factor_desplazamiento;	//Corregir el valor final según resultados
 		for (int j=0; j<nc+factor_desplazamiento+1; j++)
 		{
 			for (int k=0; k<num_gdl; k++)
@@ -181,6 +181,35 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 				if(j<numH)
 				{
 					valoresS[counter]=((double)j)/(numH)*g[k]/l*factor_correccion;	
+				}
+				else
+				{
+					valoresS[counter]=g[k]/l*factor_correccion;		
+				}
+
+				
+				//valoresS[counter+1]=g[k]/l;
+				cord=cord+1;
+				counter=counter+1;
+			}
+		}
+	}
+
+	//Este ciclo genera una frontera igual a la de arriba pero desplazada en N hacia abajo!
+	factor_desplazamiento=11;
+	for (int i=nf; i<nf+numF; i++)
+	{
+		cord=num_gdl*(nx+1)*-N+(nx+1)*i*num_gdl;	//Corregir el valor final según resultados
+		for (int j=0; j<nc+factor_desplazamiento+1; j++)
+		{
+			for (int k=0; k<num_gdl; k++)
+			{
+				pointsS[counter]=cord-num_gdl*(nx+1)*dist;
+				//pointsS[counter+1]=cord-8*(nx+1)*dist;
+				
+				if(j>=(nc+factor_desplazamiento+1-numH))
+				{
+					valoresS[counter]=(1.0-((double)(j-nc-factor_desplazamiento+numH))/(numH))*g[k]/l*factor_correccion;	
 				}
 				else
 				{

@@ -405,7 +405,7 @@ PetscReal delta(PetscInt i, PetscInt j)
 		const PetscReal nu=0.33;
 		const PetscReal mu=1.0;
 		const PetscReal lambda=2.0*mu*nu/(1.0-2.0*nu);
-		const PetscReal eps=mu/100.0;								//Choose later based on whatever Amit says :)
+		const PetscReal eps=0.0*mu/100.0;								//Choose later based on whatever Amit says :)
 
 		PetscReal Chi0[4];																	//Assign chi(t) to a vector
 		PetscReal dChi0[4][2];																//Same for partial derivatives

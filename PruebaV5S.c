@@ -3916,6 +3916,7 @@ int main(int argc, char *argv[]) {
 	ierr = IGAWriteVec(igaZ0,Z0,pathZ0);CHKERRQ(ierr);	
 //
 
+/*
 //System for L2 projection of stress (sym part)
 	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for Stress starting \n\n");
 	T=time(NULL);
@@ -4100,6 +4101,7 @@ int main(int argc, char *argv[]) {
 	sprintf(pathStress,"%s%s",direct,nameStress);
 	ierr = IGAWriteVec(igaStress,sigma0,pathStress);CHKERRQ(ierr);	
 //
+*/
 
 /*
 //System for L2 projection of classic stress (C*Ue)
@@ -4257,6 +4259,7 @@ int main(int argc, char *argv[]) {
 //
 */
 
+/*
 //System for L2 projection of couple stress
 	PetscPrintf(PETSC_COMM_WORLD,"\nSystem for CoupleStress starting \n\n");
 	T=time(NULL);
@@ -4582,6 +4585,7 @@ int main(int argc, char *argv[]) {
 	sprintf(pathED,"%s%s",direct,nameED);
 	ierr = IGAWriteVec(igaED,ed0,pathED);CHKERRQ(ierr);	
 //
+*/
 
 /*
 //System for L2 projection of Elastic Energy Density

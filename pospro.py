@@ -43,8 +43,6 @@ nrb = PetIGA().read(meshName)
 
 # write a function to sample the nrbs object
 
-uniform = lambda U: linspace(U[0], U[-1], 96)
-
 for infile in glob.glob(fileName):
 	# read in solution vector as a numpy array
 	try:
@@ -58,7 +56,9 @@ for infile in glob.glob(fileName):
 	num = numpy.round(numpy.sqrt(sol.size),decimals=0)
 
 	# write a function to sample the nrbs object
-	uniform = lambda U: linspace(U[0], U[-1], 4*num-3)
+	#uniform = lambda U: linspace(U[0], U[-1], 4*num-3)				#4 samples per element
+	uniform = lambda U: linspace(U[0], U[-1], 2*num-1)				#2 samples per element
+	#uniform = lambda U: linspace(U[0], U[-1], num)					#1 sample  per element
 
 	# write a binary VTK file
 	VTK().write(outfile,       		# output filename

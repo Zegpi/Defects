@@ -30,7 +30,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 
 //Generate Mesh and copy cpp to result folder to save for reproduction (check that parameters are the same on file to run)
 
-	PetscInt b=1201;		//581 works, 621 doesn't	//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
+	PetscInt b=1743;		//581 works, 621 doesn't	//Parmeter to choose size of cores, must always be odd, core will be of size 1 unit, rest of the body will be of size b-1 units in each direction
 	PetscReal Lx=80.0;
 	PetscReal Ly=80.0;
 	PetscInt  nx=b;
@@ -100,7 +100,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 
 //General parameters
 	PetscInt N,M, numEls;
-	N=0;	M=0;	numEls=7;
+	N=74;	M=0;	numEls=10;
 //
 
 //Creation of Initialization of Pi
@@ -142,7 +142,7 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 	PetscReal tanTh=tan(5.0/180.0*ConstPi)/(c*t);
 
 	//Borrar esto, es solo para lo que pidio el profesor Hirth
-	//tanTh=tanTh/(N/13.0);
+	tanTh=tanTh/(14*t);
 
 	PetscPrintf(PETSC_COMM_WORLD,"tanTh=%f \n",tanTh);
 
@@ -179,9 +179,9 @@ PetscPrintf(PETSC_COMM_WORLD,"Current time is %02d:%02d:%02d \n",tm.tm_hour,tm.t
 				points[counter+1]=4*center+N*4*(nx+1)+M*4-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4+2;			valores[counter+1]=(tanTh-gamma)/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
 				points[counter+2]=4*center+N*4*(nx+1)+M*4-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4+3;			valores[counter+2]=(-gamma)/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
 
-				points[counter+3]=4*center-N*4*(nx+1)-M*4-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4+1;			valores[counter+3]=-(-tanTh)/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
-				points[counter+4]=4*center-N*4*(nx+1)-M*4-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4+2;			valores[counter+4]=-(tanTh-gamma)/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
-				points[counter+5]=4*center-N*4*(nx+1)-M*4-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4+3;			valores[counter+5]=-(-gamma)/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
+				points[counter+3]=4*center-N*4*(nx+1)-M*4-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4+1;			valores[counter+3]=(-tanTh)/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
+				points[counter+4]=4*center-N*4*(nx+1)-M*4-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4+2;			valores[counter+4]=(tanTh-gamma)/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
+				points[counter+5]=4*center-N*4*(nx+1)-M*4-(numEls-i-1)*4*(nx+1)-(numEls-j-1)*4+3;			valores[counter+5]=(-gamma)/((8*numEls-4)*0.5+4*0.25+(2*numEls-1)*(2*numEls-1));
 				
 				counter=counter+6;
 			}
